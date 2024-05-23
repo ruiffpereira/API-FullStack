@@ -1,0 +1,67 @@
+{
+  "admins": [
+    {
+      "id": "1",
+      "name": "Rui Pereira",
+      "email": "r_f@live-com.pt",
+      "password": "admin"
+    }
+  ],
+  "clientes": [
+    { "id": "1", "name": "rui pereira", "email": "r_f@live-com.pt" },
+    { "id": "2", "name": "rui pereira", "email": "r_f@live-com.pt" },
+    { "id": "3", "name": "rui pereira", "email": "r_f@live-com.pt" }
+  ],
+  "categoria-pecas": [
+    { "id": "1", "categoria": "Pneus" },
+    { "id": "2", "categoria": "Transmissao" },
+    { "id": "3", "categoria": "Carrocaria" }
+  ],
+  "pecas": [
+    {
+      "id": "1",
+      "nome": "volante seat",
+      "preco": "14,00€",
+      "categoria": "1",
+      "quantidade": "10"
+    },
+    {
+      "id": "2",
+      "nome": "volante seat",
+      "preco": "12,00€",
+      "categoria": "2"
+    },
+    {
+      "id": "3",
+      "nome": "volante seat",
+      "preco": "11,00€",
+      "categoria": "3"
+    }
+  ],
+  "encomendas": [
+    {
+      "id": "1",
+      "ClienteID": "1",
+      "nome": "volante seat",
+      "preco": "14,00€",
+      "categoria": "1",
+      "data": "16/11/2024"
+    },
+    {
+      "id": "1",
+      "ClienteID": "1",
+      "nome": "volante seat",
+      "preco": "14,00€",
+      "categoria": "1",
+      "data": "16/11/2024"
+    },
+    {
+      "id": "1",
+      "ClienteID": "1",
+      "nome": "volante seat",
+      "preco": "14,00€",
+      "categoria": "1",
+      "data": "16/11/2024"
+    }
+  ]
+}
