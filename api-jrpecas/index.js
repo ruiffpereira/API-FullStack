@@ -17,6 +17,6 @@ app.get("/", (req, res) => {
   res.sendStatus(200);
 });
 
-app.listen({ port: 3000 }, async () => {
+app.listen({ port: 3001 }, async () => {
   startDB();
 });
