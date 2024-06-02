@@ -1,4 +1,4 @@
-const OrderProductModel = require("../models/subcategories");
+const OrderProductModel = require("../models/orders-products");
 
 class OrderProductController {
   constructor() {}
@@ -21,7 +21,7 @@ class OrderProductController {
 
   async readOrderProduct() {
     try {
-      const result = await OrderProductModel.findAll();
+      const result = await OrderProductModel.findAndCountAll();
       console.log(result);
       return result;
     } catch (error) {

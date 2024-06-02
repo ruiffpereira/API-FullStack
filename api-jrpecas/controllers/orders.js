@@ -1,14 +1,15 @@
-const SubCategoryModel = require("../models/subcategories");
+const OrderModel = require("../models/orders");
 
-class SubCategoryController {
+class OrderController {
   constructor() {}
 
-  async createSubCategory(params) {
+  async createOrder(params) {
     try {
-      const { name, categoryID } = params;
-      const result = await SubCategoryModel.create({
-        name,
-        categoryID
+      const { clientID, orderdate, paid } = params;
+      const result = await OrderModel.create({
+        clientID, 
+        orderdate, 
+        paid
       });
       console.log(result);
       return result;
@@ -18,9 +19,9 @@ class SubCategoryController {
     }
   }
 
-  async readSubCategory() {
+  async readOrder() {
     try {
-      const result = await SubCategoryModel.findAll();
+      const result = await OrderModel.findAndCountAll();
       console.log(result);
       return result;
     } catch (error) {
@@ -29,14 +30,14 @@ class SubCategoryController {
     }
   }
 
-   async updateSubCategory(params) {
+   async updateOrder(params) {
     try {
-      const { categoryID, name, subcategoryID } = params;
-      const result = await SubCategoryModel.update(
-        { name, categoryID },
+      const { orderID, clientID, orderdate, paid } = params;
+      const result = await OrderModel.update(
+        { clientID, orderdate, paid },
         {
           where: {
-            subcategoryID,
+            orderID,
           },
         }
       );
@@ -48,10 +49,10 @@ class SubCategoryController {
     }
   }
 
-  async deleteSubCategory(params) {
-    const { subcategoryID } = params;
+  async deleteOrder(params) {
+    const { orderID } = params;
     try {
-      const result = await SubCategoryModel.destroy({ where: { subcategoryID } });
+      const result = await OrderModel.destroy({ where: { orderID } });
       if (result == 0) {
         console.log(result);
         return false;
@@ -66,4 +67,4 @@ class SubCategoryController {
   }
 }
 
-module.exports = SubCategoryController;
+module.exports = OrderController;

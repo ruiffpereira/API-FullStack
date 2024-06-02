@@ -22,7 +22,7 @@ class ClientController {
 
   async readClient() {
     try {
-      const result = await ClientModel.findAll();
+      const result = await ClientModel.findAndCountAll();
       console.log(result);
       return result;
     } catch (error) {

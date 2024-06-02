@@ -25,7 +25,7 @@ class ProductController {
 
   async readProduct() {
     try {
-      const result = await ProductModel.findAll();
+      const result = await ProductModel.findAndCountAll();
       console.log(result);
       return result;
     } catch (error) {

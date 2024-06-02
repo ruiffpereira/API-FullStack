@@ -1,15 +1,13 @@
-const OrderModel = require("../models/orders");
+const CategoryModel = require("../models/categories");
 
-class OrderController {
+class CategoryController {
   constructor() {}
 
-  async createOrder(params) {
+  async createCategory(params) {
     try {
-      const { clientID, orderdate, paid } = params;
-      const result = await OrderModel.create({
-        clientID, 
-        orderdate, 
-        paid
+      const { name } = params;
+      const result = await CategoryModel.create({
+        name,
       });
       console.log(result);
       return result;
@@ -19,9 +17,9 @@ class OrderController {
     }
   }
 
-  async readOrder() {
+  async readCategory() {
     try {
-      const result = await OrderModel.findAll();
+      const result = await CategoryModel.findAndCountAll();
       console.log(result);
       return result;
     } catch (error) {
@@ -30,14 +28,14 @@ class OrderController {
     }
   }
 
-   async updateOrder(params) {
+   async updateCategory(params) {
     try {
-      const { orderID, clientID, orderdate, paid } = params;
-      const result = await OrderModel.update(
-        { clientID, orderdate, paid },
+      const { categoryID, name } = params;
+      const result = await CategoryModel.update(
+        { name },
         {
           where: {
-            orderID,
+            categoryID,
           },
         }
       );
@@ -49,10 +47,10 @@ class OrderController {
     }
   }
 
-  async deleteOrder(params) {
-    const { orderID } = params;
+  async deleteCategory(params) {
+    const { categoryID } = params;
     try {
-      const result = await OrderModel.destroy({ where: { orderID } });
+      const result = await CategoryModel.destroy({ where: { categoryID } });
       if (result == 0) {
         console.log(result);
         return false;
@@ -67,4 +65,4 @@ class OrderController {
   }
 }
 
-module.exports = OrderController;
+module.exports = CategoryController;

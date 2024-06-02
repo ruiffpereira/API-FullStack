@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("./index");
+
 const Orders = sequelize.define(
   "Orders",
   {
@@ -7,7 +8,6 @@ const Orders = sequelize.define(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-      allowNull: false,
       Validate: {
         notEmpty: true,
       },

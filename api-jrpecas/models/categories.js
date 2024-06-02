@@ -1,26 +1,18 @@
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("./index");
 
-const Subcategories = sequelize.define(
-  "Subcategories",
+const Categories = sequelize.define(
+  "Categories",
   {
-    subcategoryID: {
+    categoryID: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-      allowNull: false,
       Validate: {
         notEmpty: true,
       },
     },
     name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      Validate: {
-        notEmpty: true,
-      },
-    },
-    categoryID: {
       type: DataTypes.STRING,
       allowNull: false,
       Validate: {
@@ -33,4 +25,4 @@ const Subcategories = sequelize.define(
   }
 );
 
-module.exports = Subcategories;
+module.exports = Categories;

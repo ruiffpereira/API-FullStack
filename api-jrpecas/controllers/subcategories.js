@@ -1,13 +1,14 @@
-const CategoryModel = require("../models/categories");
+const SubCategoryModel = require("../models/subcategories");
 
-class CategoryController {
+class SubCategoryController {
   constructor() {}
 
-  async createCategory(params) {
+  async createSubCategory(params) {
     try {
-      const { name } = params;
-      const result = await CategoryModel.create({
+      const { name, categoryID } = params;
+      const result = await SubCategoryModel.create({
         name,
+        categoryID
       });
       console.log(result);
       return result;
@@ -17,9 +18,9 @@ class CategoryController {
     }
   }
 
-  async readCategory() {
+  async readSubCategory() {
     try {
-      const result = await CategoryModel.findAll();
+      const result = await SubCategoryModel.findAndCountAll();
       console.log(result);
       return result;
     } catch (error) {
@@ -28,14 +29,14 @@ class CategoryController {
     }
   }
 
-   async updateCategory(params) {
+   async updateSubCategory(params) {
     try {
-      const { categoryID, name } = params;
-      const result = await CategoryModel.update(
-        { name },
+      const { categoryID, name, subcategoryID } = params;
+      const result = await SubCategoryModel.update(
+        { name, categoryID },
         {
           where: {
-            categoryID,
+            subcategoryID,
           },
         }
       );
@@ -47,10 +48,10 @@ class CategoryController {
     }
   }
 
-  async deleteCategory(params) {
-    const { categoryID } = params;
+  async deleteSubCategory(params) {
+    const { subcategoryID } = params;
     try {
-      const result = await CategoryModel.destroy({ where: { categoryID } });
+      const result = await SubCategoryModel.destroy({ where: { subcategoryID } });
       if (result == 0) {
         console.log(result);
         return false;
@@ -65,4 +66,4 @@ class CategoryController {
   }
 }
 
-module.exports = CategoryController;
+module.exports = SubCategoryController;
