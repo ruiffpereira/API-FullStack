@@ -6,7 +6,6 @@ const productController = new ProductController();
 
 // Create Product
 router.post("/product", async (req, res) => {
-  console.log("postproduct");
   const params = req.body;
   const data = await productController.createProduct(params);
   res.send(JSON.stringify(data));
@@ -15,7 +14,6 @@ router.post("/product", async (req, res) => {
 // Get Products
 router.get("/product", async (req, res) => {
   const params = req.body;
-  console.log("getproduct");
   const data = await productController.readProduct(params);
   res.send(JSON.stringify(data));
 });

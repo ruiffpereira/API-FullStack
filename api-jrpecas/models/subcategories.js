@@ -6,6 +6,7 @@ const Subcategories = sequelize.define(
   {
     subcategoryID: {
       type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
       allowNull: false,
       Validate: {

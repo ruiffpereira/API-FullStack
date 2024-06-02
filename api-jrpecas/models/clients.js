@@ -6,6 +6,7 @@ const Clients = sequelize.define(
   {
     clientID: {
       type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
       allowNull: false,
       Validate: {
