@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment } from 'react'
 function Settings() {
   return (
     <Fragment>
@@ -6,7 +6,6 @@ function Settings() {
         <div>
           <div className="flex gap-2 items-center">
             <div className="relative">
-              
               <span className="absolute right-0 bottom-0 text-sm">
                 editphotp
               </span>
@@ -16,7 +15,6 @@ function Settings() {
               <div>Portugal</div>
             </div>
           </div>
-          
         </div>
         <div className="flex flex-col gap-2">
           <div className="">Nome</div>
@@ -36,7 +34,7 @@ function Settings() {
         </div>
       </div>
     </Fragment>
-  );
+  )
 }
 
-export default Settings;
+export default Settings

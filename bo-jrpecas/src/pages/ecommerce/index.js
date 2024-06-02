@@ -1,41 +1,35 @@
-import { Fragment } from "react";
-import Orders from "./orders";
-import Products from "./products";
-import { redirect } from "next/dist/server/api-utils";
-import { notFound } from "next/navigation";
+import { Fragment } from 'react'
+// import Orders from './orders'
+import Products from './products'
+import { getProducts } from '../api/products'
 
-function Ecommerce(props) {
+function Ecommerce({ products, error }) {
+  if (error) {
+    return <div>Error: {error}</div>
+  }
+
+  if (!products) {
+    return <div>Loading...</div>
+  }
   return (
     <Fragment>
       {/* <Orders orders={props.orders}/> */}
-      <Products products={props.products}/>
+      <Products product={products} />
     </Fragment>
-  );
+  )
 }
 
-export default Ecommerce;
+export default Ecommerce
 
 export async function getServerSideProps() {
-
+  let products = null
+  let error = null
   try {
-    const res = await fetch('http://localhost:3001/products');
-    const products = await res.json();
-    return {
-      props: { products },
-    };
-  } catch (error) {
-    console.log("error: " + error);
-
-    return {
-      notFound: true,
-    }
+    products = await getProducts()
+  } catch (err) {
+    error = err.message
   }
-  
-
- 
-
-  // const res1 = await fetch('http://localhost:3001/product');
-  // const products = await res1.json();
-
-  
+  return {
+    props: { products, error },
+  }
 }
