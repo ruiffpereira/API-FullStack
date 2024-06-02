@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { FaEdit, FaSave } from 'react-icons/fa';
 
-function Encomendas(props) {
-  const [data, setData] = useState(props.encomendas);
+function Orders(props) {
+  const [data, setData] = useState(props.orders);
 
   return (
     <div className="container mx-auto p-4">
@@ -34,6 +34,6 @@ function Encomendas(props) {
   );
 };
 
-export default Encomendas;
+export default Orders;
 
 

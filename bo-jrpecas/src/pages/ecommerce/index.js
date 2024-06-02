@@ -1,12 +1,14 @@
 import { Fragment } from "react";
-import Encomendas from "./encomendas";
-import Pecas from "./pecas";
+import Orders from "./orders";
+import Products from "./products";
+import { redirect } from "next/dist/server/api-utils";
+import { notFound } from "next/navigation";
 
 function Ecommerce(props) {
   return (
     <Fragment>
-      <Encomendas encomendas={props.encomendas}/>
-      <Pecas pecas={props.pecas}/>
+      {/* <Orders orders={props.orders}/> */}
+      <Products products={props.products}/>
     </Fragment>
   );
 }
@@ -14,13 +16,26 @@ function Ecommerce(props) {
 export default Ecommerce;
 
 export async function getServerSideProps() {
-  const res = await fetch('http://localhost:3333/encomendas');
-  const encomendas = await res.json();
 
-  const res1 = await fetch('http://localhost:3333/pecas');
-  const pecas = await res1.json();
+  try {
+    const res = await fetch('http://localhost:3001/products');
+    const products = await res.json();
+    return {
+      props: { products },
+    };
+  } catch (error) {
+    console.log("error: " + error);
 
-  return {
-    props: { encomendas, pecas },
-  };
+    return {
+      notFound: true,
+    }
+  }
+  
+
+ 
+
+  // const res1 = await fetch('http://localhost:3001/product');
+  // const products = await res1.json();
+
+  
 }

@@ -1,6 +1,6 @@
 import { Fragment, useState } from "react";
 
-function ClienteID() {
+function ClientID() {
   return (
     <Fragment>
       <h1>Nome do cliente</h1>
@@ -8,4 +8,4 @@ function ClienteID() {
   );
 }
 
-export default ClienteID;
+export default ClientID;

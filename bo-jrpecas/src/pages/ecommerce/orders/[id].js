@@ -1,8 +1,5 @@
 import { Fragment } from "react";
-function DetalhesEncomenda(props) {
-
-
-
+function OrderDetails(props) {
   return (
     <Fragment>
       <div>
@@ -12,4 +9,4 @@ function DetalhesEncomenda(props) {
   );
 }
 
-export default DetalhesEncomenda;
+export default OrderDetails;
