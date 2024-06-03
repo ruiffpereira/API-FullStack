@@ -17,7 +17,7 @@ export async function getProducts() {
     const data = await response.json()
     return data
   } catch (error) {
-    console.error('Failed to fetcshsss data:', error)
+    console.error('Failed to fecth data:', error)
     throw error
   }
 }

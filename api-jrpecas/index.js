@@ -2,7 +2,6 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
 const { startDB } = require("./models");
-// const { user, service, schedules } = require("./routes");
 const { products, clients } = require("./routes");
 
 app.use(bodyParser.urlencoded({ extended: false }));
