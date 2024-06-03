@@ -1,14 +1,13 @@
 {
-  "name": "my-backoffixe",
+  "name": "bo-jrpecas",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "server" :"cd .. && cd api-jrpecas/ && npm run dev",
-    "test": "concurrently \"next dev\" \"npm run server\""
+    "dev": "concurrently -n 'client, server' \"next dev\" \"npm run server\""
   },
   "dependencies": {
     "@headlessui/react": "^2.0.4",
