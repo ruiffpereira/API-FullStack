@@ -15,6 +15,7 @@ router.post("/client", async (req, res) => {
 router.get("/client", async (req, res) => {
   const params = req.body;
   const data = await clientController.readClient(params);
+  console.log("api: " + JSON.stringify(data))
   res.send(JSON.stringify(data));
 });
 

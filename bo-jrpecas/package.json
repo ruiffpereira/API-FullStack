@@ -3,11 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "server" :"cd .. && cd api-jrpecas/ && npm run dev",
-    "dev": "concurrently -n 'client, server' \"next dev\" \"npm run server\""
+    "start": "next start"
   },
   "dependencies": {
     "@headlessui/react": "^2.0.4",

@@ -1,8 +1,8 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 
-export async function getProducts() {
+export async function getOrders() {
   try {
-    const response = await fetch('http://localhost:3001/product', {
+    const response = await fetch('http://localhost:3001/order', {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -13,7 +13,6 @@ export async function getProducts() {
     if (!response.ok) {
       throw new Error(`Error: ${response.status}`)
     }
-
     const data = await response.json()
     return data
   } catch (error) {

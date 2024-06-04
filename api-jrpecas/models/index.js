@@ -13,7 +13,7 @@ const sequelize = new Sequelize(
 
 const startDB = async () => {
   try {
-    await sequelize.sync({ force: true });
+    //await sequelize.sync({ force: true });
     await sequelize.authenticate();
     console.log("Connection has been established successfully.");
 

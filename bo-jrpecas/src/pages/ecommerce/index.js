@@ -25,7 +25,8 @@ export async function getServerSideProps() {
   let products = null
   let error = null
   try {
-    products = await getProducts()
+    const data = await getProducts()
+    products = JSON.parse(JSON.stringify(data))
   } catch (err) {
     error = err.message
   }

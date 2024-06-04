@@ -1,15 +1,13 @@
 import { Fragment } from 'react'
 import Link from 'next/link'
-import { getClients } from '../api/clients'
 
-function Dashboard({ clients, error }) {
-  if (error) {
-    return <div>Error: {error}</div>
-  }
+function Dashboard({ data }) {
+  const { clients, orders } = data
 
   if (!clients) {
     return <div>Loading...</div>
   }
+
   return (
     <Fragment>
       <div className="flex flex-col gap-4">
@@ -19,7 +17,7 @@ function Dashboard({ clients, error }) {
             className="flex flex-col gap-2 border rounded-sm border-black p-4 hover:bg-slate-300 cursor-pointer transition-all"
           >
             <h1 className="text-xs">Encomendas do Mes</h1>
-            <p className="text-slate">42</p>
+            <p className="text-slate">{orders.count}</p>
           </Link>
           <Link
             href="/clientes"
@@ -35,16 +33,3 @@ function Dashboard({ clients, error }) {
 }
 
 export default Dashboard
-
-export async function getServerSideProps() {
-  let clients = null
-  let error = null
-  try {
-    clients = await getClients()
-  } catch (err) {
-    error = err.message
-  }
-  return {
-    props: { clients, error },
-  }
-}
