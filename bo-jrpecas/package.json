@@ -8,10 +8,12 @@
     "start": "next start"
   },
   "dependencies": {
+    "@ant-design/cssinjs": "^1.20.0",
     "@headlessui/react": "^2.0.4",
     "@iconscout/react-unicons": "^2.0.2",
     "@radix-ui/react-avatar": "^1.0.4",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
+    "antd": "^5.18.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "json-server": "^1.0.0-alpha.23",

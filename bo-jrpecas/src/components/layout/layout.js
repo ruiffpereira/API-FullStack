@@ -1,7 +1,6 @@
-import { Fragment } from "react";
-import Menu from "./menu";
-import TopBar from "./topbar";
-import Body from "./body";
+import { Fragment } from 'react'
+import Menu from './menu'
+import TopBar from './topbar'
 
 function Layout(props) {
   return (
@@ -16,7 +15,7 @@ function Layout(props) {
         </div>
       </div>
     </Fragment>
-  );
+  )
 }
 
-export default Layout;
+export default Layout

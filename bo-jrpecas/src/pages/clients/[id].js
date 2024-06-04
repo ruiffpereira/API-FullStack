@@ -1,11 +1,10 @@
-import { Fragment, useState } from "react";
-
-function ClientID() {
-  return (
-    <Fragment>
-      <h1>Nome do cliente</h1>
-    </Fragment>
-  );
+function Client(props) {
+  return <h1>{props.name.name}</h1>
 }
 
-export default ClientID;
+export default Client
+
+export async function getServerSideProps(context) {
+  const name = context.query
+  return { props: { name } }
+}

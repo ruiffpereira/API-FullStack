@@ -20,7 +20,7 @@ function Dashboard({ data }) {
             <p className="text-slate">{orders.count}</p>
           </Link>
           <Link
-            href="/clientes"
+            href="/clients"
             className="flex flex-col gap-2 border rounded-sm border-black p-4 hover:bg-slate-300 cursor-pointer transition-all"
           >
             <h1 className="text-xs">Numero de Clientes</h1>

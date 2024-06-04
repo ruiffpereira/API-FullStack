@@ -1,29 +1,66 @@
-import { Fragment } from "react";
-import Link from "next/link";
-import UilEdit from "@iconscout/react-unicons/icons/uil-edit";
-import { useState } from 'react';
+import { Fragment } from 'react'
+import { getClients } from '../api/clients'
+import { Table } from 'antd'
+import Link from 'next/link'
 
-function Clients(props) {
-
-  const [data, setData] = useState(props.initialData);
-
+function Clients({ clients }) {
+  const columns = [
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      test: '1',
+      render: (text, record) => (
+        <Link
+          href={{
+            pathname: 'clients/' + record.clientID,
+            query: record,
+          }}
+        >
+          {text}
+        </Link>
+      ),
+    },
+    {
+      title: 'Photo',
+      dataIndex: 'clientID',
+    },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+    },
+    {
+      title: 'Contact',
+      dataIndex: 'contact',
+    },
+    // {
+    //   title: 'Action',
+    //   key: 'action',
+    //   render: () => <Link href={'clients/'}>Historico</Link>,
+    // },
+  ]
   return (
     <Fragment>
       <div>
         <h1 className="text-4xl font-bold mb-4">Lista de Clientes</h1>
+        <Table columns={columns} dataSource={clients.rows} />
       </div>
     </Fragment>
-  );
+  )
 }
 
-export default Clients;
-
+export default Clients
 
 export async function getServerSideProps() {
-  const res = await fetch('http://localhost:3000/clients');
-  const initialData = await res.json();
+  try {
+    const [clients] = await Promise.all([getClients()])
 
-  return {
-    props: { initialData },
-  };
+    return {
+      props: { clients },
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error)
+    return {
+      props: { error },
+    }
+  }
 }
