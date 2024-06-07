@@ -1,4 +1,4 @@
-const OrderProductModel = require("../models/orders-products");
+const OrderProductModel = require("../models/orderProduct");
 
 class OrderProductController {
   constructor() {}

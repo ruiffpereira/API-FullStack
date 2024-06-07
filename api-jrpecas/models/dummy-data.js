@@ -1,27 +1,3 @@
-const { Sequelize , DataTypes } = require("sequelize");
-require("dotenv").config();
-const applyAssociations = require('./associations');
-
-const sequelize = new Sequelize(
-  process.env.DATABASE_NAME,
-  process.env.DATABASE_USER,
-  process.env.DATABASE_PASSWORD,
-  {
-    host: process.env.DATABASE_URL,
-    dialect: process.env.DATABASE_TYPE,
-  }
-);
-
-const Customer = require('./customer')(sequelize, DataTypes);
-const Category = require('./category')(sequelize, DataTypes);
-const Subcategory = require('./subcategory')(sequelize, DataTypes);
-const Product = require('./product')(sequelize, DataTypes);
-const Order = require('./order')(sequelize, DataTypes);
-const OrderProduct = require('./orderProduct')(sequelize, DataTypes);
-const User = require('./user')(sequelize, DataTypes);
-const Permission = require('./permission')(sequelize, DataTypes);
-const UserPermission = require('./userPermission')(sequelize, DataTypes);
-
 const seedDatabase = async () => {
   try {
 
@@ -68,40 +44,11 @@ const seedDatabase = async () => {
     const permission1 = await Permission.create({ name: 'ADMIN', description: 'Administrator permission' });
     const permission2 = await Permission.create({ name: 'USER', description: 'User permission' });
 
-    await UserPermission.create({ userId: user1.userId, permissionId: permission1.permissionId });
-    await UserPermission.create({ userId: user2.userId, permissionId: permission2.permissionId });
+    await UserPermission.create({ userId: user1.id, permissionId: permission1.id });
+    await UserPermission.create({ userId: user2.id, permissionId: permission2.id });
 
     console.log('Database seeded successfully');
   } catch (error) {
     console.error('Error seeding the database:', error);
   } 
 };
-
-const startDB = async () => {
-  try {
-    // await sequelize.sync({ force: true });
-    //await sequelize.sync();
-    // await seedDatabase();
-    
-    applyAssociations(sequelize);
-    await sequelize.authenticate();
-    console.log("Connection has been established successfully.");
-
-  } catch (error) {
-    console.error("Unable to connect to the database:", error);
-  }
-};
-
-module.exports = { 
-  sequelize,
-  Category,
-  Subcategory,
-  Product,
-  Order,
-  OrderProduct,
-  Customer,
-  User,
-  Permission,
-  UserPermission,
-  startDB
- };

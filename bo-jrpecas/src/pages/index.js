@@ -1,7 +1,7 @@
 import { Fragment } from 'react'
 import Dashboard from './dashboard'
-import { getClients } from './api/clients'
-import { getOrders } from './api/orders'
+import { getAllCustomers } from './api/customer'
+import { getAllOrders } from './api/order'
 
 export default function Home({ clients, orders }) {
   return (
@@ -13,7 +13,11 @@ export default function Home({ clients, orders }) {
 
 export async function getServerSideProps() {
   try {
-    const [clients, orders] = await Promise.all([getClients(), getOrders()])
+    const [clients, orders] = await Promise.all([
+      getAllCustomers(),
+      getAllOrders(),
+    ])
+    console.log(clients)
     return {
       props: { clients, orders },
     }

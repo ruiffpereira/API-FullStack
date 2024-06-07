@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { getClients } from '../api/clients'
+import { getClients } from '../api/customer'
 import { Table } from 'antd'
 import Link from 'next/link'
 

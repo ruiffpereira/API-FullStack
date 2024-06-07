@@ -1,10 +1,6 @@
-const { DataTypes } = require("sequelize");
-const { sequelize } = require("./index");
-
-const Categories = sequelize.define(
-  "Categories",
-  {
-    categoryID: {
+module.exports = (sequelize, DataTypes) => {
+  const Subcategory = sequelize.define('Subcategory', {
+    subcategoryId: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
@@ -19,10 +15,14 @@ const Categories = sequelize.define(
         notEmpty: true,
       },
     },
+    categoryId: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      allowNull: false,
+    },
   },
   {
     paranoid: true,
-  }
-);
-
-module.exports = Categories;
+  })
+  return Subcategory;
+};

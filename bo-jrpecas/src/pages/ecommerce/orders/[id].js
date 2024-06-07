@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment } from 'react'
 function OrderDetails(props) {
   return (
     <Fragment>
@@ -6,7 +6,7 @@ function OrderDetails(props) {
         <h1 className="text-4xl font-bold mb-4">Detalhes da Encomenda</h1>
       </div>
     </Fragment>
-  );
+  )
 }
 
-export default OrderDetails;
+export default OrderDetails

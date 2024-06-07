@@ -1,10 +1,10 @@
 // components/TableWithEdit.js
-import Link from 'next/link';
-import { useState } from 'react';
-import { FaEdit, FaSave } from 'react-icons/fa';
+import Link from 'next/link'
+import { useState } from 'react'
+import { FaEdit, FaSave } from 'react-icons/fa'
 
 function Orders(props) {
-  const [data, setData] = useState(props.orders);
+  const [data, setData] = useState(props.orders)
 
   return (
     <div className="container mx-auto p-4">
@@ -22,7 +22,9 @@ function Orders(props) {
           {data.map((row) => (
             <tr key={row.id}>
               <td className="py-2 px-4 border-b">{row.ClienteID}</td>
-              <td className="py-2 px-4 border-b"><Link href={`/pecas/${row.id}`}>{row.peca}</Link></td>
+              <td className="py-2 px-4 border-b">
+                <Link href={`/pecas/${row.id}`}>{row.peca}</Link>
+              </td>
               <td className="py-2 px-4 border-b">{row.valor}</td>
               <td className="py-2 px-4 border-b">{row.data}</td>
               <td className="py-2 px-4 border-b">{row.estado}</td>
@@ -31,9 +33,7 @@ function Orders(props) {
         </tbody>
       </table>
     </div>
-  );
-};
+  )
+}
 
-export default Orders;
-
-
+export default Orders

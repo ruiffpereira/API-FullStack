@@ -1,7 +1,7 @@
 import { Fragment } from 'react'
-import { getOrders } from '../api/orders'
+// import { getOrders } from '../api/orders'
 
-function Client({ client, ordersfromclient }) {
+function Client({ client }) {
   return (
     <Fragment>
       <div className="max-w-sm bg-white rounded-lg shadow-md overflow-hidden mb-2">
@@ -29,9 +29,9 @@ export default Client
 export async function getServerSideProps(context) {
   try {
     const client = context.query
-    const [ordersfromclient] = await Promise.all([getOrders()])
+    // const [ordersfromclient] = await Promise.all([getOrders()])
     return {
-      props: { ordersfromclient, client },
+      props: { client },
     }
   } catch (error) {
     console.error('Error fetching data:', error)
