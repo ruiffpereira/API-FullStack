@@ -1,9 +1,9 @@
 import { Fragment } from 'react'
-import { getClients } from '../api/customer'
+import { getAllCustomers } from '@/pages/api/customer'
 import { Table } from 'antd'
 import Link from 'next/link'
 
-function Clients({ clients }) {
+function Clients({ customers }) {
   const columns = [
     {
       title: 'Name',
@@ -12,8 +12,7 @@ function Clients({ clients }) {
       render: (text, record) => (
         <Link
           href={{
-            pathname: 'clients/' + record.clientID,
-            query: record,
+            pathname: 'customers/' + record.customerId,
           }}
         >
           {text}
@@ -38,11 +37,12 @@ function Clients({ clients }) {
     //   render: () => <Link href={'clients/'}>Historico</Link>,
     // },
   ]
+
   return (
     <Fragment>
       <div>
         <h1 className="text-4xl font-bold mb-4">Lista de Clientes</h1>
-        <Table columns={columns} dataSource={clients.rows} />
+        <Table columns={columns} dataSource={customers.rows} />
       </div>
     </Fragment>
   )
@@ -52,10 +52,10 @@ export default Clients
 
 export async function getServerSideProps() {
   try {
-    const [clients] = await Promise.all([getClients()])
+    const customers = await getAllCustomers()
 
     return {
-      props: { clients },
+      props: { customers },
     }
   } catch (error) {
     console.error('Error fetching data:', error)

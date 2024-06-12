@@ -1,9 +1,10 @@
 import { Fragment } from 'react'
-// import Orders from './orders'
 import Products from './products'
-import { getProducts } from '../api/product'
+import { getAllProducts } from '../api/product'
+import { getAllOrders } from '../api/order'
+import Orders from './orders'
 
-function Ecommerce({ products, error }) {
+function Ecommerce({ products, orders, error }) {
   if (error) {
     return <div>Error: {error}</div>
   }
@@ -15,6 +16,7 @@ function Ecommerce({ products, error }) {
   return (
     <Fragment>
       <Products products={products} />
+      <Orders orders={orders} />
     </Fragment>
   )
 }
@@ -23,9 +25,11 @@ export default Ecommerce
 
 export async function getServerSideProps() {
   try {
-    const products = await getProducts()
+    const products = await getAllProducts()
+    const orders = await getAllOrders()
+    // console.log(orders)
     return {
-      props: { products },
+      props: { products, orders },
     }
   } catch (error) {
     console.error('Error fetching data:', error)

@@ -10,11 +10,10 @@ function AddProduct({ products }) {
       render: (text, record) => (
         <Link
           href={{
-            pathname: 'ecommerce/products/' + record.productID,
-            query: record,
+            pathname: '/ecommerce/products/' + record.productId,
           }}
         >
-          {text}
+          {record.name}
         </Link>
       ),
     },
@@ -36,7 +35,8 @@ function AddProduct({ products }) {
     },
     {
       title: 'Category',
-      dataIndex: 'subcategoryID',
+      dataIndex: 'categoryname',
+      render: (text, record) => record.category.name,
     },
     {
       title: 'Photos',

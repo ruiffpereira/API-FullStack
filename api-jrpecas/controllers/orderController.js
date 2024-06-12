@@ -1,8 +1,12 @@
-const { Order } = require('../models');
+const { Order , Customer, OrderProduct, Product } = require('../models');
 
 const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.findAndCountAll();
+    const orders = await Order.findAndCountAll({
+      include: [
+        { model: Customer, as: 'customer' }
+      ]
+    });
     res.json(orders);
   } catch (error) {
     console.error('Error fetching orders:', error);
@@ -12,7 +16,35 @@ const getAllOrders = async (req, res) => {
 
 const getOrderById = async (req, res) => {
   try {
-    const order = await Order.findByPk(req.params.id);
+    const order = await Order.findAndCountAll({
+      where:{
+        orderId : req.params.id
+      },
+      include: [
+        { model: Customer, as: 'customer' },
+        { model: Product, as: 'products' },
+
+      ]
+    });
+    if (order) {
+      res.json(order);
+    } else {
+      res.status(404).json({ error: 'Order not found' });
+    }
+  } catch (error) {
+    console.error('Error fetching order:', error);
+    res.status(500).json({ error: 'An error occurred while fetching the order' });
+  }
+};
+
+const getOrderByCustomerId = async (req, res) => {
+  try {
+    const order = await Order.findAll({
+      where: { customerId: req.params.id },
+      include: [
+        { model: Customer , as: 'customer'}
+      ]
+    });
     if (order) {
       res.json(order);
     } else {
@@ -73,4 +105,5 @@ module.exports = {
   createOrder,
   updateOrder,
   deleteOrder,
+  getOrderByCustomerId
 };

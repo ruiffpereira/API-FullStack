@@ -8,7 +8,7 @@ router.get('/', userController.getAllUsers);
 // Rota para criar um novo usuário
 router.post('/', userController.createUser);
 
-// Rota para obter um usuário pelo ID
-router.get('/:id', userController.getUserById);
+// Rota para obter um usuário pelo Email
+router.get('/:id', userController.getUserByEmail);
 
 module.exports = router;

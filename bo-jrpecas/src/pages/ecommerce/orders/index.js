@@ -1,38 +1,61 @@
 // components/TableWithEdit.js
 import Link from 'next/link'
-import { useState } from 'react'
-import { FaEdit, FaSave } from 'react-icons/fa'
+import { Fragment } from 'react'
+import { Table } from 'antd'
 
-function Orders(props) {
-  const [data, setData] = useState(props.orders)
+function Orders({ orders }) {
+  console.log(orders)
+  const columns = [
+    {
+      title: 'Referencia Encomenda',
+      dataIndex: 'orderId',
+      render: (text, record) => (
+        <Link
+          href={{
+            pathname: '/ecommerce/orders/' + record.orderId,
+          }}
+        >
+          {record.orderId}
+        </Link>
+      ),
+    },
+    {
+      title: 'Clients',
+      dataIndex: 'Customer',
+      render: (text, record) => (
+        <Link
+          href={{
+            pathname: 'customers/' + record.customer.customerId,
+          }}
+        >
+          {record.customer.name}
+        </Link>
+      ),
+    },
+    {
+      title: 'TotalPrice',
+      dataIndex: 'clientID',
+      render: () => <div>99€</div>,
+    },
+    {
+      title: 'Quantidade',
+      dataIndex: 'amount',
+      render: () => <div>3</div>,
+    },
+    {
+      title: 'Morada',
+      dataIndex: 'contact',
+      render: () => <div>Rua das Cumieiras</div>,
+    },
+  ]
 
   return (
-    <div className="container mx-auto p-4">
-      <table className="min-w-full bg-white border border-gray-200">
-        <thead>
-          <tr>
-            <th className="py-2 px-4 border-b">Cliente</th>
-            <th className="py-2 px-4 border-b">Peça</th>
-            <th className="py-2 px-4 border-b">Valor</th>
-            <th className="py-2 px-4 border-b">Data</th>
-            <th className="py-2 px-4 border-b">Estado de Pagamento</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row) => (
-            <tr key={row.id}>
-              <td className="py-2 px-4 border-b">{row.ClienteID}</td>
-              <td className="py-2 px-4 border-b">
-                <Link href={`/pecas/${row.id}`}>{row.peca}</Link>
-              </td>
-              <td className="py-2 px-4 border-b">{row.valor}</td>
-              <td className="py-2 px-4 border-b">{row.data}</td>
-              <td className="py-2 px-4 border-b">{row.estado}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Fragment>
+      <div>
+        <h1 className="text-4xl font-bold mb-4">Lista de Encomendas</h1>
+        <Table columns={columns} dataSource={orders.rows} />
+      </div>
+    </Fragment>
   )
 }
 

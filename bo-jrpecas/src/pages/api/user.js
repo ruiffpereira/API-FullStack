@@ -28,7 +28,7 @@ export const createUser = async (userData) => {
   }
 }
 
-export const getUserById = async (userId) => {
+export const getUserByEmail = async (userId) => {
   try {
     const response = await fetch(`${BASE_URL}/users/${userId}`)
     const data = await response.json()

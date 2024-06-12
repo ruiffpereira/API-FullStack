@@ -1,74 +1,44 @@
-const OrderProductModel = require("../models/orderProduct");
+const { Order , Product, OrderProduct } = require('../models');
 
-class OrderProductController {
-  constructor() {}
-
-  async createOrderProduct(params) {
-    try {
-      const { productID, orderID, amount } = params;
-      const result = await OrderProductModel.create({
-        productID, 
-        orderID,
-        amount
-      });
-      console.log(result);
-      return result;
-    } catch (error) {
-      console.log(error);
-      return error;
+const getOrderByCustomerId = async (req, res) => {
+  try {
+    const order = await OrderProduct.findAll({
+      where: { customerId: req.params.id },
+      include: [
+        { model: Order, as: 'orders' },
+      ]
+    });
+    if (order) {
+      res.json(order);
+    } else {
+      res.status(404).json({ error: 'Order not found' });
     }
+  } catch (error) {
+    console.error('Error fetching order:', error);
+    res.status(500).json({ error: 'An error occurred while fetching the order' });
   }
+};
 
-  async readOrderProduct() {
-    try {
-      const result = await OrderProductModel.findAndCountAll();
-      console.log(result);
-      return result;
-    } catch (error) {
-      console.log(error);
-      return error;
+const getOrderByOrderId = async (req, res) => {
+  try {
+    const order = await OrderProduct.findAll({
+      where: { orderId: req.params.id },
+      include: [
+        { model: Product, as: 'product' },
+      ]
+    });
+    if (order) {
+      res.json(order);
+    } else {
+      res.status(404).json({ error: 'Order not found' });
     }
+  } catch (error) {
+    console.error('Error fetching order:', error);
+    res.status(500).json({ error: 'An error occurred while fetching the order' });
   }
+};
 
-   async updateOrderProduct(params) {
-    try {
-      const { productID, orderID, amount } = params;
-      const result = await OrderProductModel.update(
-        { productID,
-          orderID,
-          amount 
-        },
-        {
-          where: {
-            productID,
-            orderID
-          },
-        }
-      );
-      console.log(result);
-      return result;
-    } catch (error) {
-      console.log(error);
-      return error;
-    }
-  }
-
-  async deleteOrderProduct(params) {
-    const { productID, orderID } = params;
-    try {
-      const result = await OrderProductModel.destroy({ where: { productID, orderID  } });
-      if (result == 0) {
-        console.log(result);
-        return false;
-      } else {
-        console.log(result);
-        return true;
-      }
-    } catch (error) {
-      console.log(error);
-      return error;
-    }
-  }
-}
-
-module.exports = OrderProductController;
+module.exports = {
+  getOrderByCustomerId,
+  getOrderByOrderId
+};

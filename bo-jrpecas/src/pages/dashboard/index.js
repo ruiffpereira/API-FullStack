@@ -1,9 +1,9 @@
 import { Fragment } from 'react'
 import Link from 'next/link'
+import { getAllCustomers } from '../api/customer'
+import { getAllOrders } from '../api/order'
 
-function Dashboard({ data }) {
-  const { clients, orders } = data
-
+function Dashboard({ clients, orders }) {
   if (!clients) {
     return <div>Loading...</div>
   }
@@ -20,7 +20,7 @@ function Dashboard({ data }) {
             <p className="text-slate">{orders.count}</p>
           </Link>
           <Link
-            href="/clients"
+            href="/customers"
             className="flex flex-col gap-2 border rounded-sm border-black p-4 hover:bg-slate-300 cursor-pointer transition-all"
           >
             <h1 className="text-xs">Numero de Clientes</h1>
@@ -33,3 +33,21 @@ function Dashboard({ data }) {
 }
 
 export default Dashboard
+
+export async function getServerSideProps() {
+  try {
+    const [clients, orders] = await Promise.all([
+      getAllCustomers(),
+      getAllOrders(),
+    ])
+    // console.log(clients)
+    return {
+      props: { clients, orders },
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error)
+    return {
+      props: { error },
+    }
+  }
+}

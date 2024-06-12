@@ -4,9 +4,7 @@ export const getAllCustomers = async () => {
   try {
     const response = await fetch(`${BASE_URL}/customers`)
     const data = await response.json()
-    console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
-    console.log(JSON.stringify(data))
-    return JSON.stringify(data)
+    return data
   } catch (error) {
     console.error('Error fetching customers:', error)
     throw new Error('An error occurred while fetching customers')

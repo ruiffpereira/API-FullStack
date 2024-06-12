@@ -4,7 +4,7 @@ export const getAllProducts = async () => {
   try {
     const response = await fetch(`${BASE_URL}/products`)
     const data = await response.json()
-    return JSON.stringify(data)
+    return data
   } catch (error) {
     console.error('Error fetching products:', error)
     throw new Error('An error occurred while fetching products')

@@ -11,7 +11,27 @@ module.exports = (sequelize, DataTypes) => {
     customerId: {
       type: DataTypes.UUID,
       allowNull: false,
-    }
+    },
+    // deliveryAddress: {
+    //   type: DataTypes.STRING,
+    //   allowNull: false
+    // },
+    // total: {
+      //   type: DataTypes.STRING,
+      //   allowNull: false
+      // },
+    // paymentMethod: {
+    //   type: DataTypes.STRING,
+    //   allowNull: false
+    // },
+    // trackingNumber: {
+    //   type: DataTypes.STRING,
+    //   allowNull: true
+    // },
+    // paidStatus: {
+    //   type: DataTypes.STRING,
+    //   allowNull: true
+    // }
   });
 
   return Order;

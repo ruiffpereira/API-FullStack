@@ -1,7 +1,15 @@
 import { Fragment } from 'react'
-import { getProducts } from '../../api/product'
+import { getProductById } from '../../api/product'
 
-function ProductDetails({ product }) {
+function ProductDetails({ product, error }) {
+  if (error) {
+    return <p>{error}</p>
+  }
+
+  if (!product) {
+    return <p>Product not found</p>
+  }
+
   return (
     <Fragment>
       <div className="max-w-sm bg-white rounded-lg shadow-md overflow-hidden mb-2">
@@ -38,17 +46,25 @@ function ProductDetails({ product }) {
 export default ProductDetails
 
 export async function getServerSideProps(context) {
+  const { id } = context.query
   try {
-    const product = context.query
-    const teste = await getProducts(product.productID)
-    console.log(teste)
+    const product = await getProductById(id)
+    if (!product) {
+      return {
+        notFound: true, // Next.js retornará uma página 404
+      }
+    }
+
     return {
-      props: { product },
+      props: {
+        product,
+      },
     }
   } catch (error) {
-    console.error('Error fetching data:', error)
     return {
-      props: { error },
+      props: {
+        error: error.message, // Retorna a mensagem de erro
+      },
     }
   }
 }

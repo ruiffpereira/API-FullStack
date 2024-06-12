@@ -39,6 +39,18 @@ export const getOrderById = async (orderId) => {
   }
 }
 
+export const getOrderCustomerId = async (orderId) => {
+  try {
+    console.log(orderId)
+    const response = await fetch(`${BASE_URL}/orders/customerid/${orderId}`)
+    const data = await response.json()
+    return data
+  } catch (error) {
+    console.error('Error fetching order:', error)
+    throw new Error('An error occurred while fetching order')
+  }
+}
+
 // Função para atualizar um pedido
 export const updateOrder = async (orderId, orderData) => {
   try {
