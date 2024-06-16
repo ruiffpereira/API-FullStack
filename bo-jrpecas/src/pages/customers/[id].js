@@ -5,7 +5,7 @@ import { Table } from 'antd'
 import Link from 'next/link'
 
 function Client({ customer, orders }) {
-  console.log(orders)
+  // console.log(orders)
   const columns = [
     {
       title: 'Referencia',

@@ -1,8 +1,12 @@
-const { Category } = require('../models');
+const { Category, Subcategory } = require('../models');
 
 const getAllCategories = async (req, res) => {
   try {
-    const categories = await Category.findAll();
+    const categories = await Category.findAndCountAll({
+      include: [
+        { model: Subcategory , as: 'subcategories' }
+      ]
+    });
     res.json(categories);
   } catch (error) {
     console.error('Error fetching categories:', error);

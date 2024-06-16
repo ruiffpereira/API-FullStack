@@ -21,13 +21,13 @@ function Menu() {
           href="/customers"
           className="text-ellipsis text-base text-left hover:bg-blue-500 hover:text-white transition ease-in duration-200 p-4 rounded"
         >
-          Clientes
+          Clients
         </Link>
         <Link
           href="/settings"
           className="text-ellipsis text-base text-left hover:bg-blue-500 hover:text-white transition ease-in duration-200 p-4 rounded"
         >
-          Definiçoes
+          Settings
         </Link>
       </div>
     </Fragment>

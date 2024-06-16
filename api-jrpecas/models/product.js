@@ -35,13 +35,20 @@ module.exports = (sequelize, DataTypes) => {
     },
     categoryId: {
       type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      allowNull: false,
+      allowNull: true,
+      references: {
+        model: 'categories',
+        key: 'categoryId'
+      },
     },
     subcategoryId: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
-      allowNull: false,
+      allowNull: true,
+      references: {
+        model: 'subcategories',
+        key: 'subcategoryId'
+      },
     },
   },
   {

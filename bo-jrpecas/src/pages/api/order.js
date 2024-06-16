@@ -41,7 +41,7 @@ export const getOrderById = async (orderId) => {
 
 export const getOrderCustomerId = async (orderId) => {
   try {
-    console.log(orderId)
+    // console.log(orderId)
     const response = await fetch(`${BASE_URL}/orders/customerid/${orderId}`)
     const data = await response.json()
     return data

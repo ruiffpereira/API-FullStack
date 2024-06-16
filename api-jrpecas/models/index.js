@@ -79,10 +79,10 @@ const seedDatabase = async () => {
 
 const startDB = async () => {
   try {
-    // await sequelize.sync({ force: true });
-    //await sequelize.sync();
-    // await seedDatabase();
-    
+    //await sequelize.sync({ force: true });
+    // await sequelize.sync();
+    //await seedDatabase();
+    //await sequelize.sync({ alter: true });
     applyAssociations(sequelize);
     await sequelize.authenticate();
     console.log("Connection has been established successfully.");

@@ -48,15 +48,15 @@ function AddProduct({ products }) {
     //   render: () => <Link href={'clients/'}>Historico</Link>,
     // },
   ]
+
   return (
     <Fragment>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-3xl font-bold">Tabela de Peças</h1>
-        <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
-          Adicionar Peça
-        </button>
-      </div>
-      <Table columns={columns} dataSource={products.rows} />
+      <h1 className="text-3xl font-bold">Tabela de Peças</h1>
+      <Table
+        rowKey={products.rows.productId}
+        columns={columns}
+        dataSource={products.rows}
+      />
     </Fragment>
   )
 }

@@ -42,7 +42,11 @@ function Clients({ customers }) {
     <Fragment>
       <div>
         <h1 className="text-4xl font-bold mb-4">Lista de Clientes</h1>
-        <Table columns={columns} dataSource={customers.rows} />
+        <Table
+          rowKey={customers.rows.customerId}
+          columns={columns}
+          dataSource={customers.rows}
+        />
       </div>
     </Fragment>
   )

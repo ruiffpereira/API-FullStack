@@ -4,7 +4,7 @@ import { Fragment } from 'react'
 import { Table } from 'antd'
 
 function Orders({ orders }) {
-  console.log(orders)
+  // console.log(orders)
   const columns = [
     {
       title: 'Referencia Encomenda',
@@ -53,7 +53,11 @@ function Orders({ orders }) {
     <Fragment>
       <div>
         <h1 className="text-4xl font-bold mb-4">Lista de Encomendas</h1>
-        <Table columns={columns} dataSource={orders.rows} />
+        <Table
+          rowKey={orders.rows.orderId}
+          columns={columns}
+          dataSource={orders.rows}
+        />
       </div>
     </Fragment>
   )

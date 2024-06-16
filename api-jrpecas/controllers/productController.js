@@ -1,3 +1,4 @@
+// const { where } = require('sequelize');
 const { Product , Category, Subcategory} = require('../models');
 
 const getAllProducts = async (req, res) => {
@@ -17,7 +18,13 @@ const getAllProducts = async (req, res) => {
 
 const getProductById = async (req, res) => {
   try {
-    const product = await Product.findByPk(req.params.id);
+    const product = await Product.findOne({
+      where: {productId : req.params.id},
+      include: [
+        { model: Category , as: 'category'},
+        { model: Subcategory , as: 'subcategory' }
+      ]
+    });
     if (product) {
       res.json(product);
     } else {
@@ -40,19 +47,49 @@ const createProduct = async (req, res) => {
 };
 
 const updateProduct = async (req, res) => {
+  
+  if (req.method !== 'PATCH') {
+    return res.status(405).json({ message: 'Método não permitido' });
+  }
+
+  const { id }= req.params;
+  const fields = req.body;
+  
+  if (!id) {
+    return res.status(400).json({ message: 'ID é necessário' });
+  }
+
   try {
-    const [updated] = await Product.update(req.body, {
-      where: { id: req.params.id }
+    const validFields = {};
+    const updatableFields = ['name', 'reference', 'stock', 'description', 'categoryId', "subcategoryId"];
+
+    updatableFields.forEach((field) => {
+      if (fields[field] !== undefined) {
+        validFields[field] = fields[field];
+      }
     });
-    if (updated) {
-      const updatedProduct = await Product.findByPk(req.params.id);
-      res.json(updatedProduct);
-    } else {
-      res.status(404).json({ error: 'Product not found' });
+
+    if (validFields.stock !== undefined && isNaN(validFields.stock)) {
+      return res.status(400).json({ message: 'Stock deve ser um número' });
     }
+
+    const product = await Product.update(validFields, {
+      where: { productId: id }
+    });
+
+    if (product[0] === 0) {
+      return res.status(404).json({ message: 'Produto não encontrado' });
+    }
+
+    res.status(200).json({ message: 'Produto atualizado com sucesso' });
   } catch (error) {
-    console.error('Error updating product:', error);
-    res.status(500).json({ error: 'An error occurred while updating the product' });
+    let errorMessage
+    if (error.name === 'SequelizeForeignKeyConstraintError') {
+      errorMessage = `Foreign key constraint error: ${error.message}`
+    } else {
+      errorMessage = `Error updating product category: ${error.message}`
+    }
+    res.status(500).json({ error: errorMessage , details: error.message });
   }
 };
 

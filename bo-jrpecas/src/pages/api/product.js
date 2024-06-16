@@ -39,21 +39,27 @@ export const getProductById = async (productId) => {
   }
 }
 
-// Função para atualizar um produto
-export const updateProduct = async (productId, productData) => {
+export default async function updateProduct(req, res) {
+  if (req.method !== 'PUT') {
+    return res.status(405).json({ message: 'Método não permitido' })
+  }
+
+  const { id, name } = req.body
+
+  // Aqui você faria a lógica para atualizar o produto no banco de dados
   try {
-    const response = await fetch(`${BASE_URL}/products/${productId}`, {
+    await fetch(`${BASE_URL}/subcategories/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(productData),
+      body: JSON.stringify({ id, name }),
     })
-    const data = await response.json()
-    return data
+
+    res.status(200).json({ message: 'Produto atualizado com sucesso' })
   } catch (error) {
-    console.error('Error updating product:', error)
-    throw new Error('An error occurred while updating product')
+    console.error('Erro ao atualizar o produto:', error)
+    res.status(500).json({ error: 'Erro ao atualizar o produto' })
   }
 }
 

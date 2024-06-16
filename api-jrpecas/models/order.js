@@ -11,6 +11,10 @@ module.exports = (sequelize, DataTypes) => {
     customerId: {
       type: DataTypes.UUID,
       allowNull: false,
+      references: {
+        model: 'customers',
+        key: 'customerId'
+      },
     },
     // deliveryAddress: {
     //   type: DataTypes.STRING,
