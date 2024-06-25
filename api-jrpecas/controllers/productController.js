@@ -1,5 +1,6 @@
 // const { where } = require('sequelize');
 const { Product , Category, Subcategory} = require('../models');
+const upload = require('../middleware/upload');
 
 const getAllProducts = async (req, res) => {
   try {
@@ -37,8 +38,21 @@ const getProductById = async (req, res) => {
 };
 
 const createProduct = async (req, res) => {
+
+  
+  const { productId, ...fields } = req.body;
+
+  const validFields = {};
+  const updatableFields = ['name', 'reference', 'stock', "price", 'description', 'categoryId', "subcategoryId"];
+
+  updatableFields.forEach((field) => {
+    if (fields[field] !== undefined && fields[field] !== '') {
+      validFields[field] = fields[field];
+    }
+  });
+
   try {
-    const newProduct = await Product.create(req.body);
+    const newProduct = await Product.create(validFields);
     res.status(201).json(newProduct);
   } catch (error) {
     console.error('Error creating product:', error);
@@ -48,23 +62,22 @@ const createProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   
-  if (req.method !== 'PATCH') {
+  if (req.method !== 'PUT') {
     return res.status(405).json({ message: 'Método não permitido' });
   }
-
-  const { id }= req.params;
   const fields = req.body;
   
-  if (!id) {
+
+  if (!fields.productId) {
     return res.status(400).json({ message: 'ID é necessário' });
   }
 
   try {
     const validFields = {};
-    const updatableFields = ['name', 'reference', 'stock', 'description', 'categoryId', "subcategoryId"];
+    const updatableFields = ['name', 'reference', 'stock', "price",'description', 'categoryId', "subcategoryId"];
 
     updatableFields.forEach((field) => {
-      if (fields[field] !== undefined) {
+      if (fields[field] !== undefined && fields[field] !== '') {
         validFields[field] = fields[field];
       }
     });
@@ -72,11 +85,14 @@ const updateProduct = async (req, res) => {
     if (validFields.stock !== undefined && isNaN(validFields.stock)) {
       return res.status(400).json({ message: 'Stock deve ser um número' });
     }
+    console.log(fields)
+    console.log(validFields)
 
     const product = await Product.update(validFields, {
-      where: { productId: id }
+      where: { productId: fields.productId }
     });
 
+    
     if (product[0] === 0) {
       return res.status(404).json({ message: 'Produto não encontrado' });
     }
@@ -90,16 +106,18 @@ const updateProduct = async (req, res) => {
       errorMessage = `Error updating product category: ${error.message}`
     }
     res.status(500).json({ error: errorMessage , details: error.message });
+    console.log("aqui: ", errorMessage)
   }
 };
 
 const deleteProduct = async (req, res) => {
+  console.log(req)
   try {
     const deleted = await Product.destroy({
-      where: { id: req.params.id }
+      where: { productId: req.params.id }
     });
     if (deleted) {
-      res.status(204).send();
+      res.json({ deleted });
     } else {
       res.status(404).json({ error: 'Product not found' });
     }

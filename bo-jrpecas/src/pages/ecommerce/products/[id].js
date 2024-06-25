@@ -1,259 +1,255 @@
-import { Fragment, useState } from 'react'
-import { getProductById } from '../../api/product'
-import { getAllCategories } from '../../api/category'
-import { FaEdit, FaSave, FaWindowClose } from 'react-icons/fa'
+// components/ProductForm.js
+
 import AntdCascader from '@/components/cascader'
+import Link from 'next/link'
+import { useState } from 'react'
+import { useDropzone } from 'react-dropzone'
+import { mutate } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import { useRouter } from 'next/router'
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
-const fetcher = (url, formData) => {
-  return fetch(url, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ ...formData.arg }),
-  }).then((res) => res.json())
-}
-
-function ProductDetails({ product, categories, sserror }) {
-  const productReceive = {
-    name: product.name,
-    description: product.description,
-    stock: product.stock,
-    reference: product.reference,
-    categoryId: product.category?.categoryId ?? null,
-    subcategoryId: product.subcategory?.subcategoryId ?? null,
-    category: product.category?.name ?? null,
-    subcategory: product.subcategory?.name ?? null,
-  }
-
-  const [editing, setEditing] = useState(false)
-  const [formData, setFormData] = useState(productReceive)
-  const { trigger, isMutating, data, error } = useSWRMutation(
-    `${BASE_URL}/products/${product.productId}`,
-    fetcher,
-  )
-
-  const allCategoriesCascader = categories.rows.map((category) => {
-    const transformedCategory = {
-      value: category.categoryId,
-      label: category.name,
-    }
-    if (category.subcategories && category.subcategories.length > 0) {
-      transformedCategory.children = category.subcategories.map(
-        (subcategory) => ({
-          value: subcategory.subcategoryId,
-          label: subcategory.name,
-        }),
-      )
-    }
-
-    return transformedCategory
+const ProductForm = ({ product, categories }) => {
+  const [formData, setFormData] = useState({
+    productId: product?.productId || '',
+    name: product?.name || '',
+    reference: product?.reference || '',
+    description: product?.description || '',
+    price: product?.price || '',
+    stock: product?.stock || '',
+    photos: product?.photos || [],
+    category: product?.category?.name || '',
+    subcategory: product?.subcategory?.name || '',
+    categoryId: product?.categoryId || '',
+    subcategoryId: product?.subcategoryId || '',
   })
+  const router = useRouter()
 
-  if (sserror) {
-    return <p>error</p>
+  const handleSubmit = async (event) => {
+    event.preventDefault() // Prevenir o comportamento padrão de recarregar a página
+    const method = product?.productId ? 'PUT' : 'POST'
+    try {
+      const response = await fetch(`${BASE_URL}/products`, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.log(errorData.message)
+        throw new Error(errorData.message)
+      }
+
+      const data = await response.json()
+
+      // Success handler
+      mutate(`${BASE_URL}/products`)
+      console.log('Sucesso! Produto deletado.', data)
+      router.push('/ecommerce')
+    } catch (error) {
+      console.error('Erro ao deletar o produto:', error)
+    }
   }
 
-  if (!product) {
-    return <p>Product not found</p>
-  }
+  const { trigger: deleteProduct } = useSWRMutation(
+    `${BASE_URL}/products/${formData.productId}`,
+    async (url) => {
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      if (!response.ok) {
+        return response.json().then((errorData) => {
+          console.log(errorData.message)
+          throw new Error(errorData.message)
+        })
+      }
+      mutate(`${BASE_URL}/products`)
+      router.push('/ecommerce')
+      return response.json()
+    },
+  )
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setFormData({ ...formData, [name]: value })
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
   }
 
-  const toggleEditing = () => {
-    setEditing(!editing)
-  }
-
-  const handleCascaderChange = (index, selectedOptions) => {
-    if (selectedOptions.length === 2) {
-      setFormData({
-        ...formData,
-        categoryId: selectedOptions[0].value,
-        category: selectedOptions[0].label,
-        subcategoryId: selectedOptions[1].value,
-        subcategory: selectedOptions[1].label,
-      })
-    }
-    if (selectedOptions.length === 1) {
-      setFormData({
-        ...formData,
-        categoryId: selectedOptions[0].value,
-        category: selectedOptions[0].label,
-        subcategoryId: null,
+  const handleCascaderChange = (value) => {
+    if (value === undefined) {
+      setFormData((prev) => ({
+        ...prev,
+        categoryId: null,
+        category: null,
         subcategory: null,
-      })
+        subcategoryId: null,
+      }))
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        categoryId: value[0],
+        subcategoryId: value[1],
+      }))
     }
   }
 
-  const handleCancel = () => {
-    setFormData(productReceive)
-    setEditing(!editing)
+  const onDrop = (acceptedFiles) => {
+    setFormData((prev) => ({
+      ...prev,
+      photos: [...prev.photos, ...acceptedFiles],
+    }))
   }
 
-  async function handleSave() {
-    try {
-      await trigger(formData)
-      setEditing(false)
-    } catch (err) {
-      return err
-    }
-  }
+  const { getRootProps, getInputProps } = useDropzone({ onDrop })
+
+  // Transformando categorias e subcategorias para o formato do Cascader
+  const categoryOptions = categories.rows.map((category) => ({
+    value: category.categoryId,
+    label: category.name,
+    children: category.subcategories.map((subcategory) => ({
+      value: subcategory.subcategoryId,
+      label: subcategory.name,
+    })),
+  }))
 
   return (
-    <Fragment>
-      <div className="max-w-sm bg-white rounded-lg shadow-md overflow-hidden mb-2">
-        <div className="flex flex-col gap-4 p-6">
-          <div className="flex flex-col gap-1">
-            <div className="block font-bold text-gray-600 text-base">
-              Product
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 p-6 bg-white shadow-lg rounded-lg"
+    >
+      <div className="flex flex-col space-y-4">
+        <label className="text-gray-600 font-semibold">Name:</label>
+        <input
+          type="text"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          required
+        />
+      </div>
+      <div className="flex flex-col space-y-4">
+        <label className="text-gray-600 font-semibold">Reference:</label>
+        <input
+          type="text"
+          name="reference"
+          value={formData.reference}
+          onChange={handleChange}
+          className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          required
+        />
+      </div>
+      <div className="flex flex-col space-y-4">
+        <label className="text-gray-600 font-semibold">Description:</label>
+        <textarea
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+          className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          required
+        />
+      </div>
+      <div className="flex flex-col space-y-4">
+        <label className="text-gray-600 font-semibold">Price:</label>
+        <textarea
+          name="price"
+          value={formData.price}
+          onChange={handleChange}
+          className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          required
+        />
+      </div>
+      <div className="flex flex-col space-y-4">
+        <label className="text-gray-600 font-semibold">Stock:</label>
+        <textarea
+          name="stock"
+          value={formData.stock}
+          onChange={handleChange}
+          className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          required
+        />
+      </div>
+      <div className="flex flex-col space-y-4">
+        <label className="text-gray-600 font-semibold">Photos:</label>
+        <div
+          {...getRootProps()}
+          className="border-dashed border-2 border-gray-300 p-4 rounded-md"
+        >
+          <input {...getInputProps()} />
+          <p>Drag drop some files here, or click to select files</p>
+        </div>
+        <div className="mt-2">
+          {formData.photos.map((file, index) => (
+            <div key={index} className="text-sm text-gray-600">
+              {file.name || file}
             </div>
-            {editing === false ? (
-              <p className="text-gray-600 text-sm">{formData.name}</p>
-            ) : (
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md py-2 px-2 text-sm"
-              />
-            )}
-          </div>
-          <div className="flex flex-col gap-1">
-            <span className="block font-bold text-gray-600 text-base">
-              Reference
-            </span>
-            {editing === false ? (
-              <p className="text-gray-600 text-sm">{formData.reference}</p>
-            ) : (
-              <input
-                type="text"
-                name="reference"
-                value={formData.reference}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md py-2 px-2 text-sm"
-              />
-            )}
-          </div>
-          <div className="flex flex-col gap-1">
-            <span className="block font-bold text-gray-600 text-base">
-              Description
-            </span>
-            {editing === false ? (
-              <p className="text-gray-600 text-sm">{formData.description}</p>
-            ) : (
-              <input
-                type="text"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md py-2 px-2 text-sm"
-              />
-            )}
-          </div>
-          <div className="flex flex-col gap-1">
-            <span className="block font-bold text-gray-600 text-base">
-              Stock
-            </span>
-            {editing === false ? (
-              <p className="text-gray-600 text-sm">{formData.stock}</p>
-            ) : (
-              <input
-                type="text"
-                name="stock"
-                value={formData.stock}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md py-2 px-2 text-sm"
-              />
-            )}
-          </div>
-          <div className="flex flex-col gap-1">
-            <span className="block font-bold text-gray-600 text-base">
-              Photos
-            </span>
-            <p className="text-gray-600">{formData.photos}</p>
-          </div>
-          <div className="flex flex-col gap-1">
-            <span className="block font-bold text-gray-600 text-base">
-              Category
-            </span>
-            {editing === false ? (
-              <p className="text-gray-600 text-sm">
-                {formData.category}
-                {formData.subcategory && <span> / {formData.subcategory}</span>}
-              </p>
-            ) : (
-              <AntdCascader
-                defaultValue={[formData.category, formData.subcategory]}
-                onChange={handleCascaderChange}
-                data={allCategoriesCascader}
-              />
-            )}
-          </div>
-          {editing === false ? (
-            <button
-              className="ml-auto text-green-500 hover:text-green-700"
-              onClick={() => toggleEditing()}
-            >
-              <FaEdit />
-            </button>
-          ) : (
-            <div className="ml-auto flex gap-2">
-              <button
-                className="text-blue-500 hover:text-blue-700"
-                onClick={handleCancel}
-              >
-                <FaWindowClose />
-              </button>
-              <button
-                className="text-blue-500 hover:text-blue-700"
-                onClick={handleSave}
-              >
-                <FaSave />
-              </button>
-            </div>
-          )}
-          {isMutating && 'Updating...'}
-          {error && <div>Error: {error.message}</div>}
-          {data && <div>Success: {JSON.stringify(data)}</div>}
+          ))}
         </div>
       </div>
-    </Fragment>
+      <div className="flex flex-col space-y-4">
+        <label className="text-gray-600 font-semibold">Category:</label>
+        <AntdCascader
+          data={categoryOptions}
+          onChange={handleCascaderChange}
+          defaultValue={[formData.category, formData.subcategory]}
+          placeholder="Select Category and Subcategory"
+          className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+      </div>
+      <div className="flex gap-2">
+        <Link
+          className="w-full text-center py-3 mt-6 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+          href="/ecommerce"
+        >
+          Back
+        </Link>
+        <button
+          type="submit"
+          className="w-full py-3 mt-6 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          {product?.productId ? 'Update' : 'Create'} Product
+        </button>
+        {product?.productId && (
+          <button
+            onClick={deleteProduct}
+            className="w-full py-3 mt-6 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+          >
+            Delete
+          </button>
+        )}
+      </div>
+    </form>
   )
 }
 
-export default ProductDetails
+export default ProductForm
 
 export async function getServerSideProps(context) {
-  const { id } = context.query
-  let product = null
-  let categories = null
-  let sserror = null
+  const { id } = context.params
+  const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
-  try {
-    product = await getProductById(id)
-    categories = await getAllCategories()
+  // Fetch product data
+  const productRes = await fetch(`${BASE_URL}/products/${id}`)
+  let product = await productRes.json()
 
-    if (!product || !categories) {
-      return {
-        notFound: true, // Next.js retornará uma página 404
-      }
-    }
-  } catch (err) {
-    sserror = err.message
-  }
+  if (product.error) product = null
 
-  // console.log(categories)
+  // Fetch categories data
+  const categoriesRes = await fetch(`${BASE_URL}/categories`)
+  const categories = await categoriesRes.json()
+
   return {
     props: {
       product,
       categories,
-      sserror,
     },
   }
 }

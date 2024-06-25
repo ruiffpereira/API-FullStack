@@ -1,239 +1,195 @@
-import React, { useReducer, useEffect } from 'react'
-import useSWR from 'swr'
+import { useState } from 'react'
+import useSWR, { useSWRConfig } from 'swr'
+import useSWRMutation from 'swr/mutation'
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
-const fetcher = (url) => axios.get(url).then((res) => res.data)
+const fetcher = (url) => fetch(url).then((res) => res.json())
 
-const initialState = {
-  categories: [],
-  subcategories: [],
-  newCategoryName: '',
-  newSubcategoryName: '',
-  selectedCategoryId: '',
-  editCategoryId: null,
-  editSubcategoryId: null,
-  editCategoryName: '',
-  editSubcategoryName: '',
-}
+const CategoryManager = ({ categorylist }) => {
+  const { data, isLoading } = useSWR(`${BASE_URL}/categories`, fetcher, {
+    categorylist,
+  })
+  const [newCategory, setNewCategory] = useState('')
+  const [newSubcategory, setNewSubcategory] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('')
+  const [editCategory, setEditCategory] = useState(null)
+  const [editSubcategory, setEditSubcategory] = useState(null)
+  const { mutate } = useSWRConfig()
 
-const reducer = (state, action) => {
-  switch (action.type) {
-    case 'SET_CATEGORIES':
-      return { ...state, categories: action.payload }
-    case 'SET_SUBCATEGORIES':
-      return { ...state, subcategories: action.payload }
-    case 'SET_NEW_CATEGORY_NAME':
-      return { ...state, newCategoryName: action.payload }
-    case 'SET_NEW_SUBCATEGORY_NAME':
-      return { ...state, newSubcategoryName: action.payload }
-    case 'SET_SELECTED_CATEGORY_ID':
-      return { ...state, selectedCategoryId: action.payload }
-    case 'SET_EDIT_CATEGORY':
-      return {
-        ...state,
-        editCategoryId: action.payload.id,
-        editCategoryName: action.payload.name,
+  const { trigger: addCategory } = useSWRMutation(
+    `${BASE_URL}/categories`,
+    async (url) => {
+      if (newCategory === '') return
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: newCategory,
+        }),
+      })
+      if (!response.ok) {
+        throw new Error('A resposta da rede não foi ok')
       }
-    case 'SET_EDIT_SUBCATEGORY':
-      return {
-        ...state,
-        editSubcategoryId: action.payload.id,
-        editSubcategoryName: action.payload.name,
+      return response.json()
+    },
+    {
+      onSuccess: () => {
+        mutate(`${BASE_URL}/categories`)
+        setNewCategory('')
+      },
+    },
+  )
+
+  const { trigger: addSubcategory } = useSWRMutation(
+    `${BASE_URL}/subcategories`,
+    async (url) => {
+      if (selectedCategory === '') {
+        return
       }
-    case 'UPDATE_EDIT_CATEGORY_NAME':
-      return { ...state, editCategoryName: action.payload }
-    case 'UPDATE_EDIT_SUBCATEGORY_NAME':
-      return { ...state, editSubcategoryName: action.payload }
-    default:
-      return state
-  }
-}
-
-const CategoryList = () => {
-  const {
-    data: categories,
-    error: categoryError,
-    mutate: mutateCategories,
-  } = useSWR('/api/categories', fetcher)
-  const {
-    data: subcategories,
-    error: subcategoryError,
-    mutate: mutateSubcategories,
-  } = useSWR('/api/subcategories', fetcher)
-
-  const [state, dispatch] = useReducer(reducer, initialState)
-
-  useEffect(() => {
-    if (subcategories) {
-      dispatch({ type: 'SET_SUBCATEGORIES', payload: subcategories })
-    }
-  }, [subcategories])
-
-  const addCategory = async () => {
-    try {
-      await axios.post('/api/categories', { name: state.newCategoryName })
-      mutateCategories()
-      dispatch({ type: 'SET_NEW_CATEGORY_NAME', payload: '' })
-    } catch (error) {
-      console.error('Error adding category:', error)
-    }
-  }
-
-  const addSubcategory = async () => {
-    try {
-      await axios.post(
-        `/api/categories/${state.selectedCategoryId}/subcategories`,
-        { name: state.newSubcategoryName },
-      )
-      mutateSubcategories()
-      dispatch({ type: 'SET_NEW_SUBCATEGORY_NAME', payload: '' })
-    } catch (error) {
-      console.error('Error adding subcategory:', error)
-    }
-  }
-
-  const editCategory = async () => {
-    try {
-      await axios.put(`/api/categories/${state.editCategoryId}`, {
-        name: state.editCategoryName,
+      if (newSubcategory === '') {
+        return
+      }
+      const response = await fetch(`${url}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ selectedCategory, newSubcategory }),
       })
-      mutateCategories()
-      dispatch({ type: 'SET_EDIT_CATEGORY', payload: { id: null, name: '' } })
-    } catch (error) {
-      console.error('Error editing category:', error)
-    }
-  }
+      if (!response.ok) {
+        throw new Error('A resposta da rede não foi ok')
+      }
+      return response.json()
+    },
+    {
+      onSuccess: () => {
+        mutate(`${BASE_URL}/categories`)
+      },
+    },
+  )
 
-  const editSubcategory = async () => {
-    try {
-      await axios.put(`/api/subcategories/${state.editSubcategoryId}`, {
-        name: state.editSubcategoryName,
+  const { trigger: deleteCategory } = useSWRMutation(
+    `${BASE_URL}/categories`,
+    async (url, { arg: categoryId }) => {
+      const response = await fetch(`${url}/${categoryId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       })
-      mutateSubcategories()
-      dispatch({
-        type: 'SET_EDIT_SUBCATEGORY',
-        payload: { id: null, name: '' },
+      if (!response.ok) {
+        throw new Error('A resposta da rede não foi ok')
+      }
+      return response.json()
+    },
+    {
+      onSuccess: () => {
+        mutate(`${BASE_URL}/categories`)
+      },
+    },
+  )
+
+  const { trigger: deleteSubcategory } = useSWRMutation(
+    `${BASE_URL}/subcategories`,
+    async (url, { arg }) => {
+      const response = await fetch(`${url}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(arg),
       })
-    } catch (error) {
-      console.error('Error editing subcategory:', error)
-    }
-  }
+      if (!response.ok) {
+        throw new Error('A resposta da rede não foi ok')
+      }
+      return response.json()
+    },
+    {
+      onSuccess: () => {
+        mutate(`${BASE_URL}/categories`)
+      },
+    },
+  )
 
-  const deleteCategory = async (categoryId) => {
-    try {
-      await axios.delete(`/api/categories/${categoryId}`)
-      mutateCategories()
-    } catch (error) {
-      console.error('Error deleting category:', error)
-    }
-  }
+  const { trigger: updateCategory } = useSWRMutation(
+    `${BASE_URL}/categories`,
+    async (url, { arg }) => {
+      const response = await fetch(`${url}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(arg),
+      })
+      if (!response.ok) {
+        throw new Error('A resposta da rede não foi ok')
+      }
+      return response.json()
+    },
+    {
+      onSuccess: () => {
+        mutate(`${BASE_URL}/categories`)
+        setEditCategory(null)
+      },
+    },
+  )
 
-  const deleteSubcategory = async (subcategoryId) => {
-    try {
-      await axios.delete(`/api/subcategories/${subcategoryId}`)
-      mutateSubcategories()
-    } catch (error) {
-      console.error('Error deleting subcategory:', error)
-    }
-  }
+  const { trigger: updateSubcategory } = useSWRMutation(
+    `${BASE_URL}/subcategories`,
+    async (url, { arg }) => {
+      const response = await fetch(`${url}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(arg),
+      })
+      if (!response.ok) {
+        throw new Error('A resposta da rede não foi ok')
+      }
+      return response.json()
+    },
+    {
+      onSuccess: () => {
+        mutate(`${BASE_URL}/categories`)
+        setEditSubcategory(null)
+      },
+    },
+  )
 
-  if (categoryError) return <div>Failed to load categories</div>
-  if (subcategoryError) return <div>Failed to load subcategories</div>
-  if (!categories || !subcategories) return <div>Loading...</div>
+  // if (error) return <div>Failed to load</div>
+  if (isLoading) return <div>Loading...</div>
 
   return (
-    <div className="container mx-auto p-4">
-      {state.categories.map((category) => (
-        <div
-          key={category.categoryId}
-          className="mb-4 p-4 border border-gray-200 rounded-lg shadow"
-        >
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-bold mb-2">{category.name}</h2>
-            <div>
-              <button
-                onClick={() =>
-                  dispatch({
-                    type: 'SET_EDIT_CATEGORY',
-                    payload: { id: category.categoryId, name: category.name },
-                  })
-                }
-                className="ml-2 p-2 bg-yellow-500 text-white rounded"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => deleteCategory(category.categoryId)}
-                className="ml-2 p-2 bg-red-500 text-white rounded"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-          <ul className="list-disc list-inside ml-4">
-            {state.subcategories
-              .filter(
-                (subcategory) => subcategory.categoryId === category.categoryId,
-              )
-              .map((subcategory) => (
-                <li key={subcategory.subcategoryId} className="text-gray-700">
-                  {subcategory.name}
-                  <button
-                    onClick={() =>
-                      dispatch({
-                        type: 'SET_EDIT_SUBCATEGORY',
-                        payload: {
-                          id: subcategory.subcategoryId,
-                          name: subcategory.name,
-                        },
-                      })
-                    }
-                    className="ml-2 p-2 bg-yellow-500 text-white rounded"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deleteSubcategory(subcategory.subcategoryId)}
-                    className="ml-2 p-2 bg-red-500 text-white rounded"
-                  >
-                    Delete
-                  </button>
-                </li>
-              ))}
-          </ul>
-        </div>
-      ))}
+    <div className="p-6 bg-white rounded-xl shadow-md space-y-4 text-left">
+      <h1 className="text-xl font-bold">Gerenciador de Categorias</h1>
 
-      <div className="mb-4">
+      <div className="space-y-2">
         <input
           type="text"
-          value={state.newCategoryName}
-          onChange={(e) =>
-            dispatch({ type: 'SET_NEW_CATEGORY_NAME', payload: e.target.value })
-          }
-          placeholder="New Category"
-          className="p-2 border border-gray-300 rounded"
+          placeholder="Nova Categoria"
+          value={newCategory}
+          onChange={(e) => setNewCategory(e.target.value)}
+          className="border p-2 w-full"
         />
         <button
           onClick={addCategory}
-          className="ml-2 p-2 bg-blue-500 text-white rounded"
+          className="bg-blue-500 text-white px-4 py-2 rounded"
         >
-          Add Category
+          Adicionar Categoria
         </button>
       </div>
 
-      <div className="mb-4">
+      <div className="space-y-2">
         <select
-          value={state.selectedCategoryId}
-          onChange={(e) =>
-            dispatch({
-              type: 'SET_SELECTED_CATEGORY_ID',
-              payload: e.target.value,
-            })
-          }
-          className="p-2 border border-gray-300 rounded"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          className="border p-2 w-full"
         >
-          <option value="">Select Category</option>
-          {state.categories.map((category) => (
+          <option value="">Selecione uma Categoria</option>
+          {data.rows.map((category) => (
             <option key={category.categoryId} value={category.categoryId}>
               {category.name}
             </option>
@@ -241,71 +197,157 @@ const CategoryList = () => {
         </select>
         <input
           type="text"
-          value={state.newSubcategoryName}
-          onChange={(e) =>
-            dispatch({
-              type: 'SET_NEW_SUBCATEGORY_NAME',
-              payload: e.target.value,
-            })
-          }
-          placeholder="New Subcategory"
-          className="ml-2 p-2 border border-gray-300 rounded"
+          placeholder="Nova Subcategoria"
+          value={newSubcategory}
+          onChange={(e) => setNewSubcategory(e.target.value)}
+          className="border p-2 w-full"
         />
         <button
           onClick={addSubcategory}
-          className="ml-2 p-2 bg-blue-500 text-white rounded"
+          className="bg-blue-500 text-white px-4 py-2 rounded"
         >
-          Add Subcategory
+          Adicionar Subcategoria
         </button>
       </div>
 
-      {state.editCategoryId && (
-        <div className="mb-4">
-          <input
-            type="text"
-            value={state.editCategoryName}
-            onChange={(e) =>
-              dispatch({
-                type: 'UPDATE_EDIT_CATEGORY_NAME',
-                payload: e.target.value,
-              })
-            }
-            placeholder="Edit Category"
-            className="p-2 border border-gray-300 rounded"
-          />
-          <button
-            onClick={editCategory}
-            className="ml-2 p-2 bg-green-500 text-white rounded"
-          >
-            Save
-          </button>
-        </div>
-      )}
-
-      {state.editSubcategoryId && (
-        <div className="mb-4">
-          <input
-            type="text"
-            value={state.editSubcategoryName}
-            onChange={(e) =>
-              dispatch({
-                type: 'UPDATE_EDIT_SUBCATEGORY_NAME',
-                payload: e.target.value,
-              })
-            }
-            placeholder="Edit Subcategory"
-            className="p-2 border border-gray-300 rounded"
-          />
-          <button
-            onClick={editSubcategory}
-            className="ml-2 p-2 bg-green-500 text-white rounded"
-          >
-            Save
-          </button>
-        </div>
-      )}
+      <div className="space-y-4">
+        {data.rows.map((category) => (
+          <div key={category.categoryId} className="border p-4 rounded">
+            <div className="flex justify-between items-center">
+              {editCategory?.id === category.categoryId ? (
+                <div className="flex gap-2 w-full">
+                  <input
+                    type="text"
+                    value={editCategory.name}
+                    onChange={(e) =>
+                      setEditCategory({ ...editCategory, name: e.target.value })
+                    }
+                    className="border p-2"
+                  />
+                  <button
+                    onClick={() =>
+                      updateCategory({
+                        categoryId: category.categoryId,
+                        name: editCategory.name,
+                      })
+                    }
+                    className="bg-green-500 text-white px-2 py-1 rounded ml-auto"
+                  >
+                    Salvar
+                  </button>
+                  <button
+                    onClick={() => setEditCategory(null)}
+                    className="bg-gray-500 text-white px-2 py-1 rounded"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-grow">
+                  <h2 className="text-lg font-bold flex-grow">
+                    {category.name}
+                  </h2>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() =>
+                        setEditCategory({
+                          id: category.categoryId,
+                          name: category.name,
+                        })
+                      }
+                      className="bg-yellow-500 text-white px-2 py-1 rounded"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      onClick={() => deleteCategory(category.categoryId)}
+                      className="bg-red-500 text-white px-2 py-1 rounded"
+                    >
+                      Apagar
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+            {category.subcategories.length > 0 ? (
+              <ul className="list-disc list-inside mt-2 flex flex-col gap-2">
+                {category.subcategories.map((subcategory) => (
+                  <li
+                    key={subcategory.subcategoryId}
+                    className="flex justify-between items-center"
+                  >
+                    {editSubcategory?.id === subcategory.subcategoryId ? (
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={editSubcategory.name}
+                          onChange={(e) =>
+                            setEditSubcategory({
+                              ...editSubcategory,
+                              name: e.target.value,
+                            })
+                          }
+                          className="border p-2"
+                        />
+                        <button
+                          onClick={() =>
+                            updateSubcategory({
+                              categoryId: category.categoryId,
+                              subcategoryId: subcategory.subcategoryId,
+                              name: editSubcategory.name,
+                            })
+                          }
+                          className="bg-green-500 text-white px-2 py-1 rounded"
+                        >
+                          Salvar
+                        </button>
+                        <button
+                          onClick={() => setEditSubcategory(null)}
+                          className="bg-gray-500 text-white px-2 py-1 rounded"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    ) : (
+                      <span>{subcategory.name}</span>
+                    )}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() =>
+                          setEditSubcategory({
+                            id: subcategory.subcategoryId,
+                            name: subcategory.name,
+                          })
+                        }
+                        className="bg-yellow-500 text-white px-2 py-1 rounded"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() =>
+                          deleteSubcategory({
+                            categoryId: category.categoryId,
+                            subcategoryId: subcategory.subcategoryId,
+                          })
+                        }
+                        className="bg-red-500 text-white px-2 py-1 rounded"
+                      >
+                        Apagar
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-2 text-sm text-gray-500">
+                Esta categoria não tem subcategorias.
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
 
-export default CategoryList
+export default CategoryManager

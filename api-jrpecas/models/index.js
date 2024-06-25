@@ -41,11 +41,11 @@ const seedDatabase = async () => {
     const fiction = await Subcategory.create({ name: 'Fiction', categoryId: books.categoryId });
 
     // Products
-    const product1 = await Product.create({ name: 'iPhone 12', reference: 'IP12', stock: 100, price: 799.99, description: 'Latest Apple iPhone', photos: 'photo1.jpg', categoryId: electronics.categoryId, subcategoryId: smartphones.subcategoryId });
-    const product2 = await Product.create({ name: 'MacBook Pro', reference: 'MBP', stock: 50, price: 1299.99, description: 'Apple MacBook Pro', photos: 'photo2.jpg', categoryId: electronics.categoryId, subcategoryId: laptops.subcategoryId });
-    const product3 = await Product.create({ name: 'T-Shirt', reference: 'TSHIRT', stock: 200, price: 19.99, description: 'Comfortable cotton t-shirt', photos: 'photo3.jpg', categoryId: clothing.categoryId, subcategoryId: menClothing.subcategoryId });
-    const product4 = await Product.create({ name: 'Blender', reference: 'BLND', stock: 80, price: 49.99, description: 'Kitchen blender', photos: 'photo4.jpg', categoryId: home.categoryId, subcategoryId: kitchen.subcategoryId });
-    const product5 = await Product.create({ name: 'Harry Potter', reference: 'HP', stock: 150, price: 9.99, description: 'Harry Potter book', photos: 'photo5.jpg', categoryId: books.categoryId, subcategoryId: fiction.subcategoryId });
+    const product1 = await Product.create({ name: 'iPhone 12', reference: 'IP12', stock: 100, price: 799.99, description: 'Latest Apple iPhone', photos: [], categoryId: electronics.categoryId, subcategoryId: smartphones.subcategoryId });
+    const product2 = await Product.create({ name: 'MacBook Pro', reference: 'MBP', stock: 50, price: 1299.99, description: 'Apple MacBook Pro', photos: [], categoryId: electronics.categoryId, subcategoryId: laptops.subcategoryId });
+    const product3 = await Product.create({ name: 'T-Shirt', reference: 'TSHIRT', stock: 200, price: 19.99, description: 'Comfortable cotton t-shirt', photos: [], categoryId: clothing.categoryId, subcategoryId: menClothing.subcategoryId });
+    const product4 = await Product.create({ name: 'Blender', reference: 'BLND', stock: 80, price: 49.99, description: 'Kitchen blender', photos: [], categoryId: home.categoryId, subcategoryId: kitchen.subcategoryId });
+    const product5 = await Product.create({ name: 'Harry Potter', reference: 'HP', stock: 150, price: 9.99, description: 'Harry Potter book', photos: [], categoryId: books.categoryId, subcategoryId: fiction.subcategoryId });
 
     // Customers
     const customer1 = await Customer.create({ name: 'John Doe', photo: 'john.jpg', email: 'john@example.com', contact: '1234567890' });
@@ -77,15 +77,52 @@ const seedDatabase = async () => {
   } 
 };
 
+// Excluindo uma categoria
+async function deleteCategory(categoryId) {
+  try {
+    const category = await Category.findByPk(categoryId);
+    if (category) {
+      await category.destroy({ force: true });
+      console.log(`Category with ID: ${categoryId} deleted successfully`);
+    } else {
+      console.log(`Category with ID: ${categoryId} not found`);
+    }
+  } catch (error) {
+    console.error('Error deleting category:', error);
+  }
+}
+
+// Excluindo uma subcategoria
+async function deleteSubcategory(subcategoryId) {
+  try {
+    const subcategory = await Subcategory.findByPk(subcategoryId);
+    if (subcategory) {
+      await subcategory.destroy({ force: true });
+      console.log(`Subcategory with ID: ${subcategoryId} deleted successfully`);
+    } else {
+      console.log(`Subcategory with ID: ${subcategoryId} not found`);
+    }
+  } catch (error) {
+    console.error('Error deleting subcategory:', error);
+  }
+}
+
 const startDB = async () => {
   try {
-    //await sequelize.sync({ force: true });
+    // await sequelize.sync({ force: true });
     // await sequelize.sync();
-    //await seedDatabase();
-    //await sequelize.sync({ alter: true });
+    // await seedDatabase();
+    // sequelize.sync({ alter: true })
+    //   .then(() => {
+    //     console.log('Database synchronized');
+    //   })
+    //   .catch(err => {
+    //     console.error('Failed to synchronize database:', err);
+    // });
     applyAssociations(sequelize);
     await sequelize.authenticate();
     console.log("Connection has been established successfully.");
+    //deleteCategory('0481761d-7e28-447b-a13e-77eef7312ebb');
 
   } catch (error) {
     console.error("Unable to connect to the database:", error);

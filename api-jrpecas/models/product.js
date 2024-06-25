@@ -4,7 +4,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-      Validate: {
+      allowNull: false,
+      validate: {
         notEmpty: true,
       },
     },
@@ -30,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
     },
     photos: {
-      type: DataTypes.STRING,
+      type: DataTypes.JSON,
       allowNull: true,
     },
     categoryId: {
@@ -40,19 +41,21 @@ module.exports = (sequelize, DataTypes) => {
         model: 'categories',
         key: 'categoryId'
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE'
     },
     subcategoryId: {
       type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
       allowNull: true,
       references: {
         model: 'subcategories',
         key: 'subcategoryId'
       },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE'
     },
-  },
-  {
+  }, {
     paranoid: true,
   });
-  return Product;
+  return Product
 };

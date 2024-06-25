@@ -36,7 +36,8 @@ function AddProduct({ products }) {
     {
       title: 'Category',
       dataIndex: 'categoryname',
-      render: (text, record) => record.category.name,
+      render: (text, record) =>
+        record.category ? record.category.name : 'Sem Categoria',
     },
     {
       title: 'Photos',

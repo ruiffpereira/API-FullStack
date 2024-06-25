@@ -4,29 +4,31 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-      Validate: {
+      allowNull: false,
+      validate: {
         notEmpty: true,
       },
     },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
-      Validate: {
+      validate: {
         notEmpty: true,
       },
     },
     categoryId: {
       type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
       allowNull: false,
       references: {
         model: 'categories',
         key: 'categoryId'
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE'
     },
-  },
-  {
+  }, {
     paranoid: true,
-  })
+  });
+  
   return Subcategory;
 };

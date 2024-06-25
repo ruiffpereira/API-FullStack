@@ -3,8 +3,9 @@ import Products from './products'
 import { getAllProducts } from '../api/product'
 import { getAllOrders } from '../api/order'
 import Orders from './orders'
-import CategoryManager from '@/components/product/categoryform'
+import CategoryList from '@/components/product/categoryform'
 import { getAllCategories } from '../api/category'
+import Link from 'next/link'
 
 function Ecommerce({ products, orders, categories, error }) {
   const [categoryForm, setCategoryForm] = useState(false)
@@ -20,9 +21,12 @@ function Ecommerce({ products, orders, categories, error }) {
   return (
     <Fragment>
       <div className="flex justify-end gap-2 items-center mb-4">
-        <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <Link
+          href="/ecommerce/products/newProduct"
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        >
           Adicionar Peça
-        </button>
+        </Link>
         <button
           onClick={() => setCategoryForm(!categoryForm)}
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -37,7 +41,7 @@ function Ecommerce({ products, orders, categories, error }) {
         </div>
       ) : (
         <Fragment>
-          <CategoryManager data={categories} />
+          <CategoryList categorylist={categories} />
         </Fragment>
       )}
     </Fragment>
@@ -51,7 +55,6 @@ export async function getServerSideProps() {
     const products = await getAllProducts()
     const orders = await getAllOrders()
     const categories = await getAllCategories()
-    // console.log(categories)
     return {
       props: { products, orders, categories },
     }

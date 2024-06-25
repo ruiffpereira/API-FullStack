@@ -1,4 +1,5 @@
 const { Category, Subcategory } = require('../models');
+const category = require('../models/category');
 
 const getAllCategories = async (req, res) => {
   try {
@@ -39,11 +40,15 @@ const createCategory = async (req, res) => {
 };
 
 const updateCategory = async (req, res) => {
+  console.log("lol: ", req.body)
   try {
-    const [updated] = await Category.update(req.body, {
-      where: { id: req.params.id }
+    const result = await Category.update({
+      name : req.body.name,
+    },
+    {
+      where: { categoryId: req.body.categoryId }
     });
-    if (updated) {
+    if (result) {
       const updatedCategory = await Category.findByPk(req.params.id);
       res.json(updatedCategory);
     } else {
@@ -58,10 +63,12 @@ const updateCategory = async (req, res) => {
 const deleteCategory = async (req, res) => {
   try {
     const deleted = await Category.destroy({
-      where: { id: req.params.id }
+      where: { categoryId: req.params.id },
+      force: true 
     });
     if (deleted) {
-      res.status(204).json();
+      //res.status(204).json();
+      res.json(deleted);
     } else {
       res.status(404).json({ error: 'Category not found' });
     }

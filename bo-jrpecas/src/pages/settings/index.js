@@ -45,9 +45,12 @@ function Settings() {
         </div>
         <button
           onClick={openModal}
-          className="w-full bg-blue-500 text-white py-2 rounded mt-4"
+          className="w-full bg-green-500 text-white py-2 rounded mt-4"
         >
           Mudar password
+        </button>
+        <button className="w-full bg-blue-500 text-white py-2 rounded mt-4">
+          Logout
         </button>
 
         {isModalOpen && (

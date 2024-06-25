@@ -26,7 +26,10 @@ const getSubcategoryById = async (req, res) => {
 
 const createSubcategory = async (req, res) => {
   try {
-    const subcategory = await Subcategory.create(req.body);
+    const subcategory = await Subcategory.create({
+      name : req.body.newSubcategory,
+      categoryId: req.body.selectedCategory,
+    });
     res.status(201).json(subcategory);
   } catch (error) {
     console.error('Error creating subcategory:', error);
@@ -35,9 +38,16 @@ const createSubcategory = async (req, res) => {
 };
 
 const updateSubcategory = async (req, res) => {
+  console.log(req.body)
   try {
-    const [updated] = await Subcategory.update(req.body, {
-      where: { id: req.params.id }
+    const updated = await Subcategory.update({
+      name: req.body.name
+    }, 
+    {
+      where: { 
+        subcategoryId: req.body.subcategoryId, 
+        categoryId: req.body.categoryId,  
+      }
     });
     if (updated) {
       const updatedSubcategory = await Subcategory.findByPk(req.params.id);
@@ -54,10 +64,15 @@ const updateSubcategory = async (req, res) => {
 const deleteSubcategory = async (req, res) => {
   try {
     const deleted = await Subcategory.destroy({
-      where: { id: req.params.id }
+      where: { 
+        categoryId: req.body.categoryId, 
+        subcategoryId: req.body.subcategoryId, 
+       },
+      force: true 
     });
-    if (deleted) {
-      res.status(204).json();
+    console.log("lol: ", deleted)
+    if (deleted > 0) {
+      res.json(deleted);
     } else {
       res.status(404).json({ error: 'Subcategory not found' });
     }
