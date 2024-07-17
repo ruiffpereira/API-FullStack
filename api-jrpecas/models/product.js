@@ -38,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       allowNull: true,
       references: {
-        model: 'categories',
+        model: 'Categories',
         key: 'categoryId'
       },
       onDelete: 'SET NULL',
@@ -48,7 +48,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       allowNull: true,
       references: {
-        model: 'subcategories',
+        model: 'Subcategories',
         key: 'subcategoryId'
       },
       onDelete: 'SET NULL',

@@ -1,15 +1,38 @@
 const { Sequelize , DataTypes } = require("sequelize");
 require("dotenv").config();
 const applyAssociations = require('./associations');
+const fs = require('fs');
+const configPath = './config.json';
+const rawData = fs.readFileSync(configPath);
+const config = JSON.parse(rawData);
 
+// Determinar o ambiente atual baseado em NODE_ENV ou usar 'development' como padrão
+const environment = process.env.NODE_ENV || 'development';
+
+// Selecionar a configuração baseada no ambiente
+const dbConfig = config[environment];
+
+// Configurar o Sequelize com as configurações do ambiente
 const sequelize = new Sequelize(
-  process.env.DATABASE_NAME,
-  process.env.DATABASE_USER,
-  process.env.DATABASE_PASSWORD,
+  dbConfig.database,
+  dbConfig.username,
+  dbConfig.password,
   {
-    host: process.env.DATABASE_URL,
-    dialect: process.env.DATABASE_TYPE,
-  }
+    logging: false,
+    host: dbConfig.host,
+    port: dbConfig.port,
+    dialect: dbConfig.dialect,
+    // retry: {
+    //   max: 10, // Número máximo de tentativas de reconexão
+    //   timeout: 5000, // Tempo de espera entre as tentativas, em milissegundos
+    //   match: [
+    //     Sequelize.ConnectionError,
+    //     Sequelize.ConnectionRefusedError,
+    //     Sequelize.ConnectionTimedOutError,
+    //     Sequelize.TimeoutError
+    //   ], // Lista de erros específicos que devem ser considerados para reconexão
+    // },
+  },
 );
 
 const Customer = require('./customer')(sequelize, DataTypes);
@@ -77,52 +100,15 @@ const seedDatabase = async () => {
   } 
 };
 
-// Excluindo uma categoria
-async function deleteCategory(categoryId) {
-  try {
-    const category = await Category.findByPk(categoryId);
-    if (category) {
-      await category.destroy({ force: true });
-      console.log(`Category with ID: ${categoryId} deleted successfully`);
-    } else {
-      console.log(`Category with ID: ${categoryId} not found`);
-    }
-  } catch (error) {
-    console.error('Error deleting category:', error);
-  }
-}
-
-// Excluindo uma subcategoria
-async function deleteSubcategory(subcategoryId) {
-  try {
-    const subcategory = await Subcategory.findByPk(subcategoryId);
-    if (subcategory) {
-      await subcategory.destroy({ force: true });
-      console.log(`Subcategory with ID: ${subcategoryId} deleted successfully`);
-    } else {
-      console.log(`Subcategory with ID: ${subcategoryId} not found`);
-    }
-  } catch (error) {
-    console.error('Error deleting subcategory:', error);
-  }
-}
-
 const startDB = async () => {
   try {
     // await sequelize.sync({ force: true });
-    // await sequelize.sync();
     // await seedDatabase();
-    // sequelize.sync({ alter: true })
-    //   .then(() => {
-    //     console.log('Database synchronized');
-    //   })
-    //   .catch(err => {
-    //     console.error('Failed to synchronize database:', err);
-    // });
+    // sequelize.sync({ alter: true });
+    await sequelize.sync({ alter: true });
     applyAssociations(sequelize);
     await sequelize.authenticate();
     console.log("Connection has been established successfully.");
-    //deleteCategory('0481761d-7e28-447b-a13e-77eef7312ebb');
 
   } catch (error) {
     console.error("Unable to connect to the database:", error);

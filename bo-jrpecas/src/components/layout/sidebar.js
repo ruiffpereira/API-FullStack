@@ -2,12 +2,18 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { FaBars, FaTimes } from 'react-icons/fa'
+import { signOut } from 'next-auth/react'
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false)
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen)
+  }
+
+  const handleLogout = async () => {
+    await signOut({ redirect: false })
+    window.location.href = '/admin/login'
   }
 
   return (
@@ -31,7 +37,7 @@ const Sidebar = () => {
             </li>
             <li className="mb-2">
               <Link
-                href="/ecommerce"
+                href="/dashboard/ecommerce"
                 className="block p-2 hover:bg-gray-700"
                 onClick={() => setIsOpen(false)}
               >
@@ -40,7 +46,7 @@ const Sidebar = () => {
             </li>
             <li className="mb-2">
               <Link
-                href="/customers"
+                href="/dashboard/customers"
                 className="block p-2 hover:bg-gray-700"
                 onClick={() => setIsOpen(false)}
               >
@@ -49,12 +55,20 @@ const Sidebar = () => {
             </li>
             <li className="mb-2">
               <Link
-                href="/settings"
+                href="/dashboard/settings"
                 className="block p-2 hover:bg-gray-700"
                 onClick={() => setIsOpen(false)}
               >
                 Settings
               </Link>
+            </li>
+            <li className="mb-2">
+              <button
+                className="block p-2 hover:bg-gray-700 w-full text-left"
+                onClick={handleLogout}
+              >
+                Terminar sessao
+              </button>
             </li>
           </ul>
         </nav>

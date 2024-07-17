@@ -1,0 +1,18 @@
+{
+  "development": {
+    "username": "root",
+    "password": "password",
+    "database": "database_development",
+    "host": "mysql",
+    "port": 3306,
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": "password",
+    "database": "database_production",
+    "host": "mysql",
+    "port": 3306,
+    "dialect": "mysql"
+  }
+}

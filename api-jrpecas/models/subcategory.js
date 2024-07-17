@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: 'categories',
+        model: 'Categories',
         key: 'categoryId'
       },
       onDelete: 'CASCADE',
