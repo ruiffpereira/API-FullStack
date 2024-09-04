@@ -39,7 +39,6 @@ export const getUserByEmail = async (userId) => {
   }
 }
 
-// Função para atualizar um usuário
 export const updateUser = async (userId, userData) => {
   try {
     const response = await fetch(`${BASE_URL}/users/${userId}`, {
@@ -57,14 +56,17 @@ export const updateUser = async (userId, userData) => {
   }
 }
 
-// Função para apagar um usuário
 export const deleteUser = async (userId) => {
   try {
     const response = await fetch(`${BASE_URL}/users/${userId}`, {
       method: 'DELETE',
     })
-    const data = await response.json()
-    return data
+    if (response.status === 204) {
+      return { message: 'User deleted successfully' }
+    } else {
+      const data = await response.json()
+      return data
+    }
   } catch (error) {
     console.error('Error deleting user:', error)
     throw new Error('An error occurred while deleting user')

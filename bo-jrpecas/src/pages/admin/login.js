@@ -16,6 +16,8 @@ const LoginForm = () => {
   // Atualiza o estado com os valores dos inputs
   const handleChange = (e) => {
     const { name, value } = e.target
+    // console.log(e.target)
+    console.log(credentials)
     setCredentials({
       ...credentials,
       [name]: value,
@@ -30,7 +32,7 @@ const LoginForm = () => {
     // console.log('Submitting', credentials)
 
     const result = await signIn('credentials', {
-      email: credentials.username,
+      username: credentials.username,
       password: credentials.password,
       redirect: false,
     })

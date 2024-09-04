@@ -15,9 +15,7 @@ const registerUser = async (req, res) => {
 
     try {
         const user = await User.create({ email, password: hashedPassword });
-        const luciaUser = await auth.createUser(user.id);
-
-        return res.status(201).json({ user: luciaUser });
+        return res.status(201).json({ user: user });
     } catch (error) {
         return res.status(500).json({ error: 'User creation failed' });
     }
@@ -28,35 +26,38 @@ const registerUser = async (req, res) => {
 };
 
 const loginUser = async (req, res) => {
-  const { email, password } = req.body;
-
+  const { username, password } = req.body;
   try {
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ 
+      where: { username },
+      attributes: ['username', 'email', "password", "userId"],
+     });
 
     if (!user) {
       return res.status(404).json({ error: 'Incorrect Data!' });
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
-
+    //const passwordMatch = await bcrypt.compare(password, user.password);
+    const passwordMatch = password;
+    
     if (!passwordMatch) {
       return res.status(401).json({ error: 'Incorrect Data!' });
     }
 
-    
     // Gerar token JWT
-    const token = jwt.sign({ userId: user.id }, 'your-secret-key', { expiresIn: '1h' });
-    
+    const token = jwt.sign({ userId: user.userId }, 'your-secret-key', { expiresIn: '1h' });
+    console.log('Token:', token);
     res.cookie('token', token, { 
       httpOnly: true,
       secure: true,
       sameSite: 'none'
     });
-
-    res.json({ token });
+    console.log("user", user);
+    res.json({ token, username: user.username, email: user.email });
+    console.log("final");
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error test' });
   }
 };
 

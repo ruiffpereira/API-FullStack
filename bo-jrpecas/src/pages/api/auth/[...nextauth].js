@@ -1,45 +1,63 @@
-// pages/api/auth/[...nextauth].js
 import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import jwt from 'jsonwebtoken'
 
+const BASE_URL = process.env.API_BASE_URL
+
 export default NextAuth({
   providers: [
     CredentialsProvider({
-      // The name to display on the sign-in form (e.g., 'Sign in with...')
       name: 'credentials',
-      // The credentials property is used to generate a form on the sign-in page.
       credentials: {
-        email: { label: 'Username', type: 'text', placeholder: 'jsmith' },
+        username: { label: 'Username', type: 'text', placeholder: 'Username' },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        // You need to provide your own logic here to find the user from your database
-        const user = { id: 1, name: 'J Smith', email: 'jsmith@example.com' }
+        try {
+          const res = await fetch(`${BASE_URL}/users/login`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              username: credentials.username,
+              password: credentials.password,
+            }),
+          })
+          console.log(credentials.username)
+          const user = await res.json()
+          console.log(user)
 
-        if (
-          credentials.email === 'user' &&
-          credentials.password === 'password'
-        ) {
-          const token = jwt.sign(
-            { id: user.id, email: user.email },
-            'your_secret_key',
-            { expiresIn: '1h' },
-          )
-          // If the user is authenticated, return the user object
-          return { user, token }
-        } else {
-          // If you return null then an error will be displayed advising the user to check their details.
+          if (res.ok && user) {
+            const token = jwt.sign(
+              { username: user.username },
+              process.env.JWT_SECRET,
+              { expiresIn: '1h' },
+            )
+            return { ...user, token }
+          } else {
+            return null
+          }
+        } catch (error) {
+          console.error(error)
           return null
-
-          // You can also reject this callback with an error and the user will see an error page.
-          // throw new Error('Invalid credentials')
         }
       },
     }),
   ],
-  pages: {
-    signIn: '/admin/login',
+  callbacks: {
+    async jwt(token, user) {
+      if (user) {
+        token.username = user.username
+        token.accessToken = user.token
+      }
+      return token
+    },
+    async session(session, token) {
+      session.user.username = token.username
+      session.accessToken = token.accessToken
+      return session
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
   session: {
@@ -47,20 +65,6 @@ export default NextAuth({
   },
   jwt: {
     secret: process.env.JWT_SECRET,
-    encryption: true, // Opcional, dependendo da versão do NextAuth.js
-  },
-  callbacks: {
-    async jwt(token, user) {
-      if (user?.token) {
-        token.accessToken = user.token
-      }
-      return token
-    },
-    async session(session, token) {
-      if (token?.accessToken) {
-        session.accessToken = token.accessToken
-      }
-      return session
-    },
+    encryption: true,
   },
 })
