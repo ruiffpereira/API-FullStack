@@ -8,7 +8,12 @@ router.get('/', permissionController.getAllPermissions);
 // Rota para criar uma nova permissão
 router.post('/', permissionController.createPermission);
 
+// Rota para atualizar permissão pelo ID
+router.put('/:id', permissionController.updatePermissionById);
+
 // Rota para obter uma permissão pelo ID
 router.get('/:id', permissionController.getPermissionById);
+
+router.delete('/:id', permissionController.deletePermissionById);
 
 module.exports = router;

@@ -3,10 +3,10 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 
 // Rota para listar todos os usuários
-router.post('/', userController.registerUser);
+router.post('/register', userController.registerUser);
 
 // Rota para criar um novo usuário
-router.post('/login', userController.loginUser);
+//router.post('/login', userController.loginUser);
 
 // // Rota para obter um usuário pelo Email
 // router.get('/:id', userController.getUserByEmail);
