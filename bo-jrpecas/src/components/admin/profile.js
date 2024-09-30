@@ -24,7 +24,9 @@ function Profile() {
         className="bg-white p-6 rounded-lg shadow-lg w-full"
         onClick={handleClickOutside}
       >
-        <h2 className="text-2xl font-bold mb-4">Perfil</h2>
+        <h2 className="text-2xl font-bold mb-4">
+          Perfil <br></br> (componente so disponivel para cliente)
+        </h2>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">
             Nome

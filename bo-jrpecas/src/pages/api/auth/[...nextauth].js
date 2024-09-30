@@ -1,17 +1,13 @@
 import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import jwt from 'jsonwebtoken'
 
 const BASE_URL = process.env.API_BASE_URL
+const JWT_SECRET = process.env.JWT_SECRET
 
 export default NextAuth({
   providers: [
     CredentialsProvider({
       name: 'credentials',
-      credentials: {
-        username: { label: 'Username', type: 'text', placeholder: 'Username' },
-        password: { label: 'Password', type: 'password' },
-      },
       async authorize(credentials) {
         try {
           const res = await fetch(`${BASE_URL}/users/login`, {
@@ -20,21 +16,16 @@ export default NextAuth({
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              username: credentials.username,
+              name: credentials.name,
               password: credentials.password,
             }),
+            credentials: 'include',
           })
-          console.log(credentials.username)
+
           const user = await res.json()
-          console.log(user)
 
           if (res.ok && user) {
-            const token = jwt.sign(
-              { username: user.username },
-              process.env.JWT_SECRET,
-              { expiresIn: '1h' },
-            )
-            return { ...user, token }
+            return user
           } else {
             return null
           }
@@ -46,15 +37,17 @@ export default NextAuth({
     }),
   ],
   callbacks: {
-    async jwt(token, user) {
+    async jwt({ token, user }) {
       if (user) {
-        token.username = user.username
+        token.name = user.name
+        token.email = user.email
         token.accessToken = user.token
       }
       return token
     },
-    async session(session, token) {
-      session.user.username = token.username
+    async session({ session, token }) {
+      session.user.name = token.name
+      session.user.email = token.email
       session.accessToken = token.accessToken
       return session
     },
@@ -64,7 +57,7 @@ export default NextAuth({
     jwt: true,
   },
   jwt: {
-    secret: process.env.JWT_SECRET,
+    secret: JWT_SECRET,
     encryption: true,
   },
 })

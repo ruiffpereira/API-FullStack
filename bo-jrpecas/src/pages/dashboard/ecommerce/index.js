@@ -7,6 +7,8 @@ import CategoryList from '@/components/product/categoryform'
 import { getAllCategories } from '@/pages/api/category'
 import Link from 'next/link'
 import { checkSession } from '@/utils/checkSession'
+import { getSession } from 'next-auth/react'
+
 function Ecommerce({ products, orders, categories, error }) {
   const [categoryForm, setCategoryForm] = useState(false)
 
@@ -55,10 +57,11 @@ export async function getServerSideProps(context) {
   if (sessionCheckResult) {
     return sessionCheckResult
   }
+  const token = await getSession(context)
   try {
-    const products = await getAllProducts()
-    const orders = await getAllOrders()
-    const categories = await getAllCategories()
+    const products = await getAllProducts(token.accessToken)
+    const orders = await getAllOrders(token.accessToken)
+    const categories = await getAllCategories(token.accessToken)
     return {
       props: { products, orders, categories },
     }

@@ -4,7 +4,7 @@ import AntdCascader from '@/components/cascader'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useDropzone } from 'react-dropzone'
-import { mutate } from 'swr'
+import useSWR, { mutate, useSWRConfig } from 'swr'
 import useSWRMutation from 'swr/mutation'
 import { useRouter } from 'next/router'
 import { checkSession } from '@/utils/checkSession'
@@ -238,6 +238,7 @@ export async function getServerSideProps(context) {
   if (sessionCheckResult) {
     return sessionCheckResult
   }
+
   const { id } = context.params
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
@@ -250,6 +251,8 @@ export async function getServerSideProps(context) {
   // Fetch categories data
   const categoriesRes = await fetch(`${BASE_URL}/categories`)
   const categories = await categoriesRes.json()
+
+  console.log('teste')
 
   return {
     props: {

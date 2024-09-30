@@ -11,7 +11,7 @@ function AddProduct({ products }) {
       render: (text, record) => (
         <Link
           href={{
-            pathname: '/ecommerce/products/' + record.productId,
+            pathname: '/dashboard/ecommerce/products/' + record.productId,
           }}
         >
           {record.name}
@@ -70,6 +70,7 @@ export async function getServerSideProps(context) {
   if (sessionCheckResult) {
     return sessionCheckResult
   }
+
   return {
     props: {},
   }

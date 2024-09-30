@@ -2,11 +2,18 @@ import Link from 'next/link'
 import { getAllCustomers } from '@/pages/api/customer'
 import { getAllOrders } from '@/pages/api/order'
 import { checkSession } from '@/utils/checkSession'
+import { useSession, getSession } from 'next-auth/react'
 
 function Dashboard({ clients, orders }) {
+  const { data: status } = useSession()
+
   if (!clients) {
     return <div>Loading...</div>
   }
+  if (status === 'loading') {
+    return <div>Loading...</div>
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-4">
@@ -33,16 +40,18 @@ export default Dashboard
 
 export async function getServerSideProps(context) {
   const sessionCheckResult = await checkSession(context.req)
+
   if (sessionCheckResult) {
     return sessionCheckResult
   }
 
+  const token = await getSession(context)
+
   try {
     const [clients, orders] = await Promise.all([
-      getAllCustomers(),
-      getAllOrders(),
+      getAllCustomers(token.accessToken),
+      getAllOrders(token.accessToken),
     ])
-    // console.log(clients)
     return {
       props: { clients, orders },
     }

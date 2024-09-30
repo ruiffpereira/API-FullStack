@@ -1,8 +1,9 @@
+import { fetchWithAuth } from '@/pages/api/auth-token'
 const BASE_URL = process.env.API_BASE_URL
 
-export const getAllProducts = async () => {
+export const getAllProducts = async (token) => {
   try {
-    const response = await fetch(`${BASE_URL}/products`)
+    const response = await fetchWithAuth(`${BASE_URL}/products`, token)
     const data = await response.json()
     return data
   } catch (error) {
@@ -11,13 +12,10 @@ export const getAllProducts = async () => {
   }
 }
 
-export const createProduct = async (productData) => {
+export const createProduct = async (token, productData) => {
   try {
-    const response = await fetch(`${BASE_URL}/products`, {
+    const response = await fetchWithAuth(`${BASE_URL}/products`, token, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(productData),
     })
     const data = await response.json()
@@ -28,9 +26,12 @@ export const createProduct = async (productData) => {
   }
 }
 
-export const getProductById = async (productId) => {
+export const getProductById = async (token, productId) => {
   try {
-    const response = await fetch(`${BASE_URL}/products/${productId}`)
+    const response = await fetchWithAuth(
+      `${BASE_URL}/products/${productId}`,
+      token,
+    )
     const data = await response.json()
     return data
   } catch (error) {
@@ -39,7 +40,7 @@ export const getProductById = async (productId) => {
   }
 }
 
-export default async function updateProduct(req, res) {
+export default async function updateProduct(req, res, token) {
   if (req.method !== 'PUT') {
     return res.status(405).json({ message: 'Método não permitido' })
   }
@@ -48,11 +49,8 @@ export default async function updateProduct(req, res) {
 
   // Aqui você faria a lógica para atualizar o produto no banco de dados
   try {
-    await fetch(`${BASE_URL}/subcategories/${id}`, {
+    await fetchWithAuth(`${BASE_URL}/subcategories/${id}`, token, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify({ id, name }),
     })
 
@@ -64,11 +62,15 @@ export default async function updateProduct(req, res) {
 }
 
 // Função para apagar um produto
-export const deleteProduct = async (productId) => {
+export const deleteProduct = async (token, productId) => {
   try {
-    const response = await fetch(`${BASE_URL}/products/${productId}`, {
-      method: 'DELETE',
-    })
+    const response = await fetchWithAuth(
+      `${BASE_URL}/products/${productId}`,
+      token,
+      {
+        method: 'DELETE',
+      },
+    )
     const data = await response.json()
     return data
   } catch (error) {

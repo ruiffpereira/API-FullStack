@@ -3,6 +3,8 @@ import { getAllCustomers } from '@/pages/api/customer'
 import { Table } from 'antd'
 import Link from 'next/link'
 import { checkSession } from '@/utils/checkSession'
+import { getSession } from 'next-auth/react'
+
 function Clients({ customers }) {
   const columns = [
     {
@@ -59,8 +61,11 @@ export async function getServerSideProps(context) {
   if (sessionCheckResult) {
     return sessionCheckResult
   }
+
+  const token = await getSession(context)
+
   try {
-    const customers = await getAllCustomers()
+    const customers = await getAllCustomers(token.accessToken)
 
     return {
       props: { customers },

@@ -4,6 +4,8 @@ import { getOrderCustomerId } from '@/pages/api/order'
 import { Table } from 'antd'
 import Link from 'next/link'
 import { checkSession } from '@/utils/checkSession'
+import { getSession } from 'next-auth/react'
+
 function Client({ customer, orders }) {
   // console.log(orders)
   const columns = [
@@ -66,10 +68,13 @@ export async function getServerSideProps(context) {
   if (sessionCheckResult) {
     return sessionCheckResult
   }
+
+  const token = await getSession(context)
+
   const { id } = context.query
   try {
-    const customer = await getCustomerById(id)
-    const orders = await getOrderCustomerId(id)
+    const customer = await getCustomerById(token.accessToken, id)
+    const orders = await getOrderCustomerId(token.accessToken, id)
     if (!customer || !orders) {
       return {
         notFound: true, // Next.js retornará uma página 404

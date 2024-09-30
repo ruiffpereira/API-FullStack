@@ -1,8 +1,9 @@
+import { fetchWithAuth } from '@/pages/api/auth-token'
 const BASE_URL = process.env.API_BASE_URL
 
-export const getAllCategories = async () => {
+export const getAllCategories = async (token) => {
   try {
-    const response = await fetch(`${BASE_URL}/categories`)
+    const response = await fetchWithAuth(`${BASE_URL}/categories`, token)
     const data = await response.json()
     return data
   } catch (error) {
@@ -11,13 +12,10 @@ export const getAllCategories = async () => {
   }
 }
 
-export const createCategory = async (categoryData) => {
+export const createCategory = async (token, categoryData) => {
   try {
-    const response = await fetch(`${BASE_URL}/categories`, {
+    const response = await fetchWithAuth(`${BASE_URL}/categories`, token, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(categoryData),
     })
     const data = await response.json()
@@ -28,9 +26,12 @@ export const createCategory = async (categoryData) => {
   }
 }
 
-export const getCategoryById = async (categoryId) => {
+export const getCategoryById = async (token, categoryId) => {
   try {
-    const response = await fetch(`${BASE_URL}/categories/${categoryId}`)
+    const response = await fetchWithAuth(
+      `${BASE_URL}/categories/${categoryId}`,
+      token,
+    )
     const data = await response.json()
     return data
   } catch (error) {
@@ -40,15 +41,16 @@ export const getCategoryById = async (categoryId) => {
 }
 
 // Função para atualizar uma categoria
-export const updateCategory = async (categoryId, categoryData) => {
+export const updateCategory = async (token, categoryId, categoryData) => {
   try {
-    const response = await fetch(`${BASE_URL}/categories/${categoryId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await fetchWithAuth(
+      `${BASE_URL}/categories/${categoryId}`,
+      token,
+      {
+        method: 'PUT',
+        body: JSON.stringify(categoryData),
       },
-      body: JSON.stringify(categoryData),
-    })
+    )
     const data = await response.json()
     return data
   } catch (error) {
@@ -58,11 +60,15 @@ export const updateCategory = async (categoryId, categoryData) => {
 }
 
 // Função para apagar uma categoria
-export const deleteCategory = async (categoryId) => {
+export const deleteCategory = async (token, categoryId) => {
   try {
-    const response = await fetch(`${BASE_URL}/categories/${categoryId}`, {
-      method: 'DELETE',
-    })
+    const response = await fetchWithAuth(
+      `${BASE_URL}/categories/${categoryId}`,
+      token,
+      {
+        method: 'DELETE',
+      },
+    )
     const data = await response.json()
     return data
   } catch (error) {

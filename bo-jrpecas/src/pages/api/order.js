@@ -1,8 +1,11 @@
+import { fetchWithAuth } from '@/pages/api/auth-token'
 const BASE_URL = process.env.API_BASE_URL
 
-export const getAllOrders = async () => {
+export const getAllOrders = async (token) => {
   try {
-    const response = await fetch(`${BASE_URL}/orders`)
+    const response = await fetchWithAuth(`${BASE_URL}/orders`, token, {
+      method: 'GET',
+    })
     const data = await response.json()
     return data
   } catch (error) {
@@ -11,13 +14,10 @@ export const getAllOrders = async () => {
   }
 }
 
-export const createOrder = async (orderData) => {
+export const createOrder = async (token, orderData) => {
   try {
-    const response = await fetch(`${BASE_URL}/orders`, {
+    const response = await fetchWithAuth(`${BASE_URL}/orders`, token, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(orderData),
     })
     const data = await response.json()
@@ -28,9 +28,9 @@ export const createOrder = async (orderData) => {
   }
 }
 
-export const getOrderById = async (orderId) => {
+export const getOrderById = async (token, orderId) => {
   try {
-    const response = await fetch(`${BASE_URL}/orders/${orderId}`)
+    const response = await fetchWithAuth(`${BASE_URL}/orders/${orderId}`, token)
     const data = await response.json()
     return data
   } catch (error) {
@@ -39,10 +39,13 @@ export const getOrderById = async (orderId) => {
   }
 }
 
-export const getOrderCustomerId = async (orderId) => {
+export const getOrderCustomerId = async (token, orderId) => {
   try {
     // console.log(orderId)
-    const response = await fetch(`${BASE_URL}/orders/customerid/${orderId}`)
+    const response = await fetchWithAuth(
+      `${BASE_URL}/orders/customerid/${orderId}`,
+      token,
+    )
     const data = await response.json()
     return data
   } catch (error) {
@@ -52,13 +55,10 @@ export const getOrderCustomerId = async (orderId) => {
 }
 
 // Função para atualizar um pedido
-export const updateOrder = async (orderId, orderData) => {
+export const updateOrder = async (token, orderId, orderData) => {
   try {
-    const response = await fetch(`${BASE_URL}/orders/${orderId}`, {
+    const response = await fetch(`${BASE_URL}/orders/${orderId}`, token, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(orderData),
     })
     const data = await response.json()
@@ -70,9 +70,9 @@ export const updateOrder = async (orderId, orderData) => {
 }
 
 // Função para apagar um pedido
-export const deleteOrder = async (orderId) => {
+export const deleteOrder = async (token, orderId) => {
   try {
-    const response = await fetch(`${BASE_URL}/orders/${orderId}`, {
+    const response = await fetch(`${BASE_URL}/orders/${orderId}`, token, {
       method: 'DELETE',
     })
     const data = await response.json()

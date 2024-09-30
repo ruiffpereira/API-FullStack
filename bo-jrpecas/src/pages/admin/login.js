@@ -7,7 +7,7 @@ const LoginForm = () => {
   // console.log('Login form')
   // Estado para armazenar os valores dos inputs
   const [credentials, setCredentials] = useState({
-    username: '',
+    name: '',
     password: '',
   })
 
@@ -16,8 +16,6 @@ const LoginForm = () => {
   // Atualiza o estado com os valores dos inputs
   const handleChange = (e) => {
     const { name, value } = e.target
-    // console.log(e.target)
-    console.log(credentials)
     setCredentials({
       ...credentials,
       [name]: value,
@@ -29,10 +27,10 @@ const LoginForm = () => {
     event.preventDefault()
     event.stopPropagation()
     // Aqui você pode adicionar a lógica para enviar os dados ao servidor
-    // console.log('Submitting', credentials)
+    console.log('Submitting', credentials)
 
     const result = await signIn('credentials', {
-      username: credentials.username,
+      name: credentials.name,
       password: credentials.password,
       redirect: false,
     })
@@ -43,7 +41,7 @@ const LoginForm = () => {
     }
 
     router.replace('/')
-    setCredentials({ username: '', password: '' })
+    setCredentials({ name: '', password: '' })
   }
 
   return (
@@ -62,14 +60,14 @@ const LoginForm = () => {
                 Username
               </label>
               <input
-                id="username"
-                name="username"
+                id="name"
+                name="name"
                 type="text"
-                autoComplete="username"
+                autoComplete="name"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Username"
-                value={credentials.username}
+                value={credentials.name}
                 onChange={handleChange}
               />
             </div>
