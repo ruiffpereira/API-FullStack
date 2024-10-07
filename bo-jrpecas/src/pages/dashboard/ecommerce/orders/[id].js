@@ -3,7 +3,6 @@ import { Table } from 'antd'
 import { getOrderById } from '@/pages/api/order'
 import Link from 'next/link'
 import { checkSession } from '@/utils/checkSession'
-import { getSession } from 'next-auth/react'
 
 function OrderDetails({ order }) {
   console.log(order)
@@ -59,14 +58,15 @@ export default OrderDetails
 
 export async function getServerSideProps(context) {
   const sessionCheckResult = await checkSession(context.req)
-  if (sessionCheckResult) {
+  if (sessionCheckResult.redirect) {
     return sessionCheckResult
   }
   const { id } = context.query
-  const token = await getSession(context)
+  // Se a sessão existir, você pode acessar o token
+  const { token } = sessionCheckResult.props
 
   try {
-    const orderDetails = await getOrderById(token.accessToken, id)
+    const orderDetails = await getOrderById(token, id)
 
     const order = orderDetails.rows.map((row) => {
       const { orderId, customer, products, createdAt } = row

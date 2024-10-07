@@ -4,13 +4,24 @@ import AntdCascader from '@/components/cascader'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useDropzone } from 'react-dropzone'
-import useSWR, { mutate, useSWRConfig } from 'swr'
+import { useSWRConfig } from 'swr'
 import useSWRMutation from 'swr/mutation'
 import { useRouter } from 'next/router'
 import { checkSession } from '@/utils/checkSession'
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
-const ProductForm = ({ product, categories }) => {
+const ProductForm = ({ token, product, categories }) => {
+  const [errorMessage, setErrorMessage] = useState(null)
+  const urlSWRProducts = `${BASE_URL}/products`
+  const router = useRouter()
+
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+  }
+
+  const { mutate } = useSWRConfig()
+
   const [formData, setFormData] = useState({
     productId: product?.productId || '',
     name: product?.name || '',
@@ -24,55 +35,82 @@ const ProductForm = ({ product, categories }) => {
     categoryId: product?.categoryId || '',
     subcategoryId: product?.subcategoryId || '',
   })
-  const router = useRouter()
 
-  const handleSubmit = async (event) => {
-    event.preventDefault() // Prevenir o comportamento padrão de recarregar a página
-    const method = product?.productId ? 'PUT' : 'POST'
+  const handleSubmit = async (e) => {
+    e.preventDefault()
     try {
-      const response = await fetch(`${BASE_URL}/products`, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        console.log(errorData.message)
-        throw new Error(errorData.message)
-      }
-
-      const data = await response.json()
-
-      // Success handler
-      mutate(`${BASE_URL}/products`)
-      console.log('Sucesso! Produto deletado.', data)
-      router.push('/ecommerce')
+      await handleSubmitUser()
     } catch (error) {
-      console.error('Erro ao deletar o produto:', error)
+      console.error('Erro:', error)
     }
   }
 
+  const { trigger: handleSubmitUser } = useSWRMutation(
+    urlSWRProducts,
+    async (url) => {
+      const response = await fetch(url, {
+        method: product?.productId ? 'PUT' : 'POST',
+        headers,
+        body: JSON.stringify(formData),
+      })
+      if (!response.ok) {
+        const errorData = await response.json()
+        const errorMessage = errorData.error || 'An unexpected error occurred'
+        console.log(errorMessage)
+        setErrorMessage(errorMessage) // Captura a mensagem de erro
+        return { error: errorMessage } // Retorna um objeto de erro
+      }
+      console.log('response submit: ', response)
+      return response
+    },
+    {
+      onSuccess: async (data) => {
+        if (data.error) {
+          console.log('Erro detectado: ', data.error)
+          return // Não prossegue se houver um erro
+        }
+        setErrorMessage(null) // Limpa a mensagem de erro em caso de sucesso
+        await mutate(urlSWRProducts)
+        router.push('/dashboard/ecommerce')
+      },
+      onError: (error) => {
+        console.log('Erro detectado: ', error.message)
+        setErrorMessage(error.message) // Captura a mensagem de erro
+      },
+    },
+  )
+
   const { trigger: deleteProduct } = useSWRMutation(
-    `${BASE_URL}/products/${formData.productId}`,
+    `${urlSWRProducts}/${formData.productId}`,
     async (url) => {
       const response = await fetch(url, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
       })
       if (!response.ok) {
-        return response.json().then((errorData) => {
-          console.log(errorData.message)
-          throw new Error(errorData.message)
-        })
+        const errorData = await response.json()
+        const errorMessage = errorData.error || 'An unexpected error occurred'
+        console.log(errorMessage)
+        setErrorMessage(errorMessage) // Captura a mensagem de erro
+        return { error: errorMessage } // Retorna um objeto de erro
       }
-      mutate(`${BASE_URL}/products`)
-      router.push('/ecommerce')
-      return response.json()
+      console.log('response submit: ', response)
+      return response
+    },
+    {
+      onSuccess: async (data) => {
+        if (data.error) {
+          console.log('Erro detectado: ', data.error)
+          return // Não prossegue se houver um erro
+        }
+        setErrorMessage(null) // Limpa a mensagem de erro em caso de sucesso
+        await mutate(urlSWRProducts)
+        router.push('/dashboard/ecommerce')
+      },
+      onError: (error) => {
+        console.log('Erro detectado: ', error.message)
+        setErrorMessage(error.message) // Captura a mensagem de erro
+      },
     },
   )
 
@@ -111,7 +149,7 @@ const ProductForm = ({ product, categories }) => {
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop })
 
-  // Transformando categorias e subcategorias para o formato do Cascader
+  // // Transformando categorias e subcategorias para o formato do Cascader
   const categoryOptions = categories.rows.map((category) => ({
     value: category.categoryId,
     label: category.name,
@@ -126,6 +164,7 @@ const ProductForm = ({ product, categories }) => {
       onSubmit={handleSubmit}
       className="space-y-6 p-6 bg-white shadow-lg rounded-lg"
     >
+      {errorMessage && <div className="error">{errorMessage}</div>}
       <div className="flex flex-col space-y-4">
         <label className="text-gray-600 font-semibold">Name:</label>
         <input
@@ -208,7 +247,7 @@ const ProductForm = ({ product, categories }) => {
       <div className="flex gap-2">
         <Link
           className="w-full text-center py-3 mt-6 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-          href="/ecommerce"
+          href="/dashboard/ecommerce"
         >
           Back
         </Link>
@@ -235,27 +274,33 @@ export default ProductForm
 
 export async function getServerSideProps(context) {
   const sessionCheckResult = await checkSession(context.req)
-  if (sessionCheckResult) {
+
+  if (sessionCheckResult.redirect) {
     return sessionCheckResult
   }
 
+  // Se a sessão existir, você pode acessar o token
+  const { token } = sessionCheckResult.props
   const { id } = context.params
-  const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
-  // Fetch product data
-  const productRes = await fetch(`${BASE_URL}/products/${id}`)
-  let product = await productRes.json()
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+  }
 
-  if (product.error) product = null
+  const [productRes, categoriesRes] = await Promise.all([
+    fetch(`${BASE_URL}/products/${id}`, { headers }),
+    fetch(`${BASE_URL}/categories`, { headers }),
+  ])
 
-  // Fetch categories data
-  const categoriesRes = await fetch(`${BASE_URL}/categories`)
-  const categories = await categoriesRes.json()
-
-  console.log('teste')
+  const [product, categories] = await Promise.all([
+    productRes.json(),
+    categoriesRes.json(),
+  ])
 
   return {
     props: {
+      token,
       product,
       categories,
     },

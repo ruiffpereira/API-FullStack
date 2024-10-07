@@ -4,7 +4,7 @@ export default function Home() {}
 
 export async function getServerSideProps(context) {
   const sessionCheckResult = await checkSession(context.req)
-  if (sessionCheckResult) {
+  if (sessionCheckResult.redirect) {
     return sessionCheckResult
   }
 

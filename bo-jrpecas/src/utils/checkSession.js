@@ -11,7 +11,11 @@ export async function checkSession(req) {
       },
     }
   }
-  return null
+  return {
+    props: {
+      token: session.accessToken, // Supondo que o token esteja disponível como accessToken na sessão
+    },
+  }
 }
 
 export async function checkSessionOnLogin(req) {

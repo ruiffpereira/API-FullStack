@@ -3,7 +3,6 @@ import { getAllCustomers } from '@/pages/api/customer'
 import { Table } from 'antd'
 import Link from 'next/link'
 import { checkSession } from '@/utils/checkSession'
-import { getSession } from 'next-auth/react'
 
 function Clients({ customers }) {
   const columns = [
@@ -58,14 +57,15 @@ export default Clients
 
 export async function getServerSideProps(context) {
   const sessionCheckResult = await checkSession(context.req)
-  if (sessionCheckResult) {
+  if (sessionCheckResult.redirect) {
     return sessionCheckResult
   }
 
-  const token = await getSession(context)
+  // Se a sessão existir, você pode acessar o token
+  const { token } = sessionCheckResult.props
 
   try {
-    const customers = await getAllCustomers(token.accessToken)
+    const customers = await getAllCustomers(token)
 
     return {
       props: { customers },

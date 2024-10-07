@@ -3,47 +3,75 @@ import useSWR, { useSWRConfig } from 'swr'
 import useSWRMutation from 'swr/mutation'
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
-const fetcher = (url) => fetch(url).then((res) => res.json())
-
-const CategoryManager = ({ categorylist }) => {
-  const { data, isLoading } = useSWR(`${BASE_URL}/categories`, fetcher, {
-    categorylist,
-  })
+const CategoryManager = ({ token }) => {
   const [newCategory, setNewCategory] = useState('')
   const [newSubcategory, setNewSubcategory] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [editCategory, setEditCategory] = useState(null)
   const [editSubcategory, setEditSubcategory] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
+
+  const urlSWRCategories = `${BASE_URL}/categories`
+  const urlSWRSubcategories = `${BASE_URL}/subcategories`
+
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+  }
+
+  const fetcher = async (url) => {
+    const res = await fetch(url, {
+      headers,
+    })
+    if (!res.ok) {
+      const errorData = await res.json()
+      const error = new Error('An error occurred while fetching the data.')
+      error.info = errorData
+      error.status = res.status
+      throw error
+    }
+    return res.json()
+  }
+
+  const { data: dataCategories, isLoading: isLoadingCategories } = useSWR(
+    urlSWRCategories,
+    fetcher,
+  )
+
   const { mutate } = useSWRConfig()
 
   const { trigger: addCategory } = useSWRMutation(
-    `${BASE_URL}/categories`,
+    urlSWRCategories,
     async (url) => {
       if (newCategory === '') return
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
           name: newCategory,
         }),
       })
       if (!response.ok) {
-        throw new Error('A resposta da rede não foi ok')
+        const errorData = await response.json()
+        const errorMessage = errorData.error || 'An unexpected error occurred'
+        setErrorMessage(errorMessage) // Captura a mensagem de erro
+        return { error: errorMessage } // Retorna um objeto de erro
       }
-      return response.json()
+      return response
     },
     {
-      onSuccess: () => {
-        mutate(`${BASE_URL}/categories`)
+      onSuccess: async () => {
+        await mutate(urlSWRCategories)
         setNewCategory('')
+      },
+      onError: (error) => {
+        setErrorMessage(error.message) // Captura a mensagem de erro
       },
     },
   )
 
   const { trigger: addSubcategory } = useSWRMutation(
-    `${BASE_URL}/subcategories`,
+    urlSWRSubcategories,
     async (url) => {
       if (selectedCategory === '') {
         return
@@ -53,40 +81,48 @@ const CategoryManager = ({ categorylist }) => {
       }
       const response = await fetch(`${url}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({ selectedCategory, newSubcategory }),
       })
       if (!response.ok) {
-        throw new Error('A resposta da rede não foi ok')
+        const errorData = await response.json()
+        const errorMessage = errorData.error || 'An unexpected error occurred'
+        setErrorMessage(errorMessage) // Captura a mensagem de erro
+        return { error: errorMessage } // Retorna um objeto de erro
       }
-      return response.json()
+      return response
     },
     {
-      onSuccess: () => {
-        mutate(`${BASE_URL}/categories`)
+      onSuccess: async () => {
+        await mutate(urlSWRCategories)
+      },
+      onError: (error) => {
+        setErrorMessage(error.message) // Captura a mensagem de erro
       },
     },
   )
 
   const { trigger: deleteCategory } = useSWRMutation(
-    `${BASE_URL}/categories`,
+    urlSWRCategories,
     async (url, { arg: categoryId }) => {
       const response = await fetch(`${url}/${categoryId}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
       })
       if (!response.ok) {
-        throw new Error('A resposta da rede não foi ok')
+        const errorData = await response.json()
+        const errorMessage = errorData.error || 'An unexpected error occurred'
+        setErrorMessage(errorMessage) // Captura a mensagem de erro
+        return { error: errorMessage } // Retorna um objeto de erro
       }
-      return response.json()
+      return response
     },
     {
-      onSuccess: () => {
-        mutate(`${BASE_URL}/categories`)
+      onSuccess: async () => {
+        await mutate(urlSWRCategories)
+      },
+      onError: (error) => {
+        setErrorMessage(error.message) // Captura a mensagem de erro
       },
     },
   )
@@ -96,76 +132,90 @@ const CategoryManager = ({ categorylist }) => {
     async (url, { arg }) => {
       const response = await fetch(`${url}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(arg),
       })
       if (!response.ok) {
-        throw new Error('A resposta da rede não foi ok')
+        const errorData = await response.json()
+        const errorMessage = errorData.error || 'An unexpected error occurred'
+        setErrorMessage(errorMessage) // Captura a mensagem de erro
+        return { error: errorMessage } // Retorna um objeto de erro
       }
-      return response.json()
+      return response
     },
     {
-      onSuccess: () => {
-        mutate(`${BASE_URL}/categories`)
+      onSuccess: async () => {
+        await mutate(`${BASE_URL}/categories`)
+      },
+      onError: (error) => {
+        setErrorMessage(error.message) // Captura a mensagem de erro
       },
     },
   )
 
   const { trigger: updateCategory } = useSWRMutation(
-    `${BASE_URL}/categories`,
+    urlSWRCategories,
     async (url, { arg }) => {
       const response = await fetch(`${url}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(arg),
       })
       if (!response.ok) {
-        throw new Error('A resposta da rede não foi ok')
+        const errorData = await response.json()
+        const errorMessage = errorData.error || 'An unexpected error occurred'
+        setErrorMessage(errorMessage) // Captura a mensagem de erro
+        return { error: errorMessage } // Retorna um objeto de erro
       }
-      return response.json()
+      return response
     },
     {
-      onSuccess: () => {
-        mutate(`${BASE_URL}/categories`)
+      onSuccess: async () => {
+        await mutate(urlSWRCategories)
         setEditCategory(null)
+      },
+      onError: (error) => {
+        setErrorMessage(error.message) // Captura a mensagem de erro
       },
     },
   )
 
   const { trigger: updateSubcategory } = useSWRMutation(
-    `${BASE_URL}/subcategories`,
+    urlSWRSubcategories,
     async (url, { arg }) => {
       const response = await fetch(`${url}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(arg),
       })
       if (!response.ok) {
-        throw new Error('A resposta da rede não foi ok')
+        const errorData = await response.json()
+        const errorMessage = errorData.error || 'An unexpected error occurred'
+        setErrorMessage(errorMessage) // Captura a mensagem de erro
+        return { error: errorMessage } // Retorna um objeto de erro
       }
-      return response.json()
+      return response
     },
     {
-      onSuccess: () => {
-        mutate(`${BASE_URL}/categories`)
+      onSuccess: async () => {
+        await mutate(urlSWRCategories)
         setEditSubcategory(null)
+      },
+      onError: (error) => {
+        setErrorMessage(error.message) // Captura a mensagem de erro
       },
     },
   )
 
   // if (error) return <div>Failed to load</div>
-  if (isLoading) return <div>Loading...</div>
+  if (isLoadingCategories) return <div>Loading...</div>
+
+  console.log(dataCategories)
 
   return (
     <div className="p-6 bg-white rounded-xl shadow-md space-y-4 text-left">
       <h1 className="text-xl font-bold">Gerenciador de Categorias</h1>
-
+      {errorMessage && <div className="error">{errorMessage}</div>}
       <div className="space-y-2">
         <input
           type="text"
@@ -189,7 +239,7 @@ const CategoryManager = ({ categorylist }) => {
           className="border p-2 w-full"
         >
           <option value="">Selecione uma Categoria</option>
-          {data.rows.map((category) => (
+          {dataCategories.rows.map((category) => (
             <option key={category.categoryId} value={category.categoryId}>
               {category.name}
             </option>
@@ -211,7 +261,7 @@ const CategoryManager = ({ categorylist }) => {
       </div>
 
       <div className="space-y-4">
-        {data.rows.map((category) => (
+        {dataCategories.rows.map((category) => (
           <div key={category.categoryId} className="border p-4 rounded">
             <div className="flex justify-between items-center">
               {editCategory?.id === category.categoryId ? (

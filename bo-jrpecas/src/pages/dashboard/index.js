@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { getAllCustomers } from '@/pages/api/customer'
 import { getAllOrders } from '@/pages/api/order'
 import { checkSession } from '@/utils/checkSession'
-import { useSession, getSession } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 
 function Dashboard({ clients, orders }) {
   const { data: status } = useSession()
@@ -41,16 +41,16 @@ export default Dashboard
 export async function getServerSideProps(context) {
   const sessionCheckResult = await checkSession(context.req)
 
-  if (sessionCheckResult) {
+  if (sessionCheckResult.redirect) {
     return sessionCheckResult
   }
 
-  const token = await getSession(context)
+  const { token } = sessionCheckResult.props
 
   try {
     const [clients, orders] = await Promise.all([
-      getAllCustomers(token.accessToken),
-      getAllOrders(token.accessToken),
+      getAllCustomers(token),
+      getAllOrders(token),
     ])
     return {
       props: { clients, orders },

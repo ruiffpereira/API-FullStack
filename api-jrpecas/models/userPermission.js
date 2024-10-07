@@ -1,11 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
   const UserPermission = sequelize.define('UserPermission', {
-    userpermissionId: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
-      allowNull: false,
-    },
     userId: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -22,9 +16,6 @@ module.exports = (sequelize, DataTypes) => {
         key: 'permissionId',
       },
     },
-  },
-  {
-    paranoid: true,
   }
 );
 

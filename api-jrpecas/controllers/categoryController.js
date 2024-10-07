@@ -3,6 +3,7 @@ const category = require('../models/category');
 
 const getAllCategories = async (req, res) => {
   try {
+    console.log("lol")
     const categories = await Category.findAndCountAll({
       include: [
         { model: Subcategory , as: 'subcategories' }

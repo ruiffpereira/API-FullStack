@@ -14,7 +14,7 @@ function RulesComponent({ token }) {
   const urlSWR = `${BASE_URL}/permissions`
   const headers = {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${token.accessToken}`,
+    Authorization: `Bearer ${token}`,
   }
 
   const fetcher = async (url) => {
@@ -43,7 +43,7 @@ function RulesComponent({ token }) {
     e.preventDefault()
     try {
       await handleAddEditRule({ arg: currentRule })
-      // setCurrentRule({ permissionId: null, name: '' })
+      setCurrentRule({ permissionId: null, name: '' })
     } catch (error) {
       console.error('Erro ao adicionar/editar regra:', error)
     }
@@ -62,14 +62,12 @@ function RulesComponent({ token }) {
       )
       if (!response.ok) {
         const errorData = await response.json()
-        console.log(errorData.message)
         throw new Error(errorData.message)
       }
       return response.json()
     },
     {
       onSuccess: async () => {
-        console.log('data1: ', data)
         await mutate(urlSWR)
       },
     },
@@ -102,7 +100,6 @@ function RulesComponent({ token }) {
         await mutate(urlSWR)
       },
       onError: (error) => {
-        console.log('Erro detectado: ', error.message)
         setErrorMessage(error.message) // Captura a mensagem de erro
       },
     },
@@ -129,6 +126,7 @@ function RulesComponent({ token }) {
         />
         {currentRule.permissionId ? (
           <button
+            onClick={() => setCurrentRule({ permissionId: null, name: '' })}
             type="submit"
             className="ml-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >

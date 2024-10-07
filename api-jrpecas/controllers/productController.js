@@ -1,6 +1,6 @@
 // const { where } = require('sequelize');
 const { Product , Category, Subcategory} = require('../models');
-const upload = require('../middleware/upload');
+//const upload = require('../middleware/upload');
 
 const getAllProducts = async (req, res) => {
   try {

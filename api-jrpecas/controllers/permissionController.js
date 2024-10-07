@@ -1,4 +1,4 @@
-const { Permission } = require('../models');
+const { Permission, UserPermission } = require('../models');
 
 // Retorna todas as permissões
 const getAllPermissions = async (req, res) => {
@@ -66,14 +66,26 @@ const getPermissionById = async (req, res) => {
 // Retorna uma permissão pelo ID
 const deletePermissionById = async (req, res) => {
   try {
-    //console.log(req.params.id);
-    const deleted = await Permission.destroy({
-      where: { permissionId: req.params.id }
+    const permissionId = req.params.id;
+    console.log(req.params);
+    // Verifica se a permissão está associada a algum usuário
+    const userPermissionsCount = await UserPermission.count({
+      where: { permissionId }
     });
+    console.log(userPermissionsCount);
+    if (userPermissionsCount > 0) {
+      return res.status(400).json({ error: 'Cannot delete permission because it is associated with one or more users.' });
+    }
+
+    // Tenta destruir a permissão
+    const deleted = await Permission.destroy({
+      where: { permissionId }
+    });
+
     if (deleted) {
-      res.status(204).send();
+      res.status(204).json({ data: 'Permission deleted with sucess' });
     } else {
-      res.status(404).json({ error: 'Order not found' });
+      res.status(404).json({ error: 'Permission not found' });
     }
 
   } catch (error) {

@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-  const Permission = sequelize.define('Permission', {
-    permissionId: {
+  const Component = sequelize.define('Component', {
+    componentId: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
@@ -9,12 +9,9 @@ module.exports = (sequelize, DataTypes) => {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
-    },
-    description: {
-      type: DataTypes.STRING,
-      allowNull: true,
+      unique: true,
     },
   });
 
-  return Permission;
+  return Component;
 };

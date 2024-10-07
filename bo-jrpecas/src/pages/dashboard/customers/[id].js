@@ -4,7 +4,6 @@ import { getOrderCustomerId } from '@/pages/api/order'
 import { Table } from 'antd'
 import Link from 'next/link'
 import { checkSession } from '@/utils/checkSession'
-import { getSession } from 'next-auth/react'
 
 function Client({ customer, orders }) {
   // console.log(orders)
@@ -65,16 +64,18 @@ export default Client
 
 export async function getServerSideProps(context) {
   const sessionCheckResult = await checkSession(context.req)
-  if (sessionCheckResult) {
+
+  if (sessionCheckResult.redirect) {
     return sessionCheckResult
   }
 
-  const token = await getSession(context)
+  // Se a sessão existir, você pode acessar o token
+  const { token } = sessionCheckResult.props
 
   const { id } = context.query
   try {
-    const customer = await getCustomerById(token.accessToken, id)
-    const orders = await getOrderCustomerId(token.accessToken, id)
+    const customer = await getCustomerById(token, id)
+    const orders = await getOrderCustomerId(token, id)
     if (!customer || !orders) {
       return {
         notFound: true, // Next.js retornará uma página 404

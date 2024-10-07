@@ -10,7 +10,7 @@ function Registerform({ token }) {
 
   const headers = {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${token.accessToken}`,
+    Authorization: `Bearer ${token}`,
   }
 
   const { mutate } = useSWRConfig()
@@ -117,7 +117,7 @@ function Registerform({ token }) {
         setErrorMessage(errorMessage) // Captura a mensagem de erro
         return { error: errorMessage } // Retorna um objeto de erro
       }
-      console.log('data2: ', response)
+      console.log('response submit: ', response)
       return response
     },
     {
