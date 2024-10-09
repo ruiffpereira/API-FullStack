@@ -43,7 +43,6 @@ function RulesComponent({ token }) {
     e.preventDefault()
     try {
       await handleAddEditRule({ arg: currentRule })
-      setCurrentRule({ permissionId: null, name: '' })
     } catch (error) {
       console.error('Erro ao adicionar/editar regra:', error)
     }
@@ -62,13 +61,23 @@ function RulesComponent({ token }) {
       )
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.message)
+        const errorMessage = errorData.error || 'An unexpected error occurred'
+        setErrorMessage(errorMessage) // Captura a mensagem de erro
+        return { error: errorMessage } // Retorna um objeto de erro
       }
-      return response.json()
+      return response
     },
     {
-      onSuccess: async () => {
+      onSuccess: async (data) => {
+        if (data.error) {
+          return // Não prossegue se houver um erro
+        }
+        setErrorMessage(null) // Limpa a mensagem de erro em caso de sucesso
+        setCurrentRule({ permissionId: null, name: '' })
         await mutate(urlSWR)
+      },
+      onError: (error) => {
+        setErrorMessage(error.message) // Captura a mensagem de erro
       },
     },
   )
@@ -83,11 +92,9 @@ function RulesComponent({ token }) {
       if (!response.ok) {
         const errorData = await response.json()
         const errorMessage = errorData.error || 'An unexpected error occurred'
-        console.log(errorMessage)
         setErrorMessage(errorMessage) // Captura a mensagem de erro
         return { error: errorMessage } // Retorna um objeto de erro
       }
-      console.log('data2: ', response)
       return response
     },
     {
@@ -126,7 +133,10 @@ function RulesComponent({ token }) {
         />
         {currentRule.permissionId ? (
           <button
-            onClick={() => setCurrentRule({ permissionId: null, name: '' })}
+            onClick={() => {
+              setCurrentRule({ permissionId: null, name: '' })
+              setErrorMessage(null)
+            }}
             type="submit"
             className="ml-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >

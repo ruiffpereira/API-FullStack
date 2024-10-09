@@ -2,6 +2,7 @@ import { checkSession } from '@/utils/checkSession'
 import Profile from '@/components/admin/profile'
 import RegisterForm from '@/components/admin/register'
 import RulesComponent from '@/components/admin/roules'
+import ComponentsAccess from '@/components/admin/componentAcess'
 import { getSession } from 'next-auth/react'
 
 function Settings({ token }) {
@@ -10,6 +11,7 @@ function Settings({ token }) {
       {<Profile token={token} />}
       {<RegisterForm token={token} />}
       <RulesComponent token={token} />
+      <ComponentsAccess token={token} />
     </div>
   )
 }
