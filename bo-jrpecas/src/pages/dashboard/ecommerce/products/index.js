@@ -55,7 +55,7 @@ function AddProduct({ products }) {
     <Fragment>
       <h1 className="text-3xl font-bold">Tabela de Peças</h1>
       <Table
-        rowKey={products.rows.productId}
+        rowKey={products?.rows?.productId ?? 'defaultKey'}
         columns={columns}
         dataSource={products.rows}
       />

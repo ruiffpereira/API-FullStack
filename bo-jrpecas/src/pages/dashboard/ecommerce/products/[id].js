@@ -150,14 +150,15 @@ const ProductForm = ({ token, product, categories }) => {
   const { getRootProps, getInputProps } = useDropzone({ onDrop })
 
   // // Transformando categorias e subcategorias para o formato do Cascader
-  const categoryOptions = categories.rows.map((category) => ({
-    value: category.categoryId,
-    label: category.name,
-    children: category.subcategories.map((subcategory) => ({
-      value: subcategory.subcategoryId,
-      label: subcategory.name,
-    })),
-  }))
+  const categoryOptions =
+    categories?.rows?.map((category) => ({
+      value: category.categoryId,
+      label: category.name,
+      children: category.subcategories.map((subcategory) => ({
+        value: subcategory.subcategoryId,
+        label: subcategory.name,
+      })),
+    })) ?? []
 
   return (
     <form

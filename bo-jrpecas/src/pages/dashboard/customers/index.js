@@ -3,6 +3,7 @@ import { getAllCustomers } from '@/pages/api/customer'
 import { Table } from 'antd'
 import Link from 'next/link'
 import { checkSession } from '@/utils/checkSession'
+import { checkUserPermission } from '@/pages/api/userPermission'
 
 function Clients({ customers }) {
   const columns = [
@@ -63,6 +64,16 @@ export async function getServerSideProps(context) {
 
   // Se a sessão existir, você pode acessar o token
   const { token } = sessionCheckResult.props
+
+  const hasAccess = await checkUserPermission(token, {
+    componentName: 'Customer',
+  })
+
+  if (hasAccess.hasAccess === false) {
+    return {
+      notFound: true,
+    }
+  }
 
   try {
     const customers = await getAllCustomers(token)

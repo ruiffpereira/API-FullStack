@@ -6,6 +6,7 @@ import Orders from './orders'
 import CategoryList from '@/components/product/categoryform'
 import Link from 'next/link'
 import { checkSession } from '@/utils/checkSession'
+import { checkUserPermission } from '@/pages/api/userPermission'
 
 function Ecommerce({ token, products, orders, error }) {
   const [categoryForm, setCategoryForm] = useState(false)
@@ -58,6 +59,16 @@ export async function getServerSideProps(context) {
   }
 
   const { token } = sessionCheckResult.props
+
+  const hasAccess = await checkUserPermission(token, {
+    componentName: 'Ecommerce',
+  })
+
+  if (hasAccess.hasAccess === false) {
+    return {
+      notFound: true,
+    }
+  }
 
   try {
     const products = await getAllProducts(token)

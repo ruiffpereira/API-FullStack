@@ -198,6 +198,19 @@ function ComponentsAccess({ token }) {
           >
             {currentComponent.componentId !== null ? 'Update' : 'Create'}
           </button>
+          {currentComponent.componentId !== null && (
+            <button
+              type="button"
+              onClick={() => {
+                // Lógica para cancelar a edição
+                setCurrentComponent({ componentId: null, name: '' })
+                setSelectPermissions([])
+              }}
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
+              Cancel Edit
+            </button>
+          )}
         </div>
       </form>
       <div>

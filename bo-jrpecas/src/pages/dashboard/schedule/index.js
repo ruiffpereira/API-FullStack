@@ -1,28 +1,38 @@
 import { checkSession } from '@/utils/checkSession'
-import Profile from '@/components/admin/profile'
-import { getSession } from 'next-auth/react'
+import { checkUserPermission } from '@/pages/api/userPermission'
 
-function Settings({ token }) {
+function Schedule() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {<Profile token={token} />}
+      Marcacoes
     </div>
   )
 }
 
-export default Settings
+export default Schedule
 
 export async function getServerSideProps(context) {
   const sessionCheckResult = await checkSession(context.req)
-  if (sessionCheckResult) {
+
+  if (sessionCheckResult.redirect) {
     return sessionCheckResult
   }
 
-  const token = await getSession(context)
+  const { token } = sessionCheckResult.props
 
   if (!token) {
     return {
       notFound: true, // Next.js retornará uma página 404
+    }
+  }
+
+  const hasAccess = await checkUserPermission(token, {
+    componentName: 'Schedule',
+  })
+
+  if (hasAccess.hasAccess === false) {
+    return {
+      notFound: true,
     }
   }
 

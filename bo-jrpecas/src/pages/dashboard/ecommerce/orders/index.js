@@ -54,7 +54,7 @@ function Orders({ orders }) {
       <div>
         <h1 className="text-4xl font-bold mb-4">Lista de Encomendas</h1>
         <Table
-          rowKey={orders.rows.orderId}
+          rowKey={orders?.rows?.orderId ?? 'defaultKey'}
           columns={columns}
           dataSource={orders.rows}
         />

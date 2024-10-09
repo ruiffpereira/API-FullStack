@@ -46,6 +46,15 @@ const Sidebar = () => {
             </li>
             <li className="mb-2">
               <Link
+                href="/dashboard/schedule"
+                className="block p-2 hover:bg-gray-700"
+                onClick={() => setIsOpen(false)}
+              >
+                Schedule
+              </Link>
+            </li>
+            <li className="mb-2">
+              <Link
                 href="/dashboard/customers"
                 className="block p-2 hover:bg-gray-700"
                 onClick={() => setIsOpen(false)}
@@ -60,6 +69,15 @@ const Sidebar = () => {
                 onClick={() => setIsOpen(false)}
               >
                 Settings
+              </Link>
+            </li>
+            <li className="mb-2">
+              <Link
+                href="/dashboard/admin"
+                className="block p-2 hover:bg-gray-700"
+                onClick={() => setIsOpen(false)}
+              >
+                Admin Panel
               </Link>
             </li>
             <li className="mb-2">

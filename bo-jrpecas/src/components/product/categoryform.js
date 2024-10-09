@@ -239,11 +239,15 @@ const CategoryManager = ({ token }) => {
           className="border p-2 w-full"
         >
           <option value="">Selecione uma Categoria</option>
-          {dataCategories.rows.map((category) => (
+          {dataCategories?.rows?.map((category) => (
             <option key={category.categoryId} value={category.categoryId}>
               {category.name}
             </option>
-          ))}
+          )) ?? (
+            <option value="" disabled>
+              No categories available
+            </option>
+          )}
         </select>
         <input
           type="text"
@@ -261,7 +265,7 @@ const CategoryManager = ({ token }) => {
       </div>
 
       <div className="space-y-4">
-        {dataCategories.rows.map((category) => (
+        {dataCategories?.rows?.map((category) => (
           <div key={category.categoryId} className="border p-4 rounded">
             <div className="flex justify-between items-center">
               {editCategory?.id === category.categoryId ? (
@@ -394,7 +398,11 @@ const CategoryManager = ({ token }) => {
               </p>
             )}
           </div>
-        ))}
+        )) ?? (
+          <option value="" disabled>
+            No categories available
+          </option>
+        )}
       </div>
     </div>
   )
