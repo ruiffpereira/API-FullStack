@@ -9,6 +9,7 @@ const orderProductRoutes = require('./orderProductRoutes');
 const userRoutes = require('./userRoutes');
 const permissionRoutes = require('./permissionRoutes');
 const userPermissionRoutes = require('./userPermissionRoutes');
+const componentsRoutes = require('./componentsRoutes');
 const authenticateToken = require('../src/middleware/auth'); 
 const router = express.Router();
 
@@ -21,5 +22,6 @@ router.use('/ordersProduct', authenticateToken, orderProductRoutes);
 router.use('/users', userRoutes);
 router.use('/permissions', authenticateToken, permissionRoutes);
 router.use('/userpermissions', authenticateToken, userPermissionRoutes);
+router.use('/components', authenticateToken, componentsRoutes);
 
 module.exports = router;

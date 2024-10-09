@@ -15,6 +15,11 @@ const getAllPermissions = async (req, res) => {
 const createPermission = async (req, res) => {
   const { name, description } = req.body;
   try {
+    // Verifica se o nome já existe
+    const existingPermission = await Permission.findOne({ where: { name } });
+    if (existingPermission) {
+      return res.status(400).json({ error: 'Permission with this name already exists' });
+    }
     const newPermission = await Permission.create({ name, description });
     res.status(201).json(newPermission);
   } catch (error) {
@@ -25,11 +30,20 @@ const createPermission = async (req, res) => {
 
 // Atualiza uma permissão pelo ID
 const updatePermissionById = async (req, res) => {
-  const { id } = req.params;
+  const permissionId = req.params.id;
   const { name, description } = req.body; // Supondo que a permissão tenha esses campos
 
+  // Verifica se a permissão é "Admin"
+  const permission = await Permission.findOne({
+    where: { permissionId }
+  });
+
+  if (permission && permission.name === 'Admin') {
+    return res.status(400).json({ error: 'Cannot edit permission!' });
+  }
+
   try {
-    const permission = await Permission.findByPk(id);
+    const permission = await Permission.findByPk(permissionId);
     if (!permission) {
       return res.status(404).json({ error: 'Permission not found' });
     }
@@ -68,6 +82,16 @@ const deletePermissionById = async (req, res) => {
   try {
     const permissionId = req.params.id;
     console.log(req.params);
+
+    // Verifica se a permissão é "Admin"
+    const permission = await Permission.findOne({
+      where: { permissionId }
+    });
+
+    if (permission && permission.name === 'Admin') {
+      return res.status(400).json({ error: 'Cannot delete permission!' });
+    }
+
     // Verifica se a permissão está associada a algum usuário
     const userPermissionsCount = await UserPermission.count({
       where: { permissionId }

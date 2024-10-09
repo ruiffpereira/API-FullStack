@@ -23,7 +23,8 @@ const applyAssociations = (sequelize) => {
     Product.belongsToMany(Order, { through: OrderProduct, foreignKey: 'productId', otherKey: 'orderId', as: 'orders' });
     Order.belongsToMany(Product, { through: OrderProduct, foreignKey: 'orderId', otherKey: 'productId', as: 'products' });
 
-    Component.belongsToMany(Permission, { through: ComponentPermission, foreignKey: 'componentId' });
+    Component.belongsToMany(Permission, { through: ComponentPermission, foreignKey: 'componentId', otherKey: 'permissionId', as: 'permissions' });
+    Permission.belongsToMany(Component, { through: ComponentPermission, foreignKey: 'permissionId', otherKey: 'componentId', as: 'components' });
 
 
     // Definindo Hooks
