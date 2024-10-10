@@ -3,7 +3,7 @@
     "username": "mysql",
     "password": "dWg5csSWZJDdVuOetirRnIAs7vDNDyzJk6M83Ai6uBMgw15gn8SqbOdy8CEchJGm",
     "database": "database_production",
-    "host": "2cbe58a79100",
+    "host": "mysql",
     "port": 3306,
     "dialect": "mysql"
   }
