@@ -3,16 +3,16 @@
     "username": "root",
     "password": "password",
     "database": "database_development",
-    "host": "vkg40s4gssokscwos4k44s0o-153947858634",
+    "host": "http://89.116.228.34",
     "port": 3000,
-    "dialect": "vkg40s4gssokscwos4k44s0o-153947858634"
+    "dialect": "mysql"
   },
   "production": {
     "username": "root",
     "password": "password",
     "database": "database_production",
-    "host": "vkg40s4gssokscwos4k44s0o-153947858634",
+    "host": "http://89.116.228.34",
     "port": 3000,
-    "dialect": "vkg40s4gssokscwos4k44s0o-153947858634"
+    "dialect": "mysql"
   }
 }
