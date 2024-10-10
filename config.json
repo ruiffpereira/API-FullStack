@@ -4,7 +4,7 @@
     "password": "password",
     "database": "database_development",
     "host": "vkg40s4gssokscwos4k44s0o-153947858634",
-    "port": 3306,
+    "port": 3000,
     "dialect": "vkg40s4gssokscwos4k44s0o-153947858634"
   },
   "production": {
@@ -12,7 +12,7 @@
     "password": "password",
     "database": "database_production",
     "host": "vkg40s4gssokscwos4k44s0o-153947858634",
-    "port": 3306,
+    "port": 3000,
     "dialect": "vkg40s4gssokscwos4k44s0o-153947858634"
   }
 }
