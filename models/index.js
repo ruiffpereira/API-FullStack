@@ -17,6 +17,7 @@ console.log('host: ', dbConfig.host);
 console.log('database: ', dbConfig.database);
 console.log('username: ', dbConfig.username);
 console.log('password: ', dbConfig.password);
+
 // Configurar o Sequelize com as configurações do ambiente
 const sequelize = new Sequelize(
   dbConfig.database,
