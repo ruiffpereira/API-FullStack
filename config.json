@@ -3,7 +3,7 @@
     "username": "root",
     "password": "password",
     "database": "database_development",
-    "host": "mysql",
+    "host": "ruiffpereira/-a-p-i--full-stack:main-vkg40s4gssokscwos4k44s0o",
     "port": 3306,
     "dialect": "mysql"
   },
