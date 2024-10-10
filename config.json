@@ -3,7 +3,7 @@
     "username": "mysql",
     "password": "dWg5csSWZJDdVuOetirRnIAs7vDNDyzJk6M83Ai6uBMgw15gn8SqbOdy8CEchJGm",
     "database": "database_production",
-    "host": "mysql",
+    "host": "host.docker.internal",
     "port": 3306,
     "dialect": "mysql"
   }
