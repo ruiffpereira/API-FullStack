@@ -8,15 +8,15 @@ const config = JSON.parse(rawData);
 
 // Determinar o ambiente atual baseado em NODE_ENV ou usar 'development' como padrão
 const environment = process.env.NODE_ENV || 'development';
-console.log('Environment:', environment);
 
 // Selecionar a configuração baseada no ambiente
 const dbConfig = config[environment];
 
-console.log('host: ', dbConfig.host);
-console.log('database: ', dbConfig.database);
-console.log('username: ', dbConfig.username);
-console.log('password: ', dbConfig.password);
+// console.log('Environment:', environment);
+// console.log('host: ', dbConfig.host);
+// console.log('database: ', dbConfig.database);
+// console.log('username: ', dbConfig.username);
+// console.log('password: ', dbConfig.password);
 
 // Configurar o Sequelize com as configurações do ambiente
 const sequelize = new Sequelize(
@@ -110,10 +110,10 @@ const seedDatabase = async () => {
 
 const startDB = async () => {
   try {
-    // await sequelize.sync({ force: true });
-    // await seedDatabase();
+    await sequelize.sync({ force: true });
+    await seedDatabase();
     // await sequelize.sync();
-    await sequelize.sync({ alter: true });
+    // await sequelize.sync({ alter: true });
     applyAssociations(sequelize);
     await sequelize.authenticate();
     console.log("Connection has been established successfully.");
