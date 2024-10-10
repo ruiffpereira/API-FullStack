@@ -8,8 +8,8 @@
     "dialect": "mysql"
   },
   "production": {
-    "username": "mysql",
-    "password": "PDpqiZY73dwCiatk2VUw2L2QNBYNQqDZS4WjKujCIIZBcMTxrLPbbdMDgm4e9LuP",
+    "username": "root",
+    "password": "dWg5csSWZJDdVuOetirRnIAs7vDNDyzJk6M83Ai6uBMgw15gn8SqbOdy8CEchJGm",
     "database": "database_production",
     "host": "172.17.0.1",
     "port": 3306,
