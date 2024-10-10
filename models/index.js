@@ -8,6 +8,7 @@ const config = JSON.parse(rawData);
 
 // Determinar o ambiente atual baseado em NODE_ENV ou usar 'development' como padrão
 const environment = process.env.NODE_ENV || 'development';
+console.log('Environment:', environment);
 
 // Selecionar a configuração baseada no ambiente
 const dbConfig = config[environment];
@@ -22,16 +23,16 @@ const sequelize = new Sequelize(
     host: dbConfig.host,
     port: dbConfig.port,
     dialect: dbConfig.dialect,
-    retry: {
-      max: 10, // Número máximo de tentativas de reconexão
-      timeout: 5000, // Tempo de espera entre as tentativas, em milissegundos
-      match: [
-        Sequelize.ConnectionError,
-        Sequelize.ConnectionRefusedError,
-        Sequelize.ConnectionTimedOutError,
-        Sequelize.TimeoutError
-      ], // Lista de erros específicos que devem ser considerados para reconexão
-    },
+    // retry: {
+    //   max: 10, // Número máximo de tentativas de reconexão
+    //   timeout: 5000, // Tempo de espera entre as tentativas, em milissegundos
+    //   match: [
+    //     Sequelize.ConnectionError,
+    //     Sequelize.ConnectionRefusedError,
+    //     Sequelize.ConnectionTimedOutError,
+    //     Sequelize.TimeoutError
+    //   ], // Lista de erros específicos que devem ser considerados para reconexão
+    // },
   },
 );
 
