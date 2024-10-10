@@ -3,7 +3,7 @@
     "username": "root",
     "password": "password",
     "database": "database_development",
-    "host": "http://89.116.228.34",
+    "host": "http://vkg40s4gssokscwos4k44s0o.89.116.228.34.sslip.io",
     "port": 3000,
     "dialect": "mysql"
   },
@@ -11,7 +11,7 @@
     "username": "root",
     "password": "password",
     "database": "database_production",
-    "host": "http://89.116.228.34",
+    "host": "http://vkg40s4gssokscwos4k44s0o.89.116.228.34.sslip.io",
     "port": 3000,
     "dialect": "mysql"
   }
