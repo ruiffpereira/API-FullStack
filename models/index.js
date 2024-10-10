@@ -13,7 +13,7 @@ console.log('Environment:', environment);
 // Selecionar a configuração baseada no ambiente
 const dbConfig = config[environment];
 
-console.log('Environment:', dbConfig.host);
+console.log('host:', dbConfig.host);
 // Configurar o Sequelize com as configurações do ambiente
 const sequelize = new Sequelize(
   dbConfig.database,
