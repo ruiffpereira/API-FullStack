@@ -4,9 +4,10 @@ const app = express();
 const { startDB } = require("./models");
 const routes = require('./routes');
 const cors = require('cors');
+require('dotenv').config();
 
 app.use(cors({
-  origin: 'http://localhost:3000', // Substitua pelo domínio do seu frontend
+  origin: process.env.CORS_ORIGIN, // Substitua pelo domínio do seu frontend
   credentials: true, // Permite o envio de cookies
 }))
 
