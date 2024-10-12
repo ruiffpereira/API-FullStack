@@ -88,7 +88,7 @@ const loginUser = async (req, res) => {
     }
 
     // Gerar token JWT
-    const token = jwt.sign({ userId: user.userId }, JWT_SECRET);
+    const token = jwt.sign({ userId: user.userId }, JWT_SECRET, { expiresIn: '7d' });
 
     res.cookie('token-bo', token, { httpOnly: true });
 
