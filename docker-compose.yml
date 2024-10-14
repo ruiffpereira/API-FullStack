@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   app:
     build: .
@@ -11,6 +13,7 @@ services:
     volumes:
       - .:/app  # Mapeamento do diretório do código-fonte para o contêiner
       - /app/node_modules
+      - ./uploads:/app/uploads # Mapeamento do diretório de uploads
     working_dir: /app
     stdin_open: true  # Permite entrada de comandos pelo terminal (opcional)
     tty: true  # Mantém o terminal aberto (opcional)
