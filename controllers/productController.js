@@ -45,10 +45,11 @@ const getProductById = async (req, res) => {
 
 const createProduct = async (req, res) => {
   const userId = req.user;
-  const { productId, ...fields } = req.body;
+  
+  const { ...fields } = req.body;
 
   const validFields = {};
-  const updatableFields = ['name', 'reference', 'photos', 'stock', "price", 'description', 'categoryId', "subcategoryId"];
+  const updatableFields = ['name', 'reference', 'photos', 'stock', 'price', 'description', 'categoryId', 'subcategoryId'];
 
   updatableFields.forEach((field) => {
     if (fields[field] !== undefined && fields[field] !== '') {
@@ -56,13 +57,40 @@ const createProduct = async (req, res) => {
     }
   });
 
-  // Adicionar informações das fotos
-  if (req.body.files && req.body.files.length > 0) {
-    validFields.photos = req.body.files.map(file => file.path); // Armazenar os caminhos das fotos
+  console.log(updatableFields);
+  console.log(validFields);
+
+  // Inicializar validFields.photos como um array vazio
+  validFields.photos = validFields.photos || [];
+
+  // Adicionar novas fotos
+  if (req.files && Object.keys(req.files).length > 0) {
+    let photos = req.files.photos;
+    if (!Array.isArray(photos)) {
+      photos = [photos]; // Se não for um array, transforme em um array
+    }
+    if (photos.length > 0) {
+      const newPhotos = photos.map(file => {
+        const uniqueName = uuidv4() + path.extname(file.name); // Gerar um nome único para o arquivo
+        const uploadPath = './uploads/' + uniqueName;
+        file.mv(uploadPath, (err) => {
+          if (err) {
+            console.log(err);
+            return res.status(500).json({ error: err.message });
+          }
+        });
+        return uploadPath;
+      });
+      validFields.photos = [...validFields.photos, ...newPhotos];
+    }
   }
 
+  validFields.userId = userId;
+
   try {
-    const newProduct = await Product.create(validFields, userId);
+    console.log(validFields);
+    console.log(userId);
+    const newProduct = await Product.create(validFields);
     console.log("Produto criado com sucesso");
     res.status(201).json(newProduct);
   } catch (error) {
