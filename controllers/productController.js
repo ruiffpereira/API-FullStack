@@ -52,7 +52,7 @@ const createProduct = async (req, res) => {
   const updatableFields = ['name', 'reference', 'photos', 'stock', 'price', 'description', 'categoryId', 'subcategoryId'];
 
   updatableFields.forEach((field) => {
-    if (fields[field] !== undefined && fields[field] !== '') {
+    if (fields[field] !== undefined && fields[field] !== '' && fields[field] !== "undefined") {
       validFields[field] = fields[field];
     }
   });
