@@ -21,7 +21,7 @@ app.use(helmet());
 
 // Rate Limiting para prevenir ataques de força bruta e DDoS
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
+  windowMs: 1 * 60 * 1000, // 1 minutos
   max: 100, // Limite de 100 requisições por IP por janela de tempo
 });
 app.use(limiter);

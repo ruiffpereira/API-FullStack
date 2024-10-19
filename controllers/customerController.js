@@ -9,7 +9,8 @@ const getAllCustomers = async (req, res) => {
         userId: userId
       }
     });
-    res.json(customers);
+    console.log("Sucess fetching customers:", customers);
+    res.status(201).json(customers);
   } catch (error) {
     console.error('Error fetching customers:', error);
     res.status(500).json({ error: 'An error occurred while fetching customers' });
@@ -55,7 +56,7 @@ const updateCustomer = async (req, res) => {
     });
     if (updated) {
       const updatedCustomer = await Customer.findByPk(req.params.id);
-      res.json(updatedCustomer);
+      res.status(201).json(updatedCustomer);
     } else {
       res.status(404).json({ error: 'Customer not found' });
     }

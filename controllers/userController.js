@@ -3,6 +3,8 @@ const { User, Permission, UserPermission, sequelize } = require('../models');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET
+require('dotenv').config(); 
+const environment = process.env.NODE_ENV || 'development';
 
 // Retorna todas as permissões
 const getAllUsers = async (req, res) => {
@@ -76,21 +78,24 @@ const loginUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'Incorrect Data!' });
     }
+
+    if (environment !== "development") {
+        // Verificar se a senha e o hash estão presentes
+      if (!password || !user.password) {
+        return res.status(400).json({ error: 'Password and hash are required' });
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(401).json({ error: 'Invalid email or password' });
+      }
+    }
     
-    // Verificar se a senha e o hash estão presentes
-    if (!password || !user.password) {
-      return res.status(400).json({ error: 'Password and hash are required' });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ error: 'Invalid email or password' });
-    }
-
     // Gerar token JWT
     const token = jwt.sign({ userId: user.userId }, JWT_SECRET, { expiresIn: '7d' });
 
     res.cookie('token-bo', token, { httpOnly: true });
+    console.log("Login com sucesso")
 
     return res.json({ userId: user.userId, username: user.username, email: user.email, token });
 
