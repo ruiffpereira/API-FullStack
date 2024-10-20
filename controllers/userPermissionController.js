@@ -35,7 +35,7 @@ const checkUserPermission = async (req, res) => {
       }
     }
 
-    //console.log('User permissions:', results);
+    console.log('User permissions:', results);
     res.status(200).json(results);
 
   } catch (error) {

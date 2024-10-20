@@ -191,14 +191,35 @@ const updateProduct = async (req, res) => {
 const deleteProduct = async (req, res) => {
   const userId = req.user;
   try {
-    const deleted = await Product.destroy({
-      where: { productId: req.params.id , userId}
+    // Buscar o produto e suas imagens
+    const product = await Product.findOne({
+      where: { productId: req.params.id, userId }
     });
-    if (deleted) {
-      res.json({ deleted });
-    } else {
-      res.status(404).json({ error: 'Product not found' });
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
     }
+
+    // Verificar e remover as fotos associadas ao produto
+    if (product.photos && product.photos.length > 0) {
+      product.photos.forEach(photoPath => {
+        const fullPath = path.resolve(__dirname, '..', 'uploads', path.basename(photoPath));
+        fs.unlink(fullPath, err => {
+          if (err) {
+            console.log(`Erro ao remover a foto: ${fullPath}`, err);
+          } else {
+            console.log(`Foto removida: ${fullPath}`);
+          }
+        });
+      });
+    }
+
+    // Deletar o produto
+    const deleted = await Product.destroy({
+      where: { productId: req.params.id, userId }
+    });
+
+    res.json({ deleted });
   } catch (error) {
     console.error('Error deleting product:', error);
     res.status(500).json({ error: 'An error occurred while deleting the product' });

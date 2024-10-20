@@ -14,15 +14,15 @@ const { authenticateToken, authorizePermissions } = require('../src/middleware/a
 
 const router = express.Router();
 
-router.use('/categories', authenticateToken, authorizePermissions(['VIEW_CATEGORIES']) , categoryRoutes);
-router.use('/subcategories', authenticateToken, authorizePermissions(['VIEW_SUBCATEGORIES']), subcategoryRoutes);
+router.use('/categories', authenticateToken, authorizePermissions(['VIEW_PRODUCTS']) , categoryRoutes);
+router.use('/subcategories', authenticateToken, authorizePermissions(['VIEW_PRODUCTS']), subcategoryRoutes);
 router.use('/products',authenticateToken,  authorizePermissions(['VIEW_PRODUCTS']), productRoutes);
 router.use('/customers', authenticateToken, authorizePermissions(['VIEW_CUSTOMERS']), customerRoutes);
 router.use('/orders',authenticateToken, authorizePermissions(['VIEW_ORDERS']), orderRoutes);
-router.use('/ordersProduct',authenticateToken, authorizePermissions(['VIEW_ORDERS_PRODUCTS']), orderProductRoutes);
+router.use('/ordersProduct',authenticateToken, authorizePermissions(['VIEW_ORDERS']), orderProductRoutes);
 router.use('/users', userRoutes);
-router.use('/permissions', authenticateToken, authorizePermissions(['VIEW_PERMISSIONS']), permissionRoutes);
+router.use('/permissions', authenticateToken, authorizePermissions(['VIEW_ADMIN']), permissionRoutes);
 router.use('/userpermissions', authenticateToken, userPermissionRoutes);
-router.use('/components', authenticateToken, authorizePermissions(['VIEW_COMPONENTS']), componentsRoutes);
+router.use('/components', authenticateToken, authorizePermissions(['VIEW_ADMIN']), componentsRoutes);
 
 module.exports = router;
