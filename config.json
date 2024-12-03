@@ -11,7 +11,7 @@
     "username": "root",
     "password": "dWg5csSWZJDdVuOetirRnIAs7vDNDyzJk6M83Ai6uBMgw15gn8SqbOdy8CEchJGm",
     "database": "default",
-    "host": "172.17.0.1",
+    "host": "10.0.0.1",
     "port": 3306,
     "dialect": "mysql"
   }
