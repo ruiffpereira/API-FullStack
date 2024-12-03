@@ -12,6 +12,8 @@ const environment = process.env.NODE_ENV || 'development';
 // Selecionar a configuração baseada no ambiente
 const dbConfig = config[environment];
 
+console.log('Environment:', dbConfig); 
+
 // Configurar o Sequelize com as configurações do ambiente
 const sequelize = new Sequelize(
   dbConfig.database,
