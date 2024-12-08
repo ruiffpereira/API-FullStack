@@ -1,7 +1,8 @@
-const { Order , Customer, OrderProduct, Product } = require('../models');
+const { Order , Customer, Product } = require('../models');
 
 const getAllOrders = async (req, res) => {
   const userId = req.user;
+  console.log('userId:', userId);
   try {
     const orders = await Order.findAndCountAll({
       where: { userId },
@@ -9,6 +10,7 @@ const getAllOrders = async (req, res) => {
         { model: Customer, as: 'customer' }
       ]
     });
+    console.log('orders:', orders);
     res.json(orders);
   } catch (error) {
     console.error('Error fetching orders:', error);
