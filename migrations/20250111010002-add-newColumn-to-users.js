@@ -8,4 +8,7 @@ module.exports = {
       allowNull: true,
     });
   },
+  async down (queryInterface, Sequelize) {
+    await queryInterface.removeColumn('Users', 'secretkeysite');
+  }
 };
