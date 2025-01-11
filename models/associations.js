@@ -30,7 +30,7 @@ const applyAssociations = (sequelize) => {
     User.hasMany(Category, { foreignKey: 'userId' , as: 'categories' });
 
     Customer.belongsTo(User, { foreignKey: 'userId', as: 'users' });
-    User.hasMany(Customer, { foreignKey: 'userId' , as: 'customer' });
+    User.hasMany(Customer, { foreignKey: 'userId' , as: 'customers' });
 
     Order.belongsTo(User, { foreignKey: 'userId', as: 'users' });
     User.hasMany(Order, { foreignKey: 'userId' , as: 'orders' });

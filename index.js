@@ -11,7 +11,6 @@ require('dotenv').config();
 const fileUpload = require('express-fileupload');
 const path = require('path');
 
-
 const app = express();
 const { startDB } = require("./models");
 const routes = require('./routes');

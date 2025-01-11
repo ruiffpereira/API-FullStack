@@ -2,7 +2,7 @@ const { Sequelize , DataTypes } = require("sequelize");
 require("dotenv").config();
 const applyAssociations = require('./associations');
 const fs = require('fs');
-const configPath = './config.json';
+const configPath = './config/config.json';
 const rawData = fs.readFileSync(configPath);
 const config = JSON.parse(rawData);
 

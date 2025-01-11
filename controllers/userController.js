@@ -29,13 +29,11 @@ const getAllUsers = async (req, res) => {
 
 const registerUser = async (req, res) => {
   try {
-    const { name, email, permissionId, password } = req.body;
+    const { name, email, permissionId, password, secretkeysite} = req.body;
     
-    if (!email || !password || !name || !permissionId) {
+    if (!email || !password || !name | !secretkeysite || !permissionId) {
         return res.status(400).json({ error: 'Invalid Fields' });
     }
-
-    console.log("teste")
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -44,7 +42,7 @@ const registerUser = async (req, res) => {
 
     try {
         // Criar o usuário
-      const user = await User.create({ email, password: hashedPassword, name }, { transaction });
+      const user = await User.create({ email, password: hashedPassword, name, secretkeysite }, { transaction });
 
       // Atribuir a permissão ao usuário
       await UserPermission.create({ userId: user.dataValues.userId, permissionId }, { transaction });
@@ -107,7 +105,7 @@ const loginUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
 
-  const { userId, name, email, password, permissionId } = req.body;
+  const { userId, name, email, password, permissionId, secretkeysite } = req.body;
 
   console.log(req.body)
 
@@ -127,6 +125,7 @@ const updateUser = async (req, res) => {
       // Atualizar os dados do usuário
       if (name) user.name = name;
       if (email) user.email = email;
+      if (secretkeysite) user.secretkeysite = secretkeysite;
       if (password) user.password = await bcrypt.hash(password, 10);
 
       // Salvar as alterações no usuário

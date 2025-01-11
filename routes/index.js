@@ -17,7 +17,7 @@ const router = express.Router();
 router.use('/categories', authenticateToken, authorizePermissions(['VIEW_PRODUCTS']) , categoryRoutes);
 router.use('/subcategories', authenticateToken, authorizePermissions(['VIEW_PRODUCTS']), subcategoryRoutes);
 router.use('/products',authenticateToken,  authorizePermissions(['VIEW_PRODUCTS']), productRoutes);
-router.use('/customers', authenticateToken, authorizePermissions(['VIEW_CUSTOMERS']), customerRoutes);
+router.use('/customers', customerRoutes);
 router.use('/orders',authenticateToken, authorizePermissions(['VIEW_ORDERS']), orderRoutes);
 router.use('/ordersProduct',authenticateToken, authorizePermissions(['VIEW_ORDERS']), orderProductRoutes);
 router.use('/users', userRoutes);

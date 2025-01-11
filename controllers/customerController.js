@@ -1,4 +1,6 @@
-const { Customer } = require('../models');
+const { Customer, User } = require('../models');
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET
 
 const getAllCustomers = async (req, res) => {
   const userId = req.user;
@@ -37,14 +39,60 @@ const getCustomerById = async (req, res) => {
   }
 };
 
-const createCustomer = async (req, res) => {
-  const userId = req.user;
+const loginCustomer = async (req, res, next) => {
   try {
-    const newCustomer = await Customer.create({...req.body, userId});
-    res.status(201).json(newCustomer);
+    console.log("body: ", req.body);
+    const { secretkeysite } = req.body;
+    const { name, email, contact , image} = req.body.user;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    const user = await User.findOne({
+      where: { secretkeysite }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found for the given website key' });
+    }
+
+    let customer = await Customer.findOne({
+      where: {
+        userId: user.userId,
+        email
+      },
+      attributes: ['customerId','name', 'contact', 'email', 'photo']
+    });
+
+    if (!customer) {
+
+      customer = await Customer.create({
+        email,
+        name : name || 'N/A',
+        contact: contact || 'N/A',
+        photo : image || 'N/A',
+        userId: user.userId
+      });
+
+      customer = await Customer.findOne({
+        where: {
+          userId: user.userId,
+          email
+        },
+        attributes: ['customerId','name', 'contact', 'email', 'photo'] 
+      });
+    }
+
+    // Gerar token JWT
+    const token = jwt.sign({ userId: user.userId }, JWT_SECRET, { expiresIn: '7d' });
+    res.cookie('token-bo', token, { httpOnly: true });
+    res.json({customer, token});
+    next(); // Chama o próximo middleware (NextAuth)
+
   } catch (error) {
-    console.error('Error creating customer:', error);
-    res.status(500).json({ error: 'An error occurred while creating the customer' });
+    console.error('Error fetching or creating customer:', error);
+    res.status(500).json({ error: 'An error occurred while fetching or creating the customer' });
   }
 };
 
@@ -86,7 +134,7 @@ const deleteCustomer = async (req, res) => {
 module.exports = {
   getAllCustomers,
   getCustomerById,
-  createCustomer,
+  loginCustomer,
   updateCustomer,
   deleteCustomer,
 };
