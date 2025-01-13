@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       secretkeysite: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
       },
     }
   );
