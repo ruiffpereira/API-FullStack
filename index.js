@@ -58,6 +58,6 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api', routes);
 
-app.listen({ port: 3001 }, async () => {
+app.listen({ port: 2001 }, async () => {
   startDB();
 });
