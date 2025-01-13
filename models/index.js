@@ -2,7 +2,7 @@ const { Sequelize , DataTypes } = require("sequelize");
 require("dotenv").config();
 const applyAssociations = require('./associations');
 const dbConfig = require('../config/config');
-console.log(dbConfig);
+
 // Configurar o Sequelize com as configurações do ambiente
 const sequelize = new Sequelize(
   dbConfig.database,
