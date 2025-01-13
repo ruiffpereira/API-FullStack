@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET
 require('dotenv').config(); 
-const environment = process.env.NODE_ENV || 'development';
+const environment = process.env.ENVIROMENT || 'DEV';
 
 // Retorna todas as permissões
 const getAllUsers = async (req, res) => {
@@ -77,7 +77,7 @@ const loginUser = async (req, res) => {
       return res.status(404).json({ error: 'Incorrect Data!' });
     }
 
-    if (environment !== "development") {
+    if (environment !== "DEV") {
         // Verificar se a senha e o hash estão presentes
       if (!password || !user.password) {
         return res.status(400).json({ error: 'Password and hash are required' });

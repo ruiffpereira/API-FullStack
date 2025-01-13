@@ -1,19 +1,18 @@
 const { Sequelize , DataTypes } = require("sequelize");
 require("dotenv").config();
 const applyAssociations = require('./associations');
-
-//console.log('Environment:', dbConfig); 
+const dbConfig = require('../config/config');
 
 // Configurar o Sequelize com as configurações do ambiente
 const sequelize = new Sequelize(
-  process.env.DB_DATABASE,
-  process.env.DB_USERNAME,
-  process.env.DB_PASSWORD,
+  dbConfig.database,
+  dbConfig.username,
+  dbConfig.password,
   {
     logging: false,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    dialect: process.env.DB_DIALECT,
+    host: dbConfig.host,
+    port: dbConfig.port,
+    dialect: dbConfig.dialect,
     // retry: {
     //   max: 10, // Número máximo de tentativas de reconexão
     //   timeout: 5000, // Tempo de espera entre as tentativas, em milissegundos
@@ -24,7 +23,7 @@ const sequelize = new Sequelize(
     //     Sequelize.TimeoutError
     //   ], // Lista de erros específicos que devem ser considerados para reconexão
     // },
-  },
+  }
 );
 
 const Customer = require('./customer')(sequelize, DataTypes);
@@ -88,10 +87,11 @@ const startDB = async () => {
     //await sequelize.sync({ alter: true });
     //await sequelize.sync({ force: true });
     //await seedDatabase();
+    const environment = process.env.ENVIROMENT || 'PROD';
     await sequelize.sync();
     applyAssociations(sequelize);
     await sequelize.authenticate();
-    console.log("Connection has been established successfully.");
+    console.log(`Connection has been established successfully in ${environment} environment.`);
 
   } catch (error) {
     console.error("Unable to connect to the database:", error);
