@@ -116,9 +116,12 @@ const updateProduct = async (req, res) => {
     const validFields = {};
     const updatableFields = ['name', 'reference' ,'stock', "photots", "price", 'description', 'categoryId', "subcategoryId"];
 
+    console.log(fields);
     updatableFields.forEach((field) => {
-      if (fields[field] !== undefined && fields[field] !== '') {
+      if (fields[field] !== "undefined" && fields[field] !== '') {
         validFields[field] = fields[field];
+      } else {
+        validFields[field] = null;
       }
     });
 
@@ -168,6 +171,7 @@ const updateProduct = async (req, res) => {
       }
     }
 
+    console.log(validFields);
     const product = await Product.update(validFields, {
       where: { productId: fields.productId, userId }
     });
