@@ -10,6 +10,8 @@ const userRoutes = require('./userRoutes');
 const permissionRoutes = require('./permissionRoutes');
 const userPermissionRoutes = require('./userPermissionRoutes');
 const componentsRoutes = require('./componentsRoutes');
+const websiteRoutes = require('./websiteRoutes');
+
 const { authenticateToken, authorizePermissions } = require('../src/middleware/auth');
 
 const router = express.Router();
@@ -24,5 +26,6 @@ router.use('/users', userRoutes);
 router.use('/permissions', authenticateToken, authorizePermissions(['VIEW_ADMIN']), permissionRoutes);
 router.use('/userpermissions', authenticateToken, userPermissionRoutes);
 router.use('/components', authenticateToken, authorizePermissions(['VIEW_ADMIN']), componentsRoutes);
+router.use('/websites', websiteRoutes);
 
 module.exports = router;
