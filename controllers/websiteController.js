@@ -22,11 +22,24 @@ const getAllProducts = async (req, res) => {
     
     // Buscar os produtos associados ao userId
     const products = await Product.findAll({
-      where: { userId: user.userId }
+      where: { userId: user.userId },
+      attributes: ['productId', 'name', 'price', 'photos', 'description'] ,
+      include: [
+        {
+          model: Category,
+          as: 'category',
+          attributes: ['categoryId','name'] // Especifique os atributos desejados para Category
+        },
+        {
+          model: Subcategory,
+          as: 'subcategory',
+          attributes: ['subCategoryId', 'name'] // Especifique os atributos desejados para Subcategory
+        }
+      ]
     });
 
     
-    console.log('products:', products);
+    //console.log('products:', products);
 
     // Retornar os produtos na resposta
     res.json(products);
