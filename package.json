@@ -25,7 +25,7 @@
   "description": "backend api roixinho",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js",
+    "dev": "sequelize-cli db:migrate && nodemon index.js",
     "start": "sequelize-cli db:migrate && nodemon index.js"
   },
   "author": "rui pereira",

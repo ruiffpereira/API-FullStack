@@ -16,34 +16,6 @@ module.exports = (sequelize, DataTypes) => {
         key: 'customerId'
       },
     },
-    userId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: 'Users',
-        key: 'userId',
-      },
-    },
-    // deliveryAddress: {
-    //   type: DataTypes.STRING,
-    //   allowNull: false
-    // },
-    // total: {
-      //   type: DataTypes.STRING,
-      //   allowNull: false
-      // },
-    // paymentMethod: {
-    //   type: DataTypes.STRING,
-    //   allowNull: false
-    // },
-    // trackingNumber: {
-    //   type: DataTypes.STRING,
-    //   allowNull: true
-    // },
-    // paidStatus: {
-    //   type: DataTypes.STRING,
-    //   allowNull: true
-    // }
   });
 
   return Order;
