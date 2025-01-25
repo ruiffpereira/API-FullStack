@@ -11,8 +11,9 @@ const permissionRoutes = require('./permissionRoutes');
 const userPermissionRoutes = require('./userPermissionRoutes');
 const componentsRoutes = require('./componentsRoutes');
 const websiteRoutes = require('./websiteRoutes');
+const cartRoutes = require('./cartRoutes');
 
-const { authenticateToken, authorizePermissions } = require('../src/middleware/auth');
+const { authenticateToken, authorizePermissions, authenticateTokenCustomers } = require('../src/middleware/auth');
 
 const router = express.Router();
 
@@ -20,6 +21,7 @@ router.use('/categories', authenticateToken, authorizePermissions(['VIEW_PRODUCT
 router.use('/subcategories', authenticateToken, authorizePermissions(['VIEW_PRODUCTS']), subcategoryRoutes);
 router.use('/products',authenticateToken,  authorizePermissions(['VIEW_PRODUCTS']), productRoutes);
 router.use('/customers', customerRoutes);
+router.use('/carts', authenticateTokenCustomers, cartRoutes);
 router.use('/orders',authenticateToken, authorizePermissions(['VIEW_ORDERS']), orderRoutes);
 router.use('/ordersProduct',authenticateToken, authorizePermissions(['VIEW_ORDERS']), orderProductRoutes);
 router.use('/users', userRoutes);

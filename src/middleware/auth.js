@@ -1,9 +1,11 @@
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET
-const { UserPermission, Component, ComponentPermission, Permission, User } = require('../../models');
+const { UserPermission, Component, ComponentPermission, Permission, User, Customer } = require('../../models');
+const { promisify } = require('util'); // Importar promisify do módulo util
 
 const authenticateToken = (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1];
+
   if (!token) {
     return res.sendStatus(401); // Unauthorized
   }
@@ -21,40 +23,53 @@ const authenticateToken = (req, res, next) => {
 };
 
 const authenticateTokenCustomers = async (req, res, next) => {
-  const token = req.headers['authorization']?.split(' ')[1];
-  const customerId = req.params.customerId; // Supondo que o customerId seja passado como um parâmetro de rota
-
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
   if (!token) {
     return res.sendStatus(401); // Unauthorized
   }
 
   try {
-    // Buscar o userId usando o customerId
-    const customer = await Customer.findOne({ where: { id: customerId } });
-    if (!customer) {
-      return res.sendStatus(404); // Not Found
-    }
+    // Promisify jwt.verify para usar async/await
+    const verifyAsync = promisify(jwt.verify);
 
-    const userId = customer.userId;
+    // Buscar todos os usuários
+    const users = await User.findAll();
 
-    // Buscar a secretKey usando o userId
-    const user = await User.findOne({ where: { id: userId } });
-    if (!user) {
-      return res.sendStatus(404); // Not Found
-    }
+    let decoded;
+    let validUser;
 
-    const secretKey = user.secretKey; // Supondo que a chave secreta esteja armazenada no campo secretKey do usuário
+     // Iterar sobre os usuários e verificar o token com cada secretKey
+     for (const user of users) {
+      try {
+        decoded = await verifyAsync(token, user.secretkeysite);
 
-    // Validar o token usando a secretKey
-    jwt.verify(token, secretKey, (err, user) => {
-      if (err) {
-        console.log("Token inválido");
-        return res.sendStatus(403); // Forbidden
+        // Verificar se o userId no token é igual ao userId do usuário na iteração
+        if (decoded.userId !== user.userId) {
+          continue; // Se não for igual, continuar com o próximo usuário
+        }
+
+        validUser = user;
+        break; // Se o token for verificado com sucesso, sair do loop
+      } catch (err) {
+        // Se a verificação falhar, continuar com o próximo usuário
+        continue;
       }
+    }
 
-      req.user = user.userId;
-      next();
-    });
+    if (!validUser) {
+      return res.sendStatus(403); // Forbidden
+    }
+
+    // Armazenar informações decodificadas no objeto de requisição
+    req.data = {
+      userId: validUser.userId,
+      customerId: decoded.customerId,
+      // Adicione outras informações do usuário, se necessário
+    };
+    
+    next();
+
   } catch (error) {
     console.error("Erro ao autenticar o token:", error);
     return res.sendStatus(500); // Internal Server Error

@@ -1,26 +1,5 @@
-import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
-
-interface CartAttributes {
-  cartItemId: string;
-  cartId: string;
-  productId: string;
-  quantity: number;
-
-}
-
-interface CartCreationAttributes extends Optional<CartAttributes, 'cartItemId'> {}
-
-class CartProduct extends Model<CartAttributes, CartCreationAttributes> implements CartAttributes {
-  public cartItemId!: string;
-  public cartId!: string;
-  public productId!: string;
-  public quantity!: number;
-}
-
-module.exports = (sequelize: Sequelize): typeof CartProduct => {
-
-  CartProduct.init(
-    {
+module.exports = (sequelize, DataTypes) => {
+  const CartProduct = sequelize.define('CartProduct', {
       cartItemId: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -51,7 +30,8 @@ module.exports = (sequelize: Sequelize): typeof CartProduct => {
     {
       sequelize,
       modelName: 'CartProduct',
-      tableName: 'CartProducts'
+      tableName: 'CartProducts',
+      timestamps: true,
     }
   );
 

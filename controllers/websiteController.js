@@ -4,17 +4,18 @@ const { Product , User, Category, Subcategory} = require('../models');
 const getAllProducts = async (req, res) => {
   try {
     // Obter a secretkey do cabeçalho da requisição
-    const secretkey = req.headers['secretkey'];
-    console.log('secretkey:', secretkey);
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
 
-    if (!secretkey) {
+    if (!token) {
       return res.status(400).json({ error: 'Secret key is required' });
     }
 
     // Encontrar o userId correspondente à secretkey
     const user = await User.findOne({
-      where: { secretkeysite: secretkey }
+      where: { secretkeysite: token }
     });
+
 
     if (!user) {
       return res.status(404).json({ error: 'User not found for the given secret key' });
@@ -37,11 +38,9 @@ const getAllProducts = async (req, res) => {
         }
       ]
     });
-
     
     //console.log('products:', products);
 
-    // Retornar os produtos na resposta
     res.json(products);
   } catch (error) {
     console.error('Error fetching products:', error);

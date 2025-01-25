@@ -37,6 +37,8 @@ const Permission = require('./permission')(sequelize, DataTypes);
 const UserPermission = require('./userPermission')(sequelize, DataTypes);
 const Component = require('./component')(sequelize, DataTypes);
 const ComponentPermission = require('./componentPermission')(sequelize, DataTypes);
+const Cart = require('./cart')(sequelize, DataTypes);
+const CartProduct = require('./cartProduct')(sequelize, DataTypes);
 
 // const seedDatabase = async () => {
 //   try {
@@ -111,5 +113,7 @@ module.exports = {
   UserPermission,
   Component,
   ComponentPermission,
+  Cart,
+  CartProduct,
   startDB
  };

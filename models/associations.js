@@ -1,5 +1,5 @@
 const applyAssociations = (sequelize) => {
-    const { Category, Subcategory, Product, Customer, Order, OrderProduct , User, Permission, UserPermission, Component, ComponentPermission} = sequelize.models;
+    const { Category, Subcategory, Product, Customer, Order, OrderProduct , User, Permission, UserPermission, Component, ComponentPermission, CartProduct, Cart} = sequelize.models;
     
     // Associações de Category Subcategory Product
     Category.hasMany(Subcategory, { foreignKey: 'categoryId', as: 'subcategories', onDelete: 'CASCADE', onUpdate: 'CASCADE', hooks: true });
@@ -40,6 +40,18 @@ const applyAssociations = (sequelize) => {
 
     Product.belongsTo(User, { foreignKey: 'userId', as: 'users' });
     User.hasMany(Product, { foreignKey: 'userId' , as: 'products' });
+
+    // Associações entre Cart e CartProduct
+    Cart.hasMany(CartProduct, { foreignKey: 'cartId', as: 'cartProducts' });
+    CartProduct.belongsTo(Cart, { foreignKey: 'cartId', as: 'cart' });
+
+    // Associações entre Product e CartProduct
+    Product.hasMany(CartProduct, { foreignKey: 'productId', as: 'cartProducts' });
+    CartProduct.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
+
+    // Associações entre Customer e Cart
+    Customer.hasMany(Cart, { foreignKey: 'customerId', as: 'carts' });
+    Cart.belongsTo(Customer, { foreignKey: 'customerId', as: 'customer' });
 
     // Definindo Hooks
     Category.beforeDestroy(async (category, options) => {
