@@ -8,6 +8,7 @@ const environment = process.env.ENVIROMENT || 'DEV';
 
 // Retorna todas as permissões
 const getAllUsers = async (req, res) => {
+  console.log("teste")
   try {
     const users = await User.findAll({
       attributes: { exclude: ['password'] }, // Exclui o campo 'password'
@@ -20,6 +21,7 @@ const getAllUsers = async (req, res) => {
         },
       ],
     });
+    console.log(users)
     res.json(users);
   } catch (error) {
     console.error('Error fetching Users:', error);

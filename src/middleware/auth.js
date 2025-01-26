@@ -7,15 +7,17 @@ const authenticateToken = (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1];
 
   if (!token) {
+    console.log("Nao Autorizado BO")
     return res.sendStatus(401); // Unauthorized
   }
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
-      console.log("nao passou")
+      console.log("Nao Autorizado BO1")
       return res.sendStatus(403); // Forbidden
     }
     
+    console.log("Autorizado BO")
     req.user = user.userId;
 
     next();
@@ -26,6 +28,7 @@ const authenticateTokenCustomers = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   if (!token) {
+    console.log("Nao Autorizado Customer1")
     return res.sendStatus(401); // Unauthorized
   }
 
@@ -58,6 +61,7 @@ const authenticateTokenCustomers = async (req, res, next) => {
     }
 
     if (!validUser) {
+      console.log("Nao Autorizado Customer2")
       return res.sendStatus(403); // Forbidden
     }
 
@@ -68,6 +72,7 @@ const authenticateTokenCustomers = async (req, res, next) => {
       // Adicione outras informações do usuário, se necessário
     };
     
+    console.log("Autorizado Customer")
     next();
 
   } catch (error) {
@@ -77,6 +82,7 @@ const authenticateTokenCustomers = async (req, res, next) => {
 };
 
 const authorizePermissions = (requiredPermissions) => {
+  console.log("Entrou no authorizePermissions")
   return async (req, res, next) => {
     const userId = req.user; // Supondo que o ID do usuário autenticado está em req.user
 
@@ -89,6 +95,7 @@ const authorizePermissions = (requiredPermissions) => {
       const permissionName = await Permission.findAll({ where: { permissionId } });
 
       if (permissionName[0].name === 'Admin') {
+        console.log("Autorizado Permissao")
         return next();
       }
 
@@ -100,8 +107,11 @@ const authorizePermissions = (requiredPermissions) => {
 
       if (hasRequiredPermissions.length == 0) {
         // Nenhuma permissão encontrada
+        console.log("Nao Autorizado Permissao")
         return res.status(403).json({ error: 'User does not have the required permissions' });
       }
+
+      console.log("Autorizado Permissao")
 
       next();
       

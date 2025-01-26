@@ -34,8 +34,7 @@ const checkUserPermission = async (req, res) => {
         results[componentName] = hasRequiredPermissions.length > 0;
       }
     }
-
-    console.log('User permissions:', results);
+    
     res.status(200).json(results);
 
   } catch (error) {
