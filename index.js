@@ -32,9 +32,20 @@ app.set('trust proxy', 'loopback, linklocal, uniquelocal');
 app.use(mongoSanitize());
 app.use(xss());
 
-// Configuração de CORS
+console.log(process.env.CORS_ORIGINS);
+// Lista de domínios permitidos a partir da variável de ambiente
+const allowedOrigins = process.env.CORS_ORIGINS.split(',');
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN, // Usar a variável de ambiente
+  origin: (origin, callback) => {
+    // Permitir solicitações sem origem (como as feitas por ferramentas de teste)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true, // Permite o envio de cookies
 }));
 

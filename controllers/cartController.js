@@ -110,7 +110,7 @@ const getCartItems = async (req, res) => {
 
     const cartProducts = await CartProduct.findAll({
       where: { cartId: cart.cartId },
-      attributes: ['cartId', 'productId', 'quantity'] 
+      attributes: ['cartId', 'productId', 'quantity', "name", ] 
     });
 
     res.status(200).json(cartProducts);

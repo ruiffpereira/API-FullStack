@@ -89,7 +89,7 @@ const startDB = async () => {
     //await sequelize.sync({ alter: true });
     //await sequelize.sync({ force: true });
     //await seedDatabase();
-    const environment = process.env.ENVIROMENT || 'PROD';
+    const environment = process.env.ENVIROMENT;
     await sequelize.sync();
     applyAssociations(sequelize);
     await sequelize.authenticate();
