@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET
 require('dotenv').config(); 
-const environment = process.env.ENVIROMENT || 'DEV';
+const environment = process.env.ENVIROMENT;
 
 // Retorna todas as permissões
 const getAllUsers = async (req, res) => {
@@ -74,6 +74,8 @@ const loginUser = async (req, res) => {
     const user = await User.findOne({ 
       where: { name }
      });
+
+     console.log(user)
 
     if (!user) {
       return res.status(404).json({ error: 'Incorrect Data!' });
