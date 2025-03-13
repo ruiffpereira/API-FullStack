@@ -75,7 +75,7 @@ const loginUser = async (req, res) => {
       where: { name }
      });
 
-     console.log(user)
+     console.log("aqui user: ",user)
 
     if (!user) {
       return res.status(404).json({ error: 'Incorrect Data!' });
