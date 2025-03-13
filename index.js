@@ -32,7 +32,6 @@ app.set('trust proxy', 'loopback, linklocal, uniquelocal');
 app.use(mongoSanitize());
 app.use(xss());
 
-console.log("aquicors: ", process.env.CORS_ORIGINS);
 // Lista de domínios permitidos a partir da variável de ambiente
 const allowedOrigins = process.env.CORS_ORIGINS.split(',');
 
