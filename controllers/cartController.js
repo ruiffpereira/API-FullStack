@@ -7,7 +7,6 @@ const addProductToCart = async (req, res) => {
   const { customerId } = req.data;
 
   try {
-
     // Converter a quantidade para um número inteiro
     const quantityInt = parseInt(quantity, 10);
 
@@ -34,16 +33,51 @@ const addProductToCart = async (req, res) => {
       // Se o produto já está no carrinho, atualizar a quantidade
       cartProduct.quantity += quantityInt;
       await cartProduct.save();
+      console.log('cartProduct:', cartProduct);
     } else {
-      // Se o produto não está no carrinho, adicionar um novo item
-      cartProduct = await CartProduct.create({
-        cartId: cart.cartId,
-        productId,
-        quantity : quantityInt
-      });
+        // Se o produto não está no carrinho, adicionar um novo item
+        await CartProduct.create({
+          cartId: cart.cartId,
+          productId,
+          quantity : quantityInt
+        });
     }
 
-    res.status(200).json(cartProduct);
+    const cartProducts = await Cart.findOne({
+      where: { cartId: cart.cartId }, // Filtrar pelo cartId
+      attributes: [],
+      include: [
+        {
+          model: CartProduct, // Incluir os itens do carrinho
+          as: 'cartProducts',
+          attributes: ['quantity'],
+          include: [
+            {
+              model: Product, // Incluir os detalhes dos produtos
+              as: 'product',
+              attributes: ['productId', 'name', 'price', 'photos'], // Selecionar os campos desejados
+            },
+          ],
+        },
+      ],
+      order: [
+        // Ordenar os produtos pelo nome em ordem crescente
+        [{ model: CartProduct, as: 'cartProducts' }, { model: Product, as: 'product' }, 'name', 'ASC'],
+      ],
+    });
+    
+    const formattedCartProducts =  cartProducts.cartProducts.map(cartProduct => {
+      return {
+        productId: cartProduct.product.productId,
+        name: cartProduct.product.name,
+        price: cartProduct.product.price,
+        photos: cartProduct.product.photos,
+        quantity: cartProduct.quantity,
+      };
+    });
+
+
+    res.status(200).json(formattedCartProducts);
   } catch (error) {
     console.error('Error adding product to cart:', error);
     res.status(500).json({ error: 'An error occurred while adding the product to the cart' });
@@ -54,7 +88,6 @@ const addProductToCart = async (req, res) => {
 const updateProductQuantityInCart = async (req, res) => {
   const { productId, quantity } = req.body;
   const { customerId } = req.data;
-
 
   try {
     // Converter a quantidade para um número inteiro
@@ -105,20 +138,49 @@ const getCartItems = async (req, res) => {
     });
 
     if (!cart) {
-      return res.status(404).json({ error: 'Cart not found for the given customerId' });
+      cart = await Cart.create({ customerId : customerId  });
     }
 
-    const cartProducts = await CartProduct.findAll({
-      where: { cartId: cart.cartId },
-      attributes: ['cartId', 'productId', 'quantity', "name", ] 
+    const cartProducts = await Cart.findOne({
+      where: { cartId: cart.cartId }, // Filtrar pelo cartId
+      attributes: [],
+      include: [
+        {
+          model: CartProduct, // Incluir os itens do carrinho
+          as: 'cartProducts',
+          attributes: ['quantity'],
+          include: [
+            {
+              model: Product, // Incluir os detalhes dos produtos
+              as: 'product',
+              attributes: ['productId', 'name', 'price', 'photos'], // Selecionar os campos desejados
+            },
+          ],
+        },
+      ],
+      order: [
+        // Ordenar os produtos pelo nome em ordem crescente
+        [{ model: CartProduct, as: 'cartProducts' }, { model: Product, as: 'product' }, 'name', 'ASC'],
+      ],
+    });
+    
+    const formattedCartProducts =  cartProducts.cartProducts.map(cartProduct => {
+      return {
+        productId: cartProduct.product.productId,
+        name: cartProduct.product.name,
+        price: cartProduct.product.price,
+        photos: cartProduct.product.photos,
+        quantity: cartProduct.quantity,
+      };
     });
 
-    res.status(200).json(cartProducts);
+    res.status(200).json(formattedCartProducts);
+      
   } catch (error) {
     console.error('Error fetching cart items:', error);
     res.status(500).json({ error: 'An error occurred while fetching the cart items' });
   }
-};
+}
 
 module.exports = {
   addProductToCart,
