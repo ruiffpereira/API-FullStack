@@ -3,9 +3,10 @@ const bodyParser = require("body-parser");
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
-const xss = require('xss-clean');
 const csrf = require('csurf');
 const cookieParser = require('cookie-parser');
+const { JSDOM } = require('jsdom');
+const createDOMPurify = require('dompurify');
 const cors = require('cors');
 require('dotenv').config();
 const fileUpload = require('express-fileupload');
@@ -28,13 +29,27 @@ app.use(limiter);
 // Configurar trust proxy de forma mais restritiva
 app.set('trust proxy', 'loopback, linklocal, uniquelocal');
 
-// Sanitização de dados para prevenir injeção de SQL e XSS
+// Sanitização de dados para prevenir injeção de SQL
 app.use(mongoSanitize());
-app.use(xss());
+
+// Configurar DOMPurify
+const window = new JSDOM('').window;
+const DOMPurify = createDOMPurify(window);
+
+// Middleware para sanitizar dados usando DOMPurify
+app.use((req, res, next) => {
+  if (req.body) {
+    for (const key in req.body) {
+      if (typeof req.body[key] === 'string') {
+        req.body[key] = DOMPurify.sanitize(req.body[key]); // Sanitizar strings no corpo da requisição
+      }
+    }
+  }
+  next();
+});
 
 // Lista de domínios permitidos a partir da variável de ambiente
 const allowedOrigins = process.env.CORS_ORIGINS.split(',');
-console.log('Allowed Origins:', allowedOrigins);
 
 app.use(cors({
   origin: (origin, callback) => {

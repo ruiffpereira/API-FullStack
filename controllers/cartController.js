@@ -10,10 +10,10 @@ const addProductToCart = async (req, res) => {
     // Converter a quantidade para um número inteiro
     const quantityInt = parseInt(quantity, 10);
 
-    if (isNaN(quantityInt) || quantityInt <= 0) {
+    if (isNaN(quantityInt)) {
       return res.status(400).json({ error: 'Invalid quantity' });
     }
-
+    
     // Verificar se o cliente já tem um carrinho
     let cart = await Cart.findOne({
       where: { customerId : customerId }
@@ -23,24 +23,47 @@ const addProductToCart = async (req, res) => {
     if (!cart) {
       cart = await Cart.create({ customerId : customerId  });
     }
-
+  
     // Verificar se o produto já está no carrinho
     let cartProduct = await CartProduct.findOne({
       where: { cartId: cart.cartId, productId }
     });
 
     if (cartProduct) {
-      // Se o produto já está no carrinho, atualizar a quantidade
-      cartProduct.quantity += quantityInt;
-      await cartProduct.save();
-      console.log('cartProduct:', cartProduct);
+      // Se o produto já está no carrinho
+      if (quantityInt === -1) {
+        // Remover o produto do carrinho independentemente da quantidade
+        await cartProduct.destroy();
+
+      } else if (quantityInt === 0) {
+        // Diminuir a quantidade do produto no carrinho
+        if (cartProduct.quantity > 1) {
+          cartProduct.quantity -= 1;
+          await cartProduct.save();
+        } else {
+          // Se a quantidade for 1, remover o produto
+          await cartProduct.destroy()
+        }
+      } else if (quantityInt === 1) {
+        // Adicionar mais um do produto ao carrinho
+        cartProduct.quantity += 1;
+        await cartProduct.save();
+      } else {
+        return res.status(400).json({ error: 'Invalid quantity operation' });
+      }
     } else {
-        // Se o produto não está no carrinho, adicionar um novo item
+      // Se o produto não está no carrinho
+      if (quantityInt === 1) {
+        // Adicionar o produto ao carrinho com quantidade inicial de 1
         await CartProduct.create({
           cartId: cart.cartId,
           productId,
-          quantity : quantityInt
+          quantity: 1,
         });
+
+      } else {
+        return res.status(400).json({ error: 'Invalid operation for a product not in the cart' });
+      }
     }
 
     const cartProducts = await Cart.findOne({
@@ -75,7 +98,6 @@ const addProductToCart = async (req, res) => {
         quantity: cartProduct.quantity,
       };
     });
-
 
     res.status(200).json(formattedCartProducts);
   } catch (error) {
