@@ -34,6 +34,7 @@ app.use(xss());
 
 // Lista de domínios permitidos a partir da variável de ambiente
 const allowedOrigins = process.env.CORS_ORIGINS.split(',');
+console.log('Allowed Origins:', allowedOrigins);
 
 app.use(cors({
   origin: (origin, callback) => {
