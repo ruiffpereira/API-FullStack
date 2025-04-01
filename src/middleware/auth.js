@@ -2,7 +2,17 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET
 const JWT_SECRET_PUBLIC = process.env.JWT_SECRET_PUBLIC
 const { UserPermission, Component, ComponentPermission, Permission, User, Customer } = require('../../models');
-const { promisify } = require('util'); // Importar promisify do módulo util
+const swaggerActivationStart = Date.now();
+const swaggerActivationDuration = 1 * 60 * 1000; // 10 minutos em milissegundos
+
+// Middleware para verificar se a rota ainda está acessível
+const swaggerAccessMiddleware = (req, res, next) => {
+  const currentTime = Date.now();
+  if (currentTime - swaggerActivationStart > swaggerActivationDuration) {
+    return res.status(403).json({ error: 'Access to Swagger documentation has expired' });
+  }
+  next();
+};
 
 const authenticateToken = (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1];
@@ -107,4 +117,4 @@ const authorizePermissions = (requiredPermissions) => {
   };
 };
 
-module.exports = {authenticateToken, authorizePermissions, authenticateTokenCustomers, authenticateTokenPublic};
+module.exports = {authenticateToken, authorizePermissions, authenticateTokenCustomers, authenticateTokenPublic, swaggerAccessMiddleware};
