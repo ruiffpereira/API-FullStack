@@ -8,10 +8,10 @@ const swaggerActivationDuration = 20 * 60 * 1000; // 10 minutos em milissegundos
 // Middleware para verificar se a rota ainda está acessível
 const swaggerAccessMiddleware = (req, res, next) => {
 
-  if (process.env.NODE_ENV === 'DEV') {
+  if (process.env.ENVIROMENT === 'DEV') {
     return next(); // Ignorar a verificação no ambiente de desenvolvimento
   }
-  
+
   const currentTime = Date.now();
   if (currentTime - swaggerActivationStart > swaggerActivationDuration) {
     return res.status(403).json({ error: 'Access to Swagger documentation has expired' });
