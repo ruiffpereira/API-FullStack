@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@types/swagger-ui-express": "^4.1.8",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.7",
@@ -11,6 +12,7 @@
     "express-fileupload": "^1.5.1",
     "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^7.4.1",
+    "google-auth-library": "^9.15.1",
     "helmet": "^4.6.0",
     "jsdom": "^26.0.0",
     "jsonwebtoken": "^9.0.2",
@@ -19,7 +21,10 @@
     "sequelize": "^6.37.3",
     "sequelize-cli": "^5.5.1",
     "sharp": "^0.33.5",
-    "uuid": "^10.0.0"
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^10.0.0",
+    "zod": "^3.24.2"
   },
   "name": "api-roixinho",
   "version": "1.0.0",
@@ -35,6 +40,7 @@
     "@rocketseat/eslint-config": "^2.2.2",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.7",
+    "@types/swagger-jsdoc": "^6.0.4",
     "eslint": "^8.57.0",
     "nodemon": "^3.1.7",
     "typescript": "^5.7.3"

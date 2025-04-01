@@ -11,7 +11,6 @@ const cors = require('cors');
 require('dotenv').config();
 const fileUpload = require('express-fileupload');
 const path = require('path');
-
 const app = express();
 const { startDB } = require("./models");
 const routes = require('./routes');
@@ -83,6 +82,12 @@ app.use(fileUpload());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api', routes);
+
+// Servir a documentação do Swagger apenas no ambiente de desenvolvimento
+if (process.env.ENVIROMENT === 'DEV') {
+  const swaggerRoutes = require('./swagger');
+  app.use('/api-docs', swaggerRoutes);
+}
 
 app.listen({ port: 2001 }, async () => {
   startDB();

@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET
+const JWT_SECRET_PUBLIC = process.env.JWT_SECRET_PUBLIC
 const { UserPermission, Component, ComponentPermission, Permission, User, Customer } = require('../../models');
 const { promisify } = require('util'); // Importar promisify do módulo util
 
@@ -25,64 +26,48 @@ const authenticateToken = (req, res, next) => {
 };
 
 const authenticateTokenCustomers = async (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+
+  const token = req.headers['authorization']?.split(' ')[1];
+
   if (!token) {
-    console.log("Nao Autorizado Customer1")
+    console.log("Nao Autorizado BO")
     return res.sendStatus(401); // Unauthorized
   }
 
-  try {
-    // Promisify jwt.verify para usar async/await
-    const verifyAsync = promisify(jwt.verify);
-
-    // Buscar todos os usuários
-    const users = await User.findAll();
-
-    let decoded;
-    let validUser;
-
-     // Iterar sobre os usuários e verificar o token com cada secretKey
-     for (const user of users) {
-      try {
-        decoded = await verifyAsync(token, user.secretkeysite);
-
-        // Verificar se o userId no token é igual ao userId do usuário na iteração
-        if (decoded.userId !== user.userId) {
-          continue; // Se não for igual, continuar com o próximo usuário
-        }
-
-        validUser = user;
-        break; // Se o token for verificado com sucesso, sair do loop
-      } catch (err) {
-        // Se a verificação falhar, continuar com o próximo usuário
-        continue;
-      }
-    }
-
-    if (!validUser) {
-      console.log("Nao Autorizado Customer2")
+  jwt.verify(token, process.env.JWT_SECRET, (err, customer) => {
+    if (err) {
+      console.log("Nao Autorizado BO1")
       return res.sendStatus(403); // Forbidden
     }
-
-    // Armazenar informações decodificadas no objeto de requisição
-    req.data = {
-      userId: validUser.userId,
-      customerId: decoded.customerId,
-      // Adicione outras informações do usuário, se necessário
-    };
     
-    console.log("Autorizado Customer")
-    next();
+    req.customerId = customer.customerId;
 
-  } catch (error) {
-    console.error("Erro ao autenticar o token:", error);
-    return res.sendStatus(500); // Internal Server Error
+    next();
+  });
+};
+
+const authenticateTokenPublic = (req, res, next) => {
+
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (!token) {
+    console.log("Nao Autorizado BO")
+    return res.sendStatus(401); // Unauthorized
   }
+
+  jwt.verify(token, JWT_SECRET_PUBLIC, (err, user) => {
+    if (err) {
+      console.log("Nao Autorizado BO1")
+      return res.sendStatus(403); // Forbidden
+    }
+    
+    //console.log("Autorizado BO")
+    req.userId = user.userId;
+
+    next();
+  });
 };
 
 const authorizePermissions = (requiredPermissions) => {
-  console.log("Entrou no authorizePermissions")
   return async (req, res, next) => {
     const userId = req.user; // Supondo que o ID do usuário autenticado está em req.user
 
@@ -122,4 +107,4 @@ const authorizePermissions = (requiredPermissions) => {
   };
 };
 
-module.exports = {authenticateToken, authorizePermissions, authenticateTokenCustomers};
+module.exports = {authenticateToken, authorizePermissions, authenticateTokenCustomers, authenticateTokenPublic};
