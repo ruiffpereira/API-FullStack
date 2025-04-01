@@ -3,10 +3,15 @@ const JWT_SECRET = process.env.JWT_SECRET
 const JWT_SECRET_PUBLIC = process.env.JWT_SECRET_PUBLIC
 const { UserPermission, Component, ComponentPermission, Permission, User, Customer } = require('../../models');
 const swaggerActivationStart = Date.now();
-const swaggerActivationDuration = 1 * 60 * 1000; // 10 minutos em milissegundos
+const swaggerActivationDuration = 20 * 60 * 1000; // 10 minutos em milissegundos
 
 // Middleware para verificar se a rota ainda está acessível
 const swaggerAccessMiddleware = (req, res, next) => {
+
+  if (process.env.NODE_ENV === 'DEV') {
+    return next(); // Ignorar a verificação no ambiente de desenvolvimento
+  }
+  
   const currentTime = Date.now();
   if (currentTime - swaggerActivationStart > swaggerActivationDuration) {
     return res.status(403).json({ error: 'Access to Swagger documentation has expired' });

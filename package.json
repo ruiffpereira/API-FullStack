@@ -37,11 +37,10 @@
   "author": "rui pereira",
   "license": "ISC",
   "devDependencies": {
-    "@rocketseat/eslint-config": "^2.2.2",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.7",
     "@types/swagger-jsdoc": "^6.0.4",
-    "eslint": "^8.57.0",
+    "eslint": "^9.23.0",
     "nodemon": "^3.1.7",
     "typescript": "^5.7.3"
   }
