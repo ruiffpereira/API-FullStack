@@ -74,15 +74,13 @@ const registerUser = async (req, res) => {
 };
 
 const loginUser = async (req, res) => {
-  console.log("teste")
+
   const { name, password } = req.body;
   
   try {
     const user = await User.findOne({ 
       where: { name }
      });
-
-     console.log("aqui user: ",user)
 
     if (!user) {
       return res.status(404).json({ error: 'Incorrect Data!' });
@@ -91,11 +89,13 @@ const loginUser = async (req, res) => {
     if (environment !== "DEV") {
         // Verificar se a senha e o hash estão presentes
       if (!password || !user.password) {
-        return res.status(400).json({ error: 'Password and hash are required' });
+        console.log("Password and hash are required")
+        return res.status(400).json({ error: 'Invalid email or password' });
       }
 
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
+        console.log("Invalid email or password")
         return res.status(401).json({ error: 'Invalid email or password' });
       }
     }
@@ -104,7 +104,6 @@ const loginUser = async (req, res) => {
     const token = jwt.sign({ userId: user.userId }, JWT_SECRET, { expiresIn: '7d' });
 
     res.cookie('token-bo', token, { httpOnly: true });
-    console.log("Login com sucesso")
 
     return res.json({ userId: user.userId, username: user.username, email: user.email, token });
 

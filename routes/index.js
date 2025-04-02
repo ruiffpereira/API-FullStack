@@ -16,6 +16,9 @@ router.use('/userpermissions', authenticateToken, userPermissionRoutes);
 const permissionRoutes = require('./backoffice/admin/permissionRoutes');
 router.use('/permissions', authenticateToken, authorizePermissions(['VIEW_ADMIN']), permissionRoutes);
 
+const customersBORoutes = require('./backoffice/customers/customerRoutes');
+router.use('/customers', authenticateToken, authorizePermissions(['VIEW_CUSTOMERS']), customersBORoutes);
+
 const componentsRoutes = require('./backoffice/admin/componentsRoutes');
 router.use('/components', authenticateToken, authorizePermissions(['VIEW_ADMIN']), componentsRoutes);
 

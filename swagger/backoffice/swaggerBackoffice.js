@@ -10,7 +10,7 @@ const swaggerOptionsBackoffice = {
     },
     servers: [
       {
-        url: 'http://localhost:2001',
+        url: 'http://localhost:2001/api',
         description: 'Servidor local',
       },
       {
