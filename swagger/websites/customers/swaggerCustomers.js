@@ -17,7 +17,6 @@ const swaggerOptionsWebsitesCustomers = {
         url: 'https://api.code-fullstack.com/api',
         description: 'Servidor de produção',
       },
-      
     ],
     components: {
       schemas: {
@@ -47,6 +46,66 @@ const swaggerOptionsWebsitesCustomers = {
             },
           },
           required: ['customerId', 'name', 'email'], // Campos obrigatórios
+        },
+        Address: {
+          type: 'object',
+          properties: {
+            addressId: {
+              type: 'string',
+              description: 'ID of the address',
+            },
+            address: {
+              type: 'string',
+              description: 'Street address of the customer',
+            },
+            postalCode: {
+              type: 'string',
+              description: 'Postal code of the address',
+            },
+            city: {
+              type: 'string',
+              description: 'City of the address',
+            },
+            phoneNumber: {
+              type: 'string',
+              description: 'Phone number associated with the address',
+            },
+            nif: {
+              type: 'string',
+              description: 'Tax identification number (NIF)',
+            },
+            addTaxpayer: {
+              type: 'boolean',
+              description: 'Indicates if the taxpayer should be added',
+            }
+          },
+          required: ['address', 'postalCode', 'city', 'phoneNumber', 'nif', 'addTaxpayer', 'customerId'], // Campos obrigatórios
+        },
+        BankCard: {
+          type: 'object',
+          properties: {
+            cardId: {
+              type: 'string',
+              description: 'ID of the bank card',
+            },
+            cardNumber: {
+              type: 'string',
+              description: 'Card number',
+            },
+            expirationDate: {
+              type: 'string',
+              description: 'Expiration date of the card (MM/YY format)',
+            },
+            cvv: {
+              type: 'string',
+              description: 'CVV of the card',
+            },
+            customerId: {
+              type: 'string',
+              description: 'ID of the customer associated with the bank card',
+            },
+          },
+          required: ['cardNumber', 'expirationDate', 'cvv', 'customerId'], // Campos obrigatórios
         },
       },
     },

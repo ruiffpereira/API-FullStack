@@ -63,12 +63,6 @@ app.use(cors({
   credentials: true, // Permite o envio de cookies
 }));
 
-// Segurança de Cookies
-app.use((req, res, next) => {
-  res.cookie('session', '1', { httpOnly: true, secure: true, sameSite: 'strict' });
-  next();
-});
-
 // Configuração de CSRF
 // app.use(cookieParser());
 // app.use(csrf({ cookie: true }));

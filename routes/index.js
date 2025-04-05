@@ -42,7 +42,13 @@ router.use('/ordersProduct',authenticateToken, authorizePermissions(['VIEW_PRODU
 
 // CUSTOMERS
 const customerRoutes = require('./websites/customers/customerRoutes');
-router.use('/websites/customers', authenticateTokenPublic, customerRoutes);
+router.use('/websites/customerslogin', authenticateTokenPublic, customerRoutes);
+
+const addressRoutes = require('./websites/customers/addressRoutes');
+router.use('/websites/customers/addresses', authenticateTokenCustomers, addressRoutes);
+
+const bankCardRoutes = require('./websites/customers/bankCardRoutes');
+router.use('/websites/customers/bankcards', authenticateTokenCustomers, bankCardRoutes);
 
 // ECOMMERCE
 const productsRoutes = require('./websites/ecommerce/productsRoutes');

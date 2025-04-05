@@ -39,6 +39,9 @@ const Component = require('./component')(sequelize, DataTypes);
 const ComponentPermission = require('./componentPermission')(sequelize, DataTypes);
 const Cart = require('./cart')(sequelize, DataTypes);
 const CartProduct = require('./cartProduct')(sequelize, DataTypes);
+const BankCard = require('./bankCart')(sequelize, DataTypes);
+const Address = require('./address')(sequelize, DataTypes);
+
 
 // const seedDatabase = async () => {
 //   try {
@@ -115,5 +118,7 @@ module.exports = {
   ComponentPermission,
   Cart,
   CartProduct,
+  Address,
+  BankCard,
   startDB
  };

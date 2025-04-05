@@ -1,46 +1,45 @@
 module.exports = (sequelize, DataTypes) => {
-  const Customer = sequelize.define('Customer', {
-    customerId: {
+  const Address = sequelize.define('Address', {
+    addressId: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-      Validate: {
-        notEmpty: true,
-      },
     },
-    name: {
+    address: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    photo: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
-    contact: {
+    postalCode: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    refreshToken: {
+    city: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
     },
-    userId: {
+    phoneNumber: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    nif: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    addTaxpayer: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+    customerId: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: 'Users',
-        key: 'userId',
+        model: 'Customers',
+        key: 'customerId',
       },
     },
-  },
-  {
+  }, {
     paranoid: true,
   });
 
-  return Customer;
+  return Address;
 };

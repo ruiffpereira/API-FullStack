@@ -1,46 +1,33 @@
 module.exports = (sequelize, DataTypes) => {
-  const Customer = sequelize.define('Customer', {
-    customerId: {
+  const BankCard = sequelize.define('BankCard', {
+    cardId: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-      Validate: {
-        notEmpty: true,
-      },
     },
-    name: {
+    cardNumber: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    photo: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
-    contact: {
+    expirationDate: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    refreshToken: {
+    cvv: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
     },
-    userId: {
+    customerId: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: 'Users',
-        key: 'userId',
+        model: 'Customers',
+        key: 'customerId',
       },
     },
-  },
-  {
+  }, {
     paranoid: true,
   });
 
-  return Customer;
+  return BankCard;
 };

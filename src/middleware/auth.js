@@ -23,19 +23,19 @@ const authenticateToken = (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1];
 
   if (!token) {
-    console.log("Nao Autorizado BO")
+    console.log("Token nao existe:", token)
     return res.sendStatus(401); // Unauthorized
   }
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
-      console.log("Nao Autorizado BO1")
+      console.log("Token:", token)
+      console.log("Token user nao autorizado")
       return res.sendStatus(403); // Forbidden
     }
-    
-    console.log("Autorizado BO")
     req.user = user.userId;
 
+    //console.log("Autorizado BO1")
     next();
   });
 };
@@ -43,20 +43,21 @@ const authenticateToken = (req, res, next) => {
 const authenticateTokenCustomers = async (req, res, next) => {
 
   const token = req.headers['authorization']?.split(' ')[1];
-
+  
   if (!token) {
-    console.log("Nao Autorizado BO")
+    console.log("Token nao existe:", token)
     return res.sendStatus(401); // Unauthorized
   }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, customer) => {
+  jwt.verify(token, JWT_SECRET, (err, customer) => {
     if (err) {
-      console.log("Nao Autorizado BO1")
+      console.log("Token:", token)
+      console.log("Token customer nao autorizado")
       return res.sendStatus(403); // Forbidden
     }
     
     req.customerId = customer.customerId;
-
+    //console.log("Autorizado BO2")
     next();
   });
 };
@@ -64,18 +65,20 @@ const authenticateTokenCustomers = async (req, res, next) => {
 const authenticateTokenPublic = (req, res, next) => {
 
   const token = req.headers['authorization']?.split(' ')[1];
+
   if (!token) {
-    console.log("Nao Autorizado BO")
+    console.log("Token nao existe:", token)
     return res.sendStatus(401); // Unauthorized
   }
 
   jwt.verify(token, JWT_SECRET_PUBLIC, (err, user) => {
     if (err) {
-      console.log("Nao Autorizado BO1")
+      console.log("Token:", token)
+      console.log("Token public nao autorizado")
       return res.sendStatus(403); // Forbidden
     }
-    
-    //console.log("Autorizado BO")
+
+    //console.log("Autorizado BO3")
     req.userId = user.userId;
 
     next();

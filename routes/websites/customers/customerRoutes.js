@@ -3,7 +3,6 @@ const { loginCustomer, updateCustomer} = require('../../../controllers/websites/
 const router = express.Router();
 const { authenticateToken, authorizePermissions } = require('../../../src/middleware/auth');
 
-router.post('/login', loginCustomer);
-// router.put('/:id', authenticateToken, authorizePermissions(['VIEW_CUSTOMERS']),updateCustomer);
+router.post('/', loginCustomer);
 
 module.exports = router;

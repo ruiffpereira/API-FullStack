@@ -102,10 +102,11 @@ const loginUser = async (req, res) => {
     
     // Gerar token JWT
     const token = jwt.sign({ userId: user.userId }, JWT_SECRET, { expiresIn: '7d' });
+    
+    // Segurança de Cookies
+    res.cookie('user-token', token, { httpOnly: true, secure: true, sameSite: 'strict' });
 
-    res.cookie('token-bo', token, { httpOnly: true });
-
-    return res.json({ userId: user.userId, username: user.username, email: user.email, token });
+    return res.json({ userId: user.userId, username: user.username, email: user.emailk , token });
 
   } catch (error) {
     console.error('Login error:', error);

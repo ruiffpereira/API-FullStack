@@ -28,10 +28,10 @@ const loginCustomerSchema = z.object({
 
 const loginCustomer = async (req, res, next) => {
   try {
-
+    
     const validatedData = loginCustomerSchema.parse(req.body);
     const { idToken } = validatedData;
-
+    
     const ticket = await validateGoogleToken(idToken);
 
     const user = await User.findOne({
@@ -71,12 +71,12 @@ const loginCustomer = async (req, res, next) => {
     }
 
     // Gerar token JWT
-    const token = jwt.sign({ customerId: customer.customerId, userId: user.userId  }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({customerId: customer.customerId}, process.env.JWT_SECRET, { expiresIn: '7d' });
     
-    // Adicionar o token ao objeto customer
+    res.cookie('customer-token', token, { httpOnly: true, secure: true, sameSite: 'strict' });
     customer.setDataValue('token', token);
 
-    res.json(customer);
+    res.status(200).json(customer);
     next(); // Chama o próximo middleware (NextAuth)
 
   } catch (error) {
@@ -104,7 +104,7 @@ module.exports = {
 
 /**
  * @swagger
- * /websites/customers/login:
+ * /websites/customerslogin:
  *   post:
  *     summary: Log in or create a customer
  *     tags: [Customers]
