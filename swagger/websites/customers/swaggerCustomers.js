@@ -76,10 +76,10 @@ const swaggerOptionsWebsitesCustomers = {
             },
             addTaxpayer: {
               type: 'boolean',
-              description: 'Indicates if the taxpayer should be added',
-            }
+              description: 'Indicates if the taxpayer is added',
+            },
           },
-          required: ['address', 'postalCode', 'city', 'phoneNumber', 'nif', 'addTaxpayer', 'customerId'], // Campos obrigatórios
+          required: ['address', 'postalCode', 'city', 'phoneNumber', 'nif', 'addTaxpayer'], // Campos obrigatórios
         },
         BankCard: {
           type: 'object',

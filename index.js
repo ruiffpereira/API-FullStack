@@ -3,7 +3,6 @@ const bodyParser = require("body-parser");
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
-const csrf = require('csurf');
 const cookieParser = require('cookie-parser');
 const { JSDOM } = require('jsdom');
 const createDOMPurify = require('dompurify');
@@ -63,9 +62,22 @@ app.use(cors({
   credentials: true, // Permite o envio de cookies
 }));
 
-// Configuração de CSRF
-// app.use(cookieParser());
-// app.use(csrf({ cookie: true }));
+// Enable cookie parsing middleware
+app.use(cookieParser());
+
+// const { setup } = require('csrf-csrf');
+// // Configure CSRF protection
+// const { csrf, generateToken } = setup({
+//   cookie: true, // Enable cookie-based CSRF protection
+// });
+
+// // Enable CSRF middleware
+// app.use(csrf);
+
+// EXAMPLE OF CSRF TOKEN GENERATION
+// app.get('/api/csrf-token', (req, res) => {
+//   res.json({ csrfToken: generateToken(res) });
+// });
 
 // Body Parser
 app.use(bodyParser.urlencoded({ extended: true }));

@@ -1,6 +1,6 @@
 
 const { User, Permission, UserPermission, sequelize } = require('../../../models');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET
 const JWT_SECRET_PUBLIC = process.env.JWT_SECRET_PUBLIC
