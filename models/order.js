@@ -24,6 +24,15 @@ module.exports = (sequelize, DataTypes) => {
         key: 'customerId'
       },
     },
+    price: {
+      type: DataTypes.DECIMAL(10, 2), // Define o preço com até 10 dígitos e 2 casas decimais
+      allowNull: false,
+      defaultValue: 0.00, // Valor padrão
+      validate: {
+        isDecimal: true, // Garante que o valor seja decimal
+        min: 0, // Garante que o preço não seja negativo
+      },
+    },
   });
 
   return Order;

@@ -28,6 +28,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    priceAtPurchase: {
+      type: DataTypes.DECIMAL(10, 2), // Preço com até 10 dígitos e 2 casas decimais
+      allowNull: false,
+    },
   },
   {
     paranoid: true,

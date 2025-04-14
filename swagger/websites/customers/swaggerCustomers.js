@@ -60,7 +60,7 @@ const swaggerOptionsWebsitesCustomers = {
             },
             postalCode: {
               type: 'string',
-              description: 'Postal code of the address',
+              description: 'Postal code of the address (format: 1234-567)',
             },
             city: {
               type: 'string',
@@ -68,18 +68,30 @@ const swaggerOptionsWebsitesCustomers = {
             },
             phoneNumber: {
               type: 'string',
-              description: 'Phone number associated with the address',
+              description: 'Phone number associated with the address (E.164 format)',
             },
             nif: {
               type: 'string',
-              description: 'Tax identification number (NIF)',
+              description: 'Tax identification number (NIF, 9 digits)',
             },
             addTaxpayer: {
               type: 'boolean',
               description: 'Indicates if the taxpayer is added',
             },
+            defaultAdress: {
+              type: 'boolean',
+              description: 'Indicates if this is the default address',
+            },
+            defaultAdressFaturation: {
+              type: 'boolean',
+              description: 'Indicates if this is the default billing address',
+            },
+            customerId: {
+              type: 'string',
+              description: 'ID of the customer associated with the address',
+            },
           },
-          required: ['address', 'postalCode', 'city', 'phoneNumber', 'nif', 'addTaxpayer'], // Campos obrigatórios
+          required: ['address', 'postalCode', 'city', 'phoneNumber'], // Campos obrigatórios
         },
         BankCard: {
           type: 'object',

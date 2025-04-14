@@ -9,6 +9,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    defaultAdressFaturation: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+    defaultAdress: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
     postalCode: {
       type: DataTypes.STRING,
       allowNull: false,

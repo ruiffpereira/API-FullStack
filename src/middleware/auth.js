@@ -49,7 +49,7 @@ const authenticateTokenCustomers = async (req, res, next) => {
     return res.sendStatus(401); // Unauthorized
   }
 
-  jwt.verify(token, JWT_SECRET, (err, customer) => {
+  jwt.verify(token, JWT_SECRET, async (err, customer) => {
     if (err) {
       console.log("Token:", token)
       console.log("Token customer nao autorizado")
@@ -57,6 +57,15 @@ const authenticateTokenCustomers = async (req, res, next) => {
     }
     
     req.customerId = customer.customerId;
+    const customerRecord = await Customer.findOne({ where: { customerId: req.customerId } });
+    
+    if (!customerRecord) {
+      console.log("Customer não encontrado:", req.customerId);
+      return res.status(404);
+    }
+
+    // Adicionar o userId ao objeto req
+    req.userId = customerRecord.userId;
     //console.log("Autorizado BO2")
     next();
   });

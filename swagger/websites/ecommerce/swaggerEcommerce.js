@@ -129,6 +129,42 @@ const swaggerOptionsWebsitesEcommerce = {
           },
           required: ['cartId', 'customerId', 'products', 'shipPrice'],
         },
+        Order: {
+          type: 'object',
+          properties: {
+            orderId: {
+              type: 'string',
+              format: 'uuid',
+              description: 'Unique identifier for the order',
+            },
+            customerId: {
+              type: 'string',
+              format: 'uuid',
+              description: 'Unique identifier for the customer',
+            },
+            userId: {
+              type: 'string',
+              format: 'uuid',
+              description: 'Unique identifier for the user who created the order',
+            },
+            price: {
+              type: 'number',
+              format: 'float',
+              description: 'Total price of the order',
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Timestamp when the order was created',
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Timestamp when the order was last updated',
+            },
+          },
+          required: ['orderId', 'customerId', 'userId', 'price'],
+        },
       },
     },
   },
