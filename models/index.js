@@ -41,6 +41,7 @@ const Cart = require('./cart')(sequelize, DataTypes);
 const CartProduct = require('./cartProduct')(sequelize, DataTypes);
 const BankCard = require('./bankCart')(sequelize, DataTypes);
 const Address = require('./address')(sequelize, DataTypes);
+const Shipping = require('./shipping')(sequelize, DataTypes);
 
 
 // const seedDatabase = async () => {
@@ -120,5 +121,6 @@ module.exports = {
   CartProduct,
   Address,
   BankCard,
+  Shipping,
   startDB
  };

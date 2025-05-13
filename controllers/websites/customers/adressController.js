@@ -93,7 +93,6 @@ const updateAddress = async (req, res) => {
     const data = { ...req.body, customerId };
 
     const validatedData = addressSchema.parse(data);
-    console.log(validatedData);
     
     const existingAddress = await Address.findOne({ where: { addressId, customerId }, attributes: ['addressId', 'address', 'postalCode', 'city', 'phoneNumber', 'nif', 'addTaxpayer', "defaultAdress", "defaultAdressFaturation"]  });
 
