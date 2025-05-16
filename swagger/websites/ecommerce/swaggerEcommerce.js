@@ -1,176 +1,179 @@
-const swaggerJsdocECM = require('swagger-jsdoc');
+const swaggerJsdocECM = require("swagger-jsdoc");
 
 const swaggerOptionsWebsitesEcommerce = {
   definition: {
-    openapi: '3.0.0',
+    openapi: "3.0.0",
     info: {
-      title: 'API Website Ecommerce Documentation',
-      version: '1.0.0',
-      description: 'Documentation for the API',
+      title: "API Website Ecommerce Documentation",
+      version: "1.0.0",
+      description: "Documentation for the API",
     },
     servers: [
       {
-        url: 'http://localhost:2001/api',
-        description: 'Servidor local',
+        url: "http://localhost:2001/api",
+        description: "Servidor local",
       },
       {
-        url: 'https://api.code-fullstack.com/api',
-        description: 'Servidor de produção',
+        url: "https://api.code-fullstack.com/api",
+        description: "Servidor de produção",
       },
     ],
     components: {
       schemas: {
         Product: {
-          type: 'object',
+          type: "object",
           properties: {
             productId: {
-              type: 'string',
-              description: 'ID of the product',
+              type: "string",
+              description: "ID of the product",
             },
             name: {
-              type: 'string',
-              description: 'Name of the product',
+              type: "string",
+              description: "Name of the product",
             },
             price: {
-              type: 'number',
-              description: 'Price of the product',
+              type: "number",
+              description: "Price of the product",
             },
             description: {
-              type: 'string',
-              description: 'Description of the product',
+              type: "string",
+              description: "Description of the product",
             },
             photos: {
-              type: 'array',
-              description: 'Photos of the product',
+              type: "array",
+              description: "Photos of the product",
               items: {
-                type: 'string',
-                description: 'URL of the product photo',
+                type: "string",
+                description: "URL of the product photo",
               },
             },
             category: {
-              type: 'object',
-              description: 'Category of the product',
+              type: "object",
+              description: "Category of the product",
               properties: {
                 categoryId: {
-                  type: 'string',
-                  description: 'ID of the category',
+                  type: "string",
+                  description: "ID of the category",
                 },
                 name: {
-                  type: 'string',
-                  description: 'Name of the category',
+                  type: "string",
+                  description: "Name of the category",
                 },
               },
             },
             subcategory: {
-              type: 'object',
-              description: 'Subcategory of the product',
+              type: "object",
+              description: "Subcategory of the product",
               properties: {
                 subCategoryId: {
-                  type: 'string',
-                  description: 'ID of the subcategory',
+                  type: "string",
+                  description: "ID of the subcategory",
                 },
                 name: {
-                  type: 'string',
-                  description: 'Name of the subcategory',
+                  type: "string",
+                  description: "Name of the subcategory",
                 },
               },
             },
           },
-          required: ['productId', 'name', 'price'],
+          required: ["productId", "name", "price"],
         },
         Cart: {
-          type: 'object',
+          type: "object",
           properties: {
             cartId: {
-              type: 'string',
-              description: 'ID of the cart',
+              type: "string",
+              description: "ID of the cart",
             },
             customerId: {
-              type: 'string',
-              description: 'ID of the customer who owns the cart',
+              type: "string",
+              description: "ID of the customer who owns the cart",
             },
             products: {
-              type: 'array',
-              description: 'List of products in the cart',
+              type: "array",
+              description: "List of products in the cart",
               items: {
-                type: 'object',
+                type: "object",
                 properties: {
                   productId: {
-                    type: 'string',
-                    description: 'ID of the product',
+                    type: "string",
+                    description: "ID of the product",
                   },
                   name: {
-                    type: 'string',
-                    description: 'Name of the product',
+                    type: "string",
+                    description: "Name of the product",
                   },
                   price: {
-                    type: 'number',
-                    description: 'Price of the product',
+                    type: "number",
+                    description: "Price of the product",
                   },
                   photos: {
-                    type: 'array',
-                    description: 'Photos of the product',
+                    type: "array",
+                    description: "Photos of the product",
                     items: {
-                      type: 'string',
-                      description: 'URL of the product photo',
+                      type: "string",
+                      description: "URL of the product photo",
                     },
                   },
                   quantity: {
-                    type: 'integer',
-                    description: 'Quantity of the product in the cart',
+                    type: "integer",
+                    description: "Quantity of the product in the cart",
                   },
                 },
               },
             },
             shipPrice: {
-              type: 'number',
-              description: 'Total price of the cart',
+              type: "number",
+              description: "Total price of the cart",
             },
           },
-          required: ['cartId', 'customerId', 'products', 'shipPrice'],
+          required: ["cartId", "customerId", "products", "shipPrice"],
         },
         Order: {
-          type: 'object',
+          type: "object",
           properties: {
             orderId: {
-              type: 'string',
-              format: 'uuid',
-              description: 'Unique identifier for the order',
+              type: "string",
+              format: "uuid",
+              description: "Unique identifier for the order",
             },
             customerId: {
-              type: 'string',
-              format: 'uuid',
-              description: 'Unique identifier for the customer',
+              type: "string",
+              format: "uuid",
+              description: "Unique identifier for the customer",
             },
             userId: {
-              type: 'string',
-              format: 'uuid',
-              description: 'Unique identifier for the user who created the order',
+              type: "string",
+              format: "uuid",
+              description:
+                "Unique identifier for the user who created the order",
             },
             price: {
-              type: 'number',
-              format: 'float',
-              description: 'Total price of the order',
+              type: "number",
+              format: "float",
+              description: "Total price of the order",
             },
             createdAt: {
-              type: 'string',
-              format: 'date-time',
-              description: 'Timestamp when the order was created',
+              type: "string",
+              format: "date-time",
+              description: "Timestamp when the order was created",
             },
             updatedAt: {
-              type: 'string',
-              format: 'date-time',
-              description: 'Timestamp when the order was last updated',
+              type: "string",
+              format: "date-time",
+              description: "Timestamp when the order was last updated",
             },
           },
-          required: ['orderId', 'customerId', 'userId', 'price'],
+          required: ["orderId", "customerId", "userId", "price"],
         },
       },
     },
   },
-  apis: ['./controllers/websites/ecommerce/**/*.js'], // Apenas controladores do Ecommerce
+  apis: ["./controllers/websites/ecommerce/**/*.js"], // Apenas controladores do Ecommerce
 };
 
-const swaggerSpecWebsitesEcommerce = swaggerJsdocECM(swaggerOptionsWebsitesEcommerce);
+const swaggerSpecWebsitesEcommerce = swaggerJsdocECM(
+  swaggerOptionsWebsitesEcommerce
+);
 
-module.exports = { swaggerSpecWebsitesEcommerce  };
+module.exports = { swaggerSpecWebsitesEcommerce };
