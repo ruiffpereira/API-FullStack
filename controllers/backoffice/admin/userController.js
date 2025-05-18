@@ -13,7 +13,6 @@ const environment = process.env.ENVIROMENT;
 
 // Retorna todas as permissões
 const getAllUsers = async (req, res) => {
-  console.log("teste");
   try {
     const users = await User.findAll({
       attributes: { exclude: ["password"] }, // Exclui o campo 'password'

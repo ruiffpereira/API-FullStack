@@ -5,7 +5,6 @@ const fs = require("fs"); // Importar o módulo fs para manipulação de arquivo
 
 const getAllProducts = async (req, res) => {
   const userId = req.user;
-  console.log("teste");
   try {
     const products = await Product.findAndCountAll({
       where: { userId },
