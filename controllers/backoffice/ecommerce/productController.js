@@ -50,6 +50,8 @@ const createProduct = async (req, res) => {
 
   const { ...fields } = req.body;
 
+  console.log(fields);
+
   const validFields = {};
   const updatableFields = [
     "name",
@@ -72,8 +74,8 @@ const createProduct = async (req, res) => {
     }
   });
 
-  console.log(updatableFields);
-  console.log(validFields);
+  // console.log(updatableFields);
+  // console.log(validFields);
 
   // Inicializar validFields.photos como um array vazio
   validFields.photos = validFields.photos || [];
@@ -104,6 +106,7 @@ const createProduct = async (req, res) => {
 
   try {
     const newProduct = await Product.create(validFields);
+    console.log("sucesso");
     res.status(201).json(newProduct);
   } catch (error) {
     console.error("Error creating product:", error);
@@ -357,6 +360,11 @@ module.exports = {
  *               stock:
  *                 type: integer
  *                 description: Stock quantity
+ *               photos:
+ *                 type: array
+ *                 description: List of photo URLs of the product
+ *                 items:
+ *                   type: string
  *               price:
  *                 type: number
  *                 format: float

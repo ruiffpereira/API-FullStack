@@ -86,8 +86,23 @@ const swaggerOptionsBackoffice = {
               type: "string",
               description: "ID of the associated subcategory",
             },
+            stock: {
+              type: "integer",
+              description: "Stock quantity of the product",
+            },
+            reference: {
+              type: "string",
+              description: "Reference code of the product",
+            },
+            photos: {
+              type: "array",
+              description: "List of photo URLs of the product",
+              items: {
+                type: "string",
+              },
+            },
           },
-          required: ["productId", "name", "price", "categoryId"],
+          required: ["productId", "name", "price", "categoryId", "photos"],
         },
         Order: {
           type: "object",
