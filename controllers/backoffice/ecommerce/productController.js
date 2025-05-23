@@ -239,7 +239,7 @@ const deleteProduct = async (req, res) => {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    // Verificar e remover as fotos associadas ao produto
+    //Verificar e remover as fotos associadas ao produto
     if (product.photos && product.photos.length > 0) {
       product.photos.forEach((photoPath) => {
         const fullPath = path.resolve(
