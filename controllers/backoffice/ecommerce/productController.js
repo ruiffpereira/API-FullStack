@@ -24,6 +24,7 @@ const getAllProducts = async (req, res) => {
 
 const getProductById = async (req, res) => {
   const userId = req.user;
+  //console.log("id:", req.params);
   try {
     const product = await Product.findOne({
       where: { productId: req.params.id, userId },
@@ -32,7 +33,10 @@ const getProductById = async (req, res) => {
         { model: Subcategory, as: "subcategory" },
       ],
     });
+    //console.log("Product found:", product);
+
     if (product) {
+      //console.log("Product found:", product);
       res.json(product);
     } else {
       res.status(404).json({ error: "Product not found" });
@@ -124,96 +128,97 @@ const updateProduct = async (req, res) => {
   const userId = req.user;
   const fields = req.body;
 
-  if (!fields.productId) {
+  if (!req.params.id) {
     return res.status(400).json({ message: "ID é necessário" });
   }
 
   try {
-    const validFields = {};
-    const updatableFields = [
-      "name",
-      "reference",
-      "stock",
-      "photots",
-      "price",
-      "description",
-      "categoryId",
-      "subcategoryId",
-    ];
-
-    console.log(fields);
-    updatableFields.forEach((field) => {
-      if (fields[field] !== "undefined" && fields[field] !== "") {
-        validFields[field] = fields[field];
-      } else {
-        validFields[field] = null;
-      }
+    // Buscar produto atual
+    const product = await Product.findOne({
+      where: { productId: req.params.id, userId },
     });
 
-    if (validFields.stock !== undefined && isNaN(validFields.stock)) {
-      return res.status(400).json({ message: "Stock deve ser um número" });
+    if (!product) {
+      return res.status(404).json({ message: "Produto não encontrado" });
     }
 
-    validFields.photos = [];
-    if (req.body.existingPhotos) {
-      validFields.photos = Array.isArray(req.body.existingPhotos)
-        ? req.body.existingPhotos
-        : [req.body.existingPhotos];
-    }
+    // Fotos atuais
+    let updatedPhotos = Array.isArray(product.photos)
+      ? [...product.photos]
+      : [];
 
-    // Verificar e remover as fotos que o usuário removeu
-    if (req.body.removedPhotos) {
-      const removedPhotosArray = JSON.parse(req.body.removedPhotos);
-      removedPhotosArray.forEach((photoPath) => {
-        const fullPath = path.resolve(
-          __dirname,
-          "..",
+    if (fields.photosToRemove) {
+      const photosToRemove = Array.isArray(fields.photosToRemove)
+        ? fields.photosToRemove
+        : fields.photosToRemove
+          ? [fields.photosToRemove]
+          : [];
+
+      photosToRemove.forEach((photoPath) => {
+        // Remove do array
+        updatedPhotos = updatedPhotos.filter((p) => p !== photoPath);
+        // Remove do disco
+        const fullPath = path.join(
+          process.cwd(),
           "uploads",
-          path.basename(photoPath.replace(/[\[\]"]+/g, ""))
+          path.basename(photoPath)
         );
         fs.unlink(fullPath, (err) => {
           if (err) {
             console.log(`Erro ao remover a foto: ${fullPath}`, err);
           } else {
-            console.log(`Foto removida: ${fullPath}`);
+            //console.log(`Foto removida: ${fullPath}`);
           }
         });
-        // Remover a foto da lista de fotos existentes
-        validFields.photos = validFields.photos.filter(
-          (photo) => photo !== photoPath
-        );
       });
     }
 
-    if (req.files && Object.keys(req.files).length > 0) {
+    //console.log("Fotos atualizadas após remoção:", updatedPhotos);
+
+    // 2. Adicionar novas fotos do upload (igual ao método de criar)
+    if (req.files && req.files.photos) {
       let photos = req.files.photos;
-      if (!Array.isArray(photos)) {
-        photos = [photos]; // Se não for um array, transforme em um array
-      }
-      if (photos.length > 0) {
-        const newPhotos = photos.map((file) => {
-          const uniqueName = uuidv4() + path.extname(file.name); // Gerar um nome único para o arquivo
-          const uploadPath = "./uploads/" + uniqueName;
-          file.mv(uploadPath, (err) => {
-            if (err) {
-              console.log(err);
-              return res.status(500).json({ error: err.message });
-            }
-          });
-          return uploadPath;
+      if (!Array.isArray(photos)) photos = [photos];
+      const newPhotos = photos.map((file) => {
+        const uniqueName = uuidv4() + path.extname(file.name);
+        const uploadPath = "./uploads/" + uniqueName;
+        file.mv(uploadPath, (err) => {
+          if (err) {
+            console.log(err);
+          }
         });
-        validFields.photos = [...validFields.photos, ...newPhotos];
-      }
+        return uploadPath;
+      });
+      updatedPhotos = [...updatedPhotos, ...newPhotos];
     }
 
-    console.log(validFields);
-    const product = await Product.update(validFields, {
-      where: { productId: fields.productId, userId },
+    // Atualizar os outros campos normalmente
+    const updatableFields = [
+      "name",
+      "reference",
+      "stock",
+      "price",
+      "description",
+      "categoryId",
+      "subcategoryId",
+    ];
+    const validFields = {};
+    updatableFields.forEach((field) => {
+      if (
+        fields[field] !== undefined &&
+        fields[field] !== "" &&
+        fields[field] !== "undefined"
+      ) {
+        validFields[field] = fields[field];
+      }
     });
 
-    if (product[0] === 0) {
-      return res.status(404).json({ message: "Produto não encontrado" });
-    }
+    validFields.photos = updatedPhotos;
+
+    // Atualizar produto
+    await Product.update(validFields, {
+      where: { productId: req.params.id, userId },
+    });
 
     res.status(200).json({ message: "Produto atualizado com sucesso" });
   } catch (error) {
@@ -221,7 +226,7 @@ const updateProduct = async (req, res) => {
     if (error.name === "SequelizeForeignKeyConstraintError") {
       errorMessage = `Foreign key constraint error: ${error.message}`;
     } else {
-      errorMessage = `Error updating product category: ${error.message}`;
+      errorMessage = `Error updating product: ${error.message}`;
     }
     res.status(500).json({ error: errorMessage, details: error.message });
   }

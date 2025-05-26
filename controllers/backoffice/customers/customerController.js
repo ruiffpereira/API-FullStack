@@ -1,17 +1,18 @@
-
-const { Customer } = require('../../../models');
-const jwt = require('jsonwebtoken');
+const { Customer } = require("../../../models");
+const jwt = require("jsonwebtoken");
 
 const getAllCustomers = async (req, res) => {
   try {
     const user = req.user;
     const customers = await Customer.findAndCountAll({
-      where: { userId: user }
+      where: { userId: user },
     });
     res.json(customers);
   } catch (error) {
-    console.error('Error fetching customers:', error);
-    res.status(500).json({ error: 'An error occurred while fetching customers' });
+    console.error("Error fetching customers:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching customers" });
   }
 };
 const getCustomerById = async (req, res) => {
@@ -26,11 +27,13 @@ const getCustomerById = async (req, res) => {
     if (customer) {
       res.json(customer);
     } else {
-      res.status(404).json({ error: 'Customer not found' });
+      res.status(404).json({ error: "Customer not found" });
     }
   } catch (error) {
-    console.error('Error fetching customer:', error);
-    res.status(500).json({ error: 'An error occurred while fetching the customer' });
+    console.error("Error fetching customer:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching the customer" });
   }
 };
 
@@ -82,6 +85,9 @@ module.exports = {
  *                       contact:
  *                         type: string
  *                         description: Contact information of the customer
+ *                       photo:
+ *                         type: string
+ *                         description: URL or path of the customer's photo
  *       500:
  *         description: Error fetching customers
  *         content:
@@ -129,6 +135,9 @@ module.exports = {
  *                 contact:
  *                   type: string
  *                   description: Contact information of the customer
+ *                 photo:
+ *                   type: string
+ *                   description: URL or path of the customer's photo
  *       404:
  *         description: Customer not found
  *         content:
