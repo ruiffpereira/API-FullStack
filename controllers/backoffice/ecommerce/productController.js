@@ -192,6 +192,10 @@ const updateProduct = async (req, res) => {
       updatedPhotos = [...updatedPhotos, ...newPhotos];
     }
 
+    if (fields.subcategoryId === "") {
+      fields.subcategoryId = null;
+    }
+
     // Atualizar os outros campos normalmente
     const updatableFields = [
       "name",
@@ -212,6 +216,9 @@ const updateProduct = async (req, res) => {
         validFields[field] = fields[field];
       }
     });
+
+    console.log("Campos:", fields);
+    console.log("Campos válidos para atualização:", validFields);
 
     validFields.photos = updatedPhotos;
 

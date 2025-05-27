@@ -77,6 +77,9 @@ const applyAssociations = (sequelize) => {
     as: "products",
   });
 
+  OrderProduct.belongsTo(Order, { foreignKey: "orderId", as: "orders" });
+  Order.hasMany(OrderProduct, { foreignKey: "orderId", as: "orderProducts" });
+
   Category.belongsTo(User, { foreignKey: "userId", as: "users" });
   User.hasMany(Category, { foreignKey: "userId", as: "categories" });
 
@@ -86,8 +89,8 @@ const applyAssociations = (sequelize) => {
   Order.belongsTo(User, { foreignKey: "userId", as: "users" });
   User.hasMany(Order, { foreignKey: "userId", as: "orders" });
 
-  OrderProduct.belongsTo(User, { foreignKey: "userId", as: "users" });
-  User.hasMany(OrderProduct, { foreignKey: "userId", as: "orderproducts" });
+  // OrderProduct.belongsTo(User, { foreignKey: "userId", as: "users" });
+  // User.hasMany(OrderProduct, { foreignKey: "userId", as: "orderproducts" });
 
   Product.belongsTo(User, { foreignKey: "userId", as: "users" });
   User.hasMany(Product, { foreignKey: "userId", as: "products" });
