@@ -1,19 +1,19 @@
-const { Category, Subcategory } = require('../../../models');
-const category = require('../../../models/category');
+const { Category, Subcategory } = require("../../../models");
+const category = require("../../../models/category");
 
 const getAllCategories = async (req, res) => {
   const userId = req.user;
   try {
     const categories = await Category.findAndCountAll({
       where: { userId },
-      include: [
-        { model: Subcategory , as: 'subcategories' }
-      ]
+      include: [{ model: Subcategory, as: "subcategories" }],
     });
     res.json(categories);
   } catch (error) {
-    console.error('Error fetching categories:', error);
-    res.status(500).json({ error: 'An error occurred while fetching categories' });
+    console.error("Error fetching categories:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching categories" });
   }
 };
 
@@ -23,50 +23,40 @@ const getCategoryById = async (req, res) => {
     const category = await Category.findByPk({
       where: {
         id: req.params.id,
-        userId: userId
-      }
+        userId: userId,
+      },
     });
     if (category) {
       res.json(category);
     } else {
-      res.status(404).json({ error: 'Category not found' });
+      res.status(404).json({ error: "Category not found" });
     }
   } catch (error) {
-    console.error('Error fetching category:', error);
-    res.status(500).json({ error: 'An error occurred while fetching the category' });
+    console.error("Error fetching category:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching the category" });
   }
 };
 
-const createCategory = async (req, res) => {
-  const userId = req.user;
-  console.log(userId)
-  try {
-    const category = await Category.create({...req.body, userId});
-    res.status(201).json(category);
-  } catch (error) {
-    console.error('Error creating category:', error);
-    res.status(500).json({ error: 'An error occurred while creating the category' });
-  }
-};
-
-const updateCategory = async (req, res) => {
+const upsertCategory = async (req, res) => {
   const userId = req.user;
   try {
-    const result = await Category.update({
-      name : req.body.name,
-    },
-    {
-      where: { categoryId: req.body.categoryId, userId}
-    });
-    if (result) {
-      const updatedCategory = await Category.findByPk(req.params.id);
-      res.json(updatedCategory);
-    } else {
-      res.status(404).json({ error: 'Category not found' });
+    const data = {
+      name: req.body.name,
+      userId,
+    };
+    if (req.params.id) {
+      data.categoryId = req.params.id;
     }
+    console.log("Upserting category with data:", data);
+    const [category] = await Category.upsert(data, { returning: true });
+    res.status(200).json(category);
   } catch (error) {
-    console.error('Error updating category:', error);
-    res.status(500).json({ error: 'An error occurred while updating the category' });
+    console.error("Error upserting category:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while upserting the category" });
   }
 };
 
@@ -75,25 +65,26 @@ const deleteCategory = async (req, res) => {
   try {
     const deleted = await Category.destroy({
       where: { categoryId: req.params.id, userId },
-      force: true 
+      force: true,
     });
     if (deleted) {
       //res.status(204).json();
       res.json(deleted);
     } else {
-      res.status(404).json({ error: 'Category not found' });
+      res.status(404).json({ error: "Category not found" });
     }
   } catch (error) {
-    console.error('Error deleting category:', error);
-    res.status(500).json({ error: 'An error occurred while deleting the category' });
+    console.error("Error deleting category:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while deleting the category" });
   }
 };
 
 module.exports = {
   getAllCategories,
   getCategoryById,
-  createCategory,
-  updateCategory,
+  upsertCategory,
   deleteCategory,
 };
 
@@ -157,10 +148,17 @@ module.exports = {
 
 /**
  * @swagger
- * /categories:
- *   post:
- *     summary: Create a new category
+ * /categories/{id}:
+ *   put:
+ *     summary: Create or update a category
  *     tags: [Categories]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: ID of the category to update (if omitted, a new category will be created)
  *     requestBody:
  *       required: true
  *       content:
@@ -172,42 +170,14 @@ module.exports = {
  *                 type: string
  *                 description: Name of the category
  *     responses:
- *       201:
- *         description: Category created successfully
- *       500:
- *         description: Error creating category
- */
-
-/**
- * @swagger
- * /categories/{id}:
- *   put:
- *     summary: Update a category
- *     tags: [Categories]
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         schema:
- *           type: string
- *         description: ID of the category to update
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 description: Updated name of the category
- *     responses:
  *       200:
- *         description: Category updated successfully
- *       404:
- *         description: Category not found
+ *         description: Category created or updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Category'
  *       500:
- *         description: Error updating category
+ *         description: Error upserting category
  */
 
 /**

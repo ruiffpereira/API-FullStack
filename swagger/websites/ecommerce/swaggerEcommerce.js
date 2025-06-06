@@ -129,6 +129,41 @@ const swaggerOptionsWebsitesEcommerce = {
           },
           required: ["cartId", "customerId", "products", "shipPrice"],
         },
+        OrderProduct: {
+          type: "object",
+          properties: {
+            orderProductId: {
+              type: "string",
+              description: "ID of the order-product relation",
+            },
+            orderId: {
+              type: "string",
+              description: "ID of the order",
+            },
+            productId: {
+              type: "string",
+              description: "ID of the product",
+            },
+            quantity: {
+              type: "integer",
+              description: "Quantity of the product in the order",
+            },
+            priceAtPurchase: {
+              type: "number",
+              description: "Price of the product at the time of purchase",
+            },
+            product: {
+              $ref: "#/components/schemas/Product",
+            },
+          },
+          required: [
+            "orderProductId",
+            "orderId",
+            "productId",
+            "quantity",
+            "priceAtPurchase",
+          ],
+        },
         Order: {
           type: "object",
           properties: {
@@ -162,6 +197,13 @@ const swaggerOptionsWebsitesEcommerce = {
               type: "string",
               format: "date-time",
               description: "Timestamp when the order was last updated",
+            },
+            orderProducts: {
+              type: "array",
+              description: "List of products in the order",
+              items: {
+                $ref: "#/components/schemas/OrderProduct",
+              },
             },
           },
           required: ["orderId", "customerId", "userId", "price"],

@@ -111,20 +111,26 @@ const swaggerOptionsBackoffice = {
               type: "string",
               description: "ID of the order",
             },
+            userId: {
+              type: "string",
+              description: "ID of the user who created the order",
+            },
             customerId: {
               type: "string",
               description: "ID of the customer who placed the order",
             },
-            status: {
-              type: "string",
-              description: "Status of the order",
-            },
-            total: {
+            price: {
               type: "number",
-              description: "Total amount of the order",
+              description: "Total price of the order",
+              format: "decimal",
+            },
+            createdAt: {
+              type: "string",
+              format: "date-time",
+              description: "Date and time when the order was created",
             },
           },
-          required: ["orderId", "customerId", "status", "total"],
+          required: ["orderId", "userId", "customerId", "price"],
         },
         OrderProduct: {
           type: "object",

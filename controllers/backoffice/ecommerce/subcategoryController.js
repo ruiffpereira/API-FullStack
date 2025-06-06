@@ -1,4 +1,4 @@
-const { Subcategory } = require('../../../models');
+const { Subcategory } = require("../../../models");
 
 /**
  * @swagger
@@ -28,12 +28,14 @@ const { Subcategory } = require('../../../models');
 const getAllSubcategories = async (req, res) => {
   try {
     const subcategories = await Subcategory.findAll({
-      attributes: ['subcategoryId', 'name'], // Select only the desired attributes
+      attributes: ["subcategoryId", "name"],
     });
     res.status(200).json(subcategories);
   } catch (error) {
-    console.error('Error fetching subcategories:', error);
-    res.status(500).json({ error: 'An error occurred while fetching subcategories' });
+    console.error("Error fetching subcategories:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching subcategories" });
   }
 };
 
@@ -68,49 +70,13 @@ const getSubcategoryById = async (req, res) => {
     if (subcategory) {
       res.status(200).json(subcategory);
     } else {
-      res.status(404).json({ error: 'Subcategory not found' });
+      res.status(404).json({ error: "Subcategory not found" });
     }
   } catch (error) {
-    console.error('Error fetching subcategory:', error);
-    res.status(500).json({ error: 'An error occurred while fetching the subcategory' });
-  }
-};
-
-/**
- * @swagger
- * /subcategories:
- *   post:
- *     summary: Create a new subcategory
- *     tags: [Subcategories]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               newSubcategory:
- *                 type: string
- *                 description: Name of the new subcategory
- *               selectedCategory:
- *                 type: string
- *                 description: ID of the associated category
- *     responses:
- *       201:
- *         description: Subcategory created successfully
- *       500:
- *         description: Error creating subcategory
- */
-const createSubcategory = async (req, res) => {
-  try {
-    const subcategory = await Subcategory.create({
-      name: req.body.newSubcategory,
-      categoryId: req.body.selectedCategory,
-    });
-    res.status(201).json(subcategory);
-  } catch (error) {
-    console.error('Error creating subcategory:', error);
-    res.status(500).json({ error: 'An error occurred while creating the subcategory' });
+    console.error("Error fetching subcategory:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching the subcategory" });
   }
 };
 
@@ -118,15 +84,15 @@ const createSubcategory = async (req, res) => {
  * @swagger
  * /subcategories/{id}:
  *   put:
- *     summary: Update a subcategory
+ *     summary: Create or update a subcategory
  *     tags: [Subcategories]
  *     parameters:
  *       - name: id
  *         in: path
- *         required: true
+ *         required: false
  *         schema:
  *           type: string
- *         description: ID of the subcategory to update
+ *         description: ID of the subcategory to update (if omitted, a new subcategory will be created)
  *     requestBody:
  *       required: true
  *       content:
@@ -136,60 +102,54 @@ const createSubcategory = async (req, res) => {
  *             properties:
  *               name:
  *                 type: string
- *                 description: New name of the subcategory
+ *                 description: Name of the subcategory
  *               categoryId:
  *                 type: string
  *                 description: ID of the associated category
  *     responses:
  *       200:
- *         description: Subcategory updated successfully
- *       404:
- *         description: Subcategory not found
+ *         description: Subcategory updated or created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Subcategory'
  *       500:
- *         description: Error updating subcategory
+ *         description: Error updating or creating subcategory
  */
-const updateSubcategory = async (req, res) => {
+
+const upsertSubcategory = async (req, res) => {
   try {
-    const updated = await Subcategory.update(
-      { name: req.body.name },
-      {
-        where: {
-          subcategoryId: req.body.subcategoryId,
-          categoryId: req.body.categoryId,
-        },
-      }
-    );
-    if (updated) {
-      const updatedSubcategory = await Subcategory.findByPk(req.params.id);
-      res.json(updatedSubcategory);
-    } else {
-      res.status(404).json({ error: 'Subcategory not found' });
+    const data = {
+      name: req.body.name,
+      categoryId: req.body.categoryId,
+    };
+    // Só adiciona o id se vier nos params (update)
+    if (req.params.id) {
+      data.subcategoryId = req.params.id;
     }
+    const [subcategory] = await Subcategory.upsert(data, { returning: true });
+    res.status(200).json(subcategory);
   } catch (error) {
-    console.error('Error updating subcategory:', error);
-    res.status(500).json({ error: 'An error occurred while updating the subcategory' });
+    console.error("Error upserting subcategory:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while upserting the subcategory" });
   }
 };
 
 /**
  * @swagger
- * /subcategories:
+ * /subcategories/{id}:
  *   delete:
  *     summary: Delete a subcategory
  *     tags: [Subcategories]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               subcategoryId:
- *                 type: string
- *                 description: ID of the subcategory to delete
- *               categoryId:
- *                 type: string
- *                 description: ID of the associated category
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the subcategory to delete
  *     responses:
  *       200:
  *         description: Subcategory deleted successfully
@@ -201,27 +161,25 @@ const updateSubcategory = async (req, res) => {
 const deleteSubcategory = async (req, res) => {
   try {
     const deleted = await Subcategory.destroy({
-      where: {
-        categoryId: req.body.categoryId,
-        subcategoryId: req.body.subcategoryId,
-      },
+      where: { subcategoryId: req.params.id },
       force: true,
     });
     if (deleted > 0) {
-      res.json(deleted);
+      res.json({ message: "Subcategory deleted successfully" });
     } else {
-      res.status(404).json({ error: 'Subcategory not found' });
+      res.status(404).json({ error: "Subcategory not found" });
     }
   } catch (error) {
-    console.error('Error deleting subcategory:', error);
-    res.status(500).json({ error: 'An error occurred while deleting the subcategory' });
+    console.error("Error deleting subcategory:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while deleting the subcategory" });
   }
 };
 
 module.exports = {
   getAllSubcategories,
   getSubcategoryById,
-  createSubcategory,
-  updateSubcategory,
+  upsertSubcategory,
   deleteSubcategory,
 };

@@ -102,6 +102,16 @@ router.use(
   bankCardRoutes
 );
 
+const cartRoutes = require("./websites/ecommerce/cartRoutes");
+router.use("/websites/ecommerce/carts", authenticateTokenCustomers, cartRoutes);
+
+const ordersRoutes = require("./websites/ecommerce/ordersRoutes");
+router.use(
+  "/websites/ecommerce/orders",
+  authenticateTokenCustomers,
+  ordersRoutes
+);
+
 // ECOMMERCE
 const productsRoutes = require("./websites/ecommerce/productsRoutes");
 router.use(
@@ -109,9 +119,6 @@ router.use(
   authenticateTokenPublic,
   productsRoutes
 );
-
-const cartRoutes = require("./websites/ecommerce/cartRoutes");
-router.use("/websites/ecommerce/carts", authenticateTokenCustomers, cartRoutes);
 
 // END ***************************************************************************************************
 
