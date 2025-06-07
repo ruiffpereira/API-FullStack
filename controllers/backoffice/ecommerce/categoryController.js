@@ -155,7 +155,7 @@ module.exports = {
  *     parameters:
  *       - name: id
  *         in: path
- *         required: false
+ *         required: true
  *         schema:
  *           type: string
  *         description: ID of the category to update (if omitted, a new category will be created)

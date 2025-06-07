@@ -89,7 +89,7 @@ const getSubcategoryById = async (req, res) => {
  *     parameters:
  *       - name: id
  *         in: path
- *         required: false
+ *         required: true
  *         schema:
  *           type: string
  *         description: ID of the subcategory to update (if omitted, a new subcategory will be created)
