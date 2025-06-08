@@ -95,7 +95,7 @@ function buildOrderEmail({
 
 // Endpoint para criar PaymentIntent Stripe
 const createPaymentIntent = async (req, res) => {
-  const { customerId, paymentMethod = "card" } = req;
+  const { customerId } = req;
   try {
     const cart = await Cart.findOne({
       where: { customerId },
@@ -116,23 +116,12 @@ const createPaymentIntent = async (req, res) => {
       return total + item.product.price * item.quantity;
     }, 0);
 
-    // Adapta para MB WAY ou cartão
-    let paymentIntent;
-    if (paymentMethod === "mb_way") {
-      paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(totalPrice * 100),
-        currency: "eur",
-        payment_method_types: ["mb_way"],
-        metadata: { customerId },
-      });
-    } else {
-      paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(totalPrice * 100),
-        currency: "eur",
-        payment_method_types: ["card"],
-        metadata: { customerId },
-      });
-    }
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(totalPrice * 100),
+      currency: "eur",
+      payment_method_types: ["card"],
+      metadata: { customerId },
+    });
 
     res.status(200).json({ clientSecret: paymentIntent.client_secret });
   } catch (error) {
