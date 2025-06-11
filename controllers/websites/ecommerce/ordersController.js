@@ -93,6 +93,39 @@ function buildOrderEmail({
   `;
 }
 
+const testSendEmail = async (req, res) => {
+  const { to } = req.body;
+
+  if (!to) {
+    return res.status(400).json({ error: "Missing 'to' email address." });
+  }
+
+  const transporter = nodemailer.createTransport({
+    host: "smtp.hostinger.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.EMAIL || "",
+      pass: process.env.PASSWORD || "",
+    },
+  });
+
+  try {
+    await transporter.sendMail({
+      from: `API-FullStack <${process.env.EMAIL}>`,
+      to,
+      subject: "Test Email from API-FullStack",
+      html: "<h2>This is a test email from your API-FullStack project 🚀</h2>",
+    });
+    res.status(200).json({ message: "Test email sent successfully!" });
+  } catch (error) {
+    console.error("Erro ao enviar email de teste:", error);
+    res
+      .status(500)
+      .json({ error: "Failed to send test email", details: error.message });
+  }
+};
+
 // Endpoint para criar PaymentIntent Stripe
 const createPaymentIntent = async (req, res) => {
   const { customerId } = req;
@@ -237,13 +270,19 @@ const createOrder = async (req, res) => {
       shippingAddress: shipping,
     });
 
-    await transporter.sendMail({
-      from: `${customer.name} - A equipa da Loja <${process.env.EMAIL}>`,
-      to: customer.email,
-      bcc: [process.env.EMAIL, "joaosousa.9@hotmail.com"],
-      subject: "A sua encomenda foi efetuada com sucesso!",
-      html,
-    });
+    try {
+      await transporter.sendMail({
+        from: `${customer.name} - A equipa da Loja <${process.env.EMAIL}>`,
+        to: customer.email,
+        bcc: [process.env.EMAIL, "joaosousa.9@hotmail.com"],
+        subject: "A sua encomenda foi efetuada com sucesso!",
+        html,
+      });
+      console.log("Email enviado com sucesso!");
+    } catch (emailError) {
+      console.error("Erro ao enviar email:", emailError);
+      // Podes também guardar o erro na base de dados ou tomar outra ação
+    }
 
     res
       .status(201)
@@ -311,6 +350,7 @@ module.exports = {
   createPaymentIntent,
   getOrders,
   getOrderById,
+  testSendEmail,
 };
 
 /**
