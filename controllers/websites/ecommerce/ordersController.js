@@ -237,19 +237,13 @@ const createOrder = async (req, res) => {
       shippingAddress: shipping,
     });
 
-    try {
-      await transporter.sendMail({
-        from: `${customer.name} - A equipa da Loja <${process.env.EMAIL}>`,
-        to: customer.email,
-        bcc: [process.env.EMAIL, "joaosousa.9@hotmail.com"],
-        subject: "A sua encomenda foi efetuada com sucesso!",
-        html,
-      });
-      console.log("Email enviado com sucesso!");
-    } catch (emailError) {
-      console.error("Erro ao enviar email:", emailError);
-      // Podes também guardar o erro na base de dados ou tomar outra ação
-    }
+    await transporter.sendMail({
+      from: `${customer.name} - A equipa da Loja <${process.env.EMAIL}>`,
+      to: customer.email,
+      bcc: [process.env.EMAIL, "joaosousa.9@hotmail.com"],
+      subject: "A sua encomenda foi efetuada com sucesso!",
+      html,
+    });
 
     res
       .status(201)
