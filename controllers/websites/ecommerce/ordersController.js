@@ -93,39 +93,6 @@ function buildOrderEmail({
   `;
 }
 
-const testSendEmail = async (req, res) => {
-  const { to } = req.body;
-
-  if (!to) {
-    return res.status(400).json({ error: "Missing 'to' email address." });
-  }
-
-  const transporter = nodemailer.createTransport({
-    host: "smtp.hostinger.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL || "",
-      pass: process.env.PASSWORD || "",
-    },
-  });
-
-  try {
-    await transporter.sendMail({
-      from: `API-FullStack <${process.env.EMAIL}>`,
-      to,
-      subject: "Test Email from API-FullStack",
-      html: "<h2>This is a test email from your API-FullStack project 🚀</h2>",
-    });
-    res.status(200).json({ message: "Test email sent successfully!" });
-  } catch (error) {
-    console.error("Erro ao enviar email de teste:", error);
-    res
-      .status(500)
-      .json({ error: "Failed to send test email", details: error.message });
-  }
-};
-
 // Endpoint para criar PaymentIntent Stripe
 const createPaymentIntent = async (req, res) => {
   const { customerId } = req;
@@ -350,7 +317,6 @@ module.exports = {
   createPaymentIntent,
   getOrders,
   getOrderById,
-  testSendEmail,
 };
 
 /**
