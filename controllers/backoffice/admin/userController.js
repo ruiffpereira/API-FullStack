@@ -2,7 +2,11 @@ const {
   User,
   Permission,
   UserPermission,
+  Category,
+  Customer,
   sequelize,
+  Cart,
+  Product,
 } = require("../../../models");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -201,8 +205,7 @@ const updateUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   const { userId } = req.params;
-  console.log("aqui: ", userId);
-
+  res.status(500).json({ error: "An error occurred while deleting the user" });
   try {
     // Iniciar uma transação para garantir atomicidade
     const transaction = await sequelize.transaction();
@@ -210,20 +213,41 @@ const deleteUser = async (req, res) => {
     try {
       // Encontrar o usuário pelo ID
       const user = await User.findByPk(userId, { transaction });
-      console.log("aqui1: ", user);
 
       if (!user) {
         await transaction.rollback();
         return res.status(404).json({ error: "User not found" });
       }
 
-      // Deletar as permissões do usuário
-      await UserPermission.destroy({ where: { userId }, transaction });
-      console.log("aqui2");
-      // Deletar o usuário
-      await User.destroy({ where: { userId }, transaction });
-      console.log("aqui3");
-      // Confirmar a transação
+      const customers = await Customer.findAll({
+        where: { userId },
+        transaction,
+      });
+      const customerIds = customers.map((c) => c.customerId);
+
+      // Apaga todos os carts desses customers
+      if (customerIds.length > 0) {
+        await Cart.destroy({
+          where: { customerId: customerIds },
+          force: true,
+          transaction,
+        });
+      }
+
+      await Customer.destroy({ where: { userId }, force: true, transaction });
+
+      await Category.destroy({ where: { userId }, force: true, transaction });
+
+      await Product.destroy({ where: { userId }, force: true, transaction });
+
+      await UserPermission.destroy({
+        where: { userId },
+        force: true,
+        transaction,
+      });
+
+      await User.destroy({ where: { userId }, force: true, transaction });
+
       await transaction.commit();
 
       return res.json({ message: "User deleted successfully" });

@@ -1,11 +1,21 @@
-const { Customer, User } = require('../../../models');
-const jwt = require('jsonwebtoken');
-const { z } = require('zod');
+const { Customer, User } = require("../../../models");
+const jwt = require("jsonwebtoken");
+const { z } = require("zod");
+const bcrypt = require("bcryptjs");
 
-const { OAuth2Client } = require('google-auth-library');
+const { OAuth2Client } = require("google-auth-library");
 
 // Configurar o cliente OAuth2 do Google
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+const registerSchema = z.object({
+  name: z.string().min(2, { message: "Name is required" }),
+  contact: z.string().min(9, { message: "Phone is required" }),
+  email: z.string().email({ message: "Invalid email" }),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters" }),
+});
 
 const validateGoogleToken = async (idToken) => {
   try {
@@ -17,81 +27,161 @@ const validateGoogleToken = async (idToken) => {
     const payload = ticket.getPayload(); // Informações do usuário
     return payload; // Retorna os dados do usuário (email, name, picture, etc.)
   } catch (error) {
-    console.error('Error validating Google ID Token:', error);
-    throw new Error('Invalid Google ID Token');
+    console.error("Error validating Google ID Token:", error);
+    throw new Error("Invalid Google ID Token");
   }
 };
 
-const loginCustomerSchema = z.object({
-  idToken: z.string(), // ID Token do Google enviado pelo cliente
-});
-
 const loginCustomer = async (req, res, next) => {
   try {
-    
-    const validatedData = loginCustomerSchema.parse(req.body);
-    const { idToken } = validatedData;
-    
-    const ticket = await validateGoogleToken(idToken);
+    const { provider } = req.body;
+    const { userId } = req;
 
-    const user = await User.findOne({
-      where: { userId: req.userId }
-    });
+    if (provider === "google") {
+      // --- GOOGLE LOGIN (já tens) ---
+      const { idToken } = req.body;
+      const ticket = await validateGoogleToken(idToken);
 
-    if (!user) {
-      console.log('User not found for the given website key');
-      return res.status(404).json({ error: 'User not found for the given website key' });
-    }
+      const user = await User.findOne({ where: { userId } });
+      if (!user) {
+        return res
+          .status(404)
+          .json({ error: "User not found for the given website key" });
+      }
 
-    let customer = await Customer.findOne({
-      where: {
-        userId: user.userId,
-        email : ticket.email 
-      },
-      attributes: ['customerId','name', 'contact', 'email', 'photo']
-    });
-
-    if (!customer) {
-
-      customer = await Customer.create({
-        email,
-        name : name || 'N/A',
-        contact: contact || 'N/A',
-        photo : image || 'N/A',
-        userId: user.userId
+      let customer = await Customer.findOne({
+        where: { userId, email: ticket.email },
+        attributes: ["customerId", "name", "contact", "email", "photo"],
       });
 
-      customer = await Customer.findOne({
-        where: {
-          userId: user.userId,
-          email
-        },
-        attributes: ['customerId','name', 'contact', 'email', 'photo'] 
+      if (!customer) {
+        customer = await Customer.create({
+          email: ticket.email,
+          name: ticket.name || "N/A",
+          contact: "N/A",
+          photo: ticket.picture || "N/A",
+          userId,
+        });
+      }
+
+      const token = jwt.sign(
+        { customerId: customer.customerId },
+        process.env.JWT_SECRET,
+        { expiresIn: "4d" }
+      );
+      res.cookie("customer-token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
       });
+      customer.setDataValue("token", token);
+
+      return res.status(200).json(customer);
     }
 
-    // Gerar token JWT
-    const token = jwt.sign({customerId: customer.customerId}, process.env.JWT_SECRET, { expiresIn: '7d' });
-    
-    res.cookie('customer-token', token, { httpOnly: true, secure: true, sameSite: 'strict' });
-    customer.setDataValue('token', token);
+    // --- CREDENTIALS LOGIN ---
+    if (provider === "credentials") {
+      const { email, password } = req.body;
+      if (!email || !password) {
+        return res.status(400).json({ error: "Missing email or password" });
+      }
 
-    res.status(200).json(customer);
-    next(); // Chama o próximo middleware (NextAuth)
+      // Procura o utilizador pelo email
+      const customer = await Customer.findOne({
+        where: { email },
+        attributes: [
+          "customerId",
+          "name",
+          "contact",
+          "email",
+          "photo",
+          "password",
+        ],
+      });
 
+      if (!customer) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      // Verifica a password
+      const validPassword = await bcrypt.compare(password, customer.password);
+      if (!validPassword) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+      // Remove o campo password do objeto retornado
+      customer.setDataValue("password", undefined);
+
+      const token = jwt.sign(
+        { customerId: customer.customerId },
+        process.env.JWT_SECRET,
+        { expiresIn: "4d" }
+      );
+
+      res.cookie("customer-token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+      });
+
+      customer.setDataValue("token", token);
+
+      return res.status(200).json(customer);
+    }
+
+    // Se provider não for válido
+    return res.status(400).json({ error: "Invalid provider" });
   } catch (error) {
-    console.log('Validation error:', error.errors);
-
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: error.errors });
     }
-    console.error('Error fetching or creating customer:', error);
-    res.status(500).json({ error: 'An error occurred while fetching or creating the customer' });
+    console.error("Error fetching or creating customer:", error);
+    res.status(500).json({
+      error: "An error occurred while fetching or creating the customer",
+    });
+  }
+};
+
+const registerCustomer = async (req, res) => {
+  const { userId } = req;
+  try {
+    const validated = registerSchema.safeParse(req.body);
+    if (!validated.success) {
+      return res.status(400).json({ error: validated.error.errors });
+    }
+    const { name, email, password, contact } = validated.data;
+
+    // Verifica se já existe
+    const existingCustomer = await Customer.findOne({
+      where: { email, userId },
+    });
+    if (existingCustomer) {
+      return res.status(400).json({ error: "User already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Cria o customer associado
+    await Customer.create({
+      name,
+      email,
+      contact,
+      photo: "N/A",
+      password: hashedPassword,
+      userId: userId,
+    });
+
+    res.status(201).json("Customer registered successfully");
+  } catch (error) {
+    console.error("Error registering customer:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while registering the customer" });
   }
 };
 
 module.exports = {
   loginCustomer,
+  registerCustomer,
 };
 
 /**
@@ -101,25 +191,30 @@ module.exports = {
  *   description: Management of customers
  */
 
-
 /**
  * @swagger
- * /websites/customerslogin:
+ * /websites/customers/autentication/login:
  *   post:
- *     summary: Log in or create a customer
+ *     summary: Login or create a customer (Google or credentials)
  *     tags: [Customers]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - idToken
- *             properties:
- *               idToken:
- *                 type: string
- *                 description: Google ID Token for authentication
+ *             $ref: '#/components/schemas/LoginRequest'
+ *           examples:
+ *             GoogleLogin:
+ *               summary: Google login
+ *               value:
+ *                 provider: google
+ *                 idToken: "GOOGLE_ID_TOKEN"
+ *             CredentialsLogin:
+ *               summary: Credentials login
+ *               value:
+ *                 provider: credentials
+ *                 email: "user@email.com"
+ *                 password: "mypassword"
  *     responses:
  *       200:
  *         description: Customer logged in or created successfully
@@ -130,22 +225,16 @@ module.exports = {
  *               properties:
  *                 customerId:
  *                   type: string
- *                   description: ID of the customer
  *                 name:
  *                   type: string
- *                   description: Name of the customer
  *                 contact:
  *                   type: string
- *                   description: Contact information of the customer
  *                 email:
  *                   type: string
- *                   description: Email of the customer
  *                 photo:
  *                   type: string
- *                   description: Profile image of the customer
  *                 token:
  *                   type: string
- *                   description: JWT token for the customer
  *       400:
  *         description: Validation error or missing fields
  *         content:
@@ -154,16 +243,26 @@ module.exports = {
  *               type: object
  *               properties:
  *                 error:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       path:
- *                         type: string
- *                         description: Field that caused the error
- *                       message:
- *                         type: string
- *                         description: Error message
+ *                   oneOf:
+ *                     - type: string
+ *                     - type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           path:
+ *                             type: string
+ *                           message:
+ *                             type: string
+ *       401:
+ *         description: Invalid credentials
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Invalid credentials
  *       404:
  *         description: User or email not found
  *         content:
@@ -184,4 +283,44 @@ module.exports = {
  *                 error:
  *                   type: string
  *                   example: An error occurred while fetching or creating the customer
+ */
+
+/**
+ * @swagger
+ * /websites/customers/autentication/register:
+ *   post:
+ *     summary: Register a new customer (credentials only)
+ *     tags: [Customers]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, email, password, contact]
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               contact:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Customer registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Customer'
+ *       400:
+ *         description: Validation error or user already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
  */

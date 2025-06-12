@@ -86,7 +86,11 @@ router.use(
 
 // CUSTOMERS
 const customerRoutes = require("./websites/customers/customerRoutes");
-router.use("/websites/customerslogin", authenticateTokenPublic, customerRoutes);
+router.use(
+  "/websites/customers/autentication",
+  authenticateTokenPublic,
+  customerRoutes
+);
 
 const addressRoutes = require("./websites/customers/addressRoutes");
 router.use(

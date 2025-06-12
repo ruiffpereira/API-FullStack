@@ -1,8 +1,11 @@
-const express = require('express');
-const { loginCustomer, updateCustomer} = require('../../../controllers/websites/customers/customerController');
+const express = require("express");
+const {
+  loginCustomer,
+  registerCustomer,
+} = require("../../../controllers/websites/customers/customerController");
 const router = express.Router();
-const { authenticateToken, authorizePermissions } = require('../../../src/middleware/auth');
 
-router.post('/', loginCustomer);
+router.post("/login", loginCustomer);
+router.post("/register", registerCustomer);
 
 module.exports = router;
