@@ -2,6 +2,7 @@ const { Customer, User } = require("../../../models");
 const jwt = require("jsonwebtoken");
 const { z } = require("zod");
 const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
 
 const { OAuth2Client } = require("google-auth-library");
 
@@ -29,6 +30,54 @@ const validateGoogleToken = async (idToken) => {
   } catch (error) {
     console.error("Error validating Google ID Token:", error);
     throw new Error("Invalid Google ID Token");
+  }
+};
+
+const registerEmail = async (customer) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: "smtp.hostinger.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.EMAIL || "",
+        pass: process.env.PASSWORD || "",
+      },
+    });
+
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; background: #f9f9f9;   padding: 40px;">
+        <div style="max-width: 500px; margin: auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(255,0,0,0.08); padding: 32px; border: 1px solid #e53935;">
+          <h2 style="color: #e53935;">Bem-vindo(a), ${customer.name}!</h2>
+          <p style="font-size: 16px; color: #b71c1c;">
+            Obrigado por te registares na nossa plataforma.<br>
+            Estamos muito felizes por te ter connosco!
+          </p>
+          <p style="font-size: 15px; color: #d32f2f;">
+            A partir de agora podes aceder à tua conta, consultar os teus dados e aproveitar todas as funcionalidades do nosso serviço.
+          </p>
+          <hr style="margin: 24px 0; border: none; border-top: 1px solid #e57373;">
+          <p style="font-size: 14px; color: #888;">
+            Se tiveres alguma dúvida ou precisares de ajuda, responde a este email.<br>
+            Estamos sempre disponíveis para ti!
+          </p>
+          <p style="font-size: 14px; color: #888; margin-top: 32px;">
+            Cumprimentos,<br>
+            <b style="color: #e53935;">Equipa Complete Peças Usadas</b>
+          </p>
+        </div>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: `Complete Peças Usadas <${process.env.EMAIL}>`,
+      to: customer.email,
+      subject: "Bem-vindo(a) à Complete Peças Usadas!",
+      html: htmlContent,
+    });
+  } catch (error) {
+    console.error("Error sending registration email:", error);
+    throw new Error("Failed to send registration email");
   }
 };
 
@@ -62,6 +111,7 @@ const loginCustomer = async (req, res, next) => {
           photo: ticket.picture || "N/A",
           userId,
         });
+        registerEmail(customer);
       }
 
       const token = jwt.sign(
@@ -108,6 +158,7 @@ const loginCustomer = async (req, res, next) => {
       if (!validPassword) {
         return res.status(401).json({ error: "Invalid credentials" });
       }
+
       // Remove o campo password do objeto retornado
       customer.setDataValue("password", undefined);
 
@@ -160,8 +211,8 @@ const registerCustomer = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Cria o customer associado
-    await Customer.create({
+    //Cria o customer associado
+    const customer = await Customer.create({
       name,
       email,
       contact,
@@ -169,6 +220,8 @@ const registerCustomer = async (req, res) => {
       password: hashedPassword,
       userId: userId,
     });
+
+    registerEmail(customer);
 
     res.status(201).json("Customer registered successfully");
   } catch (error) {
