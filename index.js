@@ -132,6 +132,6 @@ app.post(
 const swaggerRoutes = require("./swagger");
 app.use("/api-docs", swaggerRoutes);
 
-app.listen({ port: 2001 }, async () => {
+app.listen({ port: 3001 }, async () => {
   startDB();
 });

@@ -1,17 +1,18 @@
 # Usar uma imagem Node.js oficial como imagem base
-FROM node:14
+FROM node:20
 
 # Criar e definir o diretório de trabalho
 WORKDIR /app
+RUN npm install -g pnpm
 
 # Copiar o package.json e o package-lock.json
 COPY package*.json ./
 
 # Instalar as dependências
-RUN npm install
+RUN pnpm install
 
 # Adicionar esta linha para reconstruir módulos nativos com node-gyp
-RUN npm rebuild bcrypt --build-from-source
+# RUN pnpm rebuild bcrypt --build-from-source
 
 # Copiar o restante do código da aplicação
 COPY . .
@@ -20,4 +21,4 @@ COPY . .
 EXPOSE 3001
 
 # Comando para iniciar a aplicação
-CMD ["npm", "run" , "dev"]
+CMD ["pnpm", "run" , "dev"]
