@@ -5,14 +5,11 @@ FROM node:20
 WORKDIR /app
 RUN npm install -g pnpm
 
-# Copiar o package.json e o package-lock.json
-COPY package*.json ./
+# Copiar o package.json e o lockfile
+COPY package.json pnpm-lock.yaml ./
 
-# Instalar as dependências
+# Instalar as dependências (incluindo devDependencies)
 RUN pnpm install
-
-# Adicionar esta linha para reconstruir módulos nativos com node-gyp
-# RUN pnpm rebuild bcrypt --build-from-source
 
 # Copiar o restante do código da aplicação
 COPY . .

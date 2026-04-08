@@ -11,6 +11,8 @@ services:
     working_dir: /app
     depends_on:
       - mysql
+    env_file:
+      - .env
     environment:
       - NODE_ENV=development
     stdin_open: true
@@ -21,9 +23,26 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: 'database_development'
-      MYSQL_PASSWORD: 'password'
-      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_DATABASE: ${DB_DATABASE_DEV}
+      MYSQL_USER: ${DB_USERNAME_DEV}
+      MYSQL_PASSWORD: ${DB_PASSWORD_DEV}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD_DEV}
+      MYSQL_ROOT_HOST: "%"
+    command: --default-authentication-plugin=mysql_native_password --explicit_defaults_for_timestamp=1
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: ${DB_USERNAME_DEV}
+      PMA_PASSWORD: ${DB_PASSWORD_DEV}
+      PMA_PORT: 3306
+    depends_on:
+      - mysql
 
 volumes:
   mysql-data:
