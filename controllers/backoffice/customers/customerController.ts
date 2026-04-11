@@ -1,9 +1,6 @@
 import { Request, Response } from "express";
 import { Customer } from "../../../models";
-
-interface IdParams {
-  id: string;
-}
+import { ApiError, CustomerResponse, IdParams } from "../../../src/types/index";
 
 export const getAllCustomers = async (
   req: Request,
@@ -25,7 +22,7 @@ export const getAllCustomers = async (
 
 export const getCustomerById = async (
   req: Request<IdParams>,
-  res: Response,
+  res: Response<CustomerResponse | ApiError>,
 ): Promise<void> => {
   try {
     const userId = req.user;

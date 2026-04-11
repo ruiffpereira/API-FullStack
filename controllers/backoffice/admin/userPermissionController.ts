@@ -5,14 +5,15 @@ import {
   Permission,
   ComponentPermission,
 } from "../../../models";
-
-interface CheckPermissionBody {
-  componentNames: string[];
-}
+import {
+  ApiError,
+  CheckPermissionBody,
+  ComponentAccessItem,
+} from "../../../src/types/index";
 
 export const checkUserPermission = async (
   req: Request<{}, {}, CheckPermissionBody>,
-  res: Response,
+  res: Response<Record<string, boolean> | ApiError>,
 ): Promise<void> => {
   const userId = req.user;
   const { componentNames } = req.body;
@@ -51,7 +52,7 @@ export const checkUserPermission = async (
 
 export const getUserComponentsPermissions = async (
   req: Request,
-  res: Response,
+  res: Response<ComponentAccessItem[] | ApiError>,
 ): Promise<void | Response> => {
   const userId = req.user;
   try {

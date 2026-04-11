@@ -1,10 +1,6 @@
 import { Request, Response } from "express";
 import { Product, Cart, CartProduct } from "../../../models";
-
-interface CartBody {
-  productId: string;
-  quantity: number;
-}
+import { ApiError, CartBody, CartResponse } from "../../../src/types/index";
 
 const calculateCartTotals = async (cart: Cart) => {
   const cartData = await Cart.findOne({

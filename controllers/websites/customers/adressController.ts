@@ -1,21 +1,12 @@
 import { Request, Response } from "express";
 import { z } from "zod";
 import { Address } from "../../../models";
-
-interface AddressBody {
-  address: string;
-  defaultAdressFaturation?: boolean;
-  defaultAdress?: boolean;
-  postalCode: string;
-  city: string;
-  phoneNumber: string;
-  nif?: string;
-  addTaxpayer?: boolean;
-}
-
-interface AddressParams {
-  addressId: string;
-}
+import {
+  AddressBody,
+  AddressParams,
+  AddressResponse,
+  ApiError,
+} from "../../../src/types/index";
 
 const addressSchema = z.object({
   address: z.string().min(5, "Morada completa é obrigatória"),

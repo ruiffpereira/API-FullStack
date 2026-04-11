@@ -1,9 +1,6 @@
 import { Request, Response } from "express";
 import { Order, Product, OrderProduct } from "../../../models";
-
-interface IdParams {
-  id: string;
-}
+import { ApiError, IdParams } from "../../../src/types/index";
 
 export const getOrderByCustomerId = async (
   req: Request<IdParams>,

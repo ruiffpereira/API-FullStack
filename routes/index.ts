@@ -1,4 +1,5 @@
-import { Router } from "express";
+import express, { Router } from "express";
+import { handleStripeWebhook } from "../controllers/webhookController";
 import {
   authenticateToken,
   authorizePermissions,
@@ -103,6 +104,13 @@ router.use(
   "/websites/ecommerce/products",
   authenticateTokenPublic,
   productsRoutes,
+);
+
+//stripe webhook
+router.post(
+  "/webhook/stripe",
+  express.raw({ type: "application/json" }),
+  handleStripeWebhook,
 );
 
 export default router;

@@ -1,18 +1,15 @@
 import { Request, Response } from "express";
 import { Permission, UserPermission } from "../../../models";
-
-interface PermissionBody {
-  name: string;
-  description?: string;
-}
-
-interface IdParams {
-  id: string;
-}
+import {
+  ApiError,
+  IdParams,
+  PermissionBody,
+  PermissionResponse,
+} from "../../../src/types/index";
 
 export const getAllPermissions = async (
   req: Request,
-  res: Response,
+  res: Response<PermissionResponse[] | ApiError>,
 ): Promise<void> => {
   try {
     const permissions = await Permission.findAll();
@@ -27,7 +24,7 @@ export const getAllPermissions = async (
 
 export const createPermission = async (
   req: Request<{}, {}, PermissionBody>,
-  res: Response,
+  res: Response<PermissionResponse | ApiError>,
 ): Promise<void | Response> => {
   const { name, description } = req.body;
   try {
@@ -48,7 +45,7 @@ export const createPermission = async (
 
 export const updatePermissionById = async (
   req: Request<IdParams, {}, Partial<PermissionBody>>,
-  res: Response,
+  res: Response<PermissionResponse | ApiError>,
 ): Promise<void | Response> => {
   const permissionId = req.params.id;
   const { name, description } = req.body;
@@ -73,7 +70,7 @@ export const updatePermissionById = async (
 
 export const getPermissionById = async (
   req: Request<IdParams>,
-  res: Response,
+  res: Response<PermissionResponse | ApiError>,
 ): Promise<void | Response> => {
   const { id } = req.params;
   try {
@@ -91,7 +88,7 @@ export const getPermissionById = async (
 
 export const deletePermissionById = async (
   req: Request<IdParams>,
-  res: Response,
+  res: Response<{ data: string } | ApiError>,
 ): Promise<void | Response> => {
   try {
     const permissionId = req.params.id;

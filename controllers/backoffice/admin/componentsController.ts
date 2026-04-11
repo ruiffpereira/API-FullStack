@@ -1,20 +1,14 @@
 import { Request, Response } from "express";
 import { Component, ComponentPermission, Permission } from "../../../models";
-
-interface CreateComponentBody {
-  name: string;
-  description?: string;
-  selectPermissions?: string[];
-}
-
-interface UpdateComponentBody {
-  name: string;
-  selectPermissions: string[];
-}
-
-interface IdParams {
-  id: string;
-}
+import {
+  ApiError,
+  ApiMessage,
+  ComponentAccessItem,
+  ComponentResponse,
+  CreateComponentBody,
+  IdParams,
+  UpdateComponentBody,
+} from "../../../src/types/index";
 
 export const createComponent = async (
   req: Request<{}, {}, CreateComponentBody>,
@@ -85,7 +79,7 @@ export const getComponentById = async (
 
 export const updateComponent = async (
   req: Request<IdParams, {}, UpdateComponentBody>,
-  res: Response,
+  res: Response<ApiMessage | ApiError>,
 ): Promise<void | Response> => {
   const { id } = req.params;
   const { name, selectPermissions } = req.body;
@@ -136,7 +130,7 @@ export const updateComponent = async (
 
 export const deleteComponent = async (
   req: Request<IdParams>,
-  res: Response,
+  res: Response<ApiMessage | ApiError>,
 ): Promise<void | Response> => {
   const { id } = req.params;
   try {

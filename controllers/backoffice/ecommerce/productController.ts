@@ -3,27 +3,13 @@ import { v4 as uuidv4 } from "uuid";
 import path from "path";
 import fs from "fs";
 import { Product, Category, Subcategory } from "../../../models";
-
-interface ProductBody {
-  name?: string;
-  reference?: string;
-  stock?: number;
-  price?: number;
-  description?: string;
-  categoryId?: string;
-  subcategoryId?: string | null;
-  photosToRemove?: string | string[];
-  [key: string]: unknown;
-}
-
-interface IdParams {
-  id: string;
-}
-
-type UploadedFile = {
-  name: string;
-  mv: (path: string, cb: (err: any) => void) => void;
-};
+import {
+  ApiError,
+  IdParams,
+  ProductBody,
+  ProductResponse,
+} from "../../../src/types/index";
+import { UploadedFile } from "express-fileupload";
 
 export const getAllProducts = async (
   req: Request,
@@ -106,6 +92,23 @@ export const createProduct = async (
     const newPhotos = (photos as UploadedFile[]).map((file) => {
       const uniqueName = uuidv4() + path.extname(file.name);
       const uploadPath = "./uploads/" + uniqueName;
+      const allowedExtensions = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
+      const ext = path.extname(file.name).toLowerCase();
+      const allowedMimeTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/gif",
+      ];
+
+      if (!allowedMimeTypes.includes(file.mimetype)) {
+        res.status(400).json({ error: "Tipo de ficheiro não permitido" });
+        return;
+      }
+      if (!allowedExtensions.includes(ext)) {
+        res.status(400).json({ error: "Tipo de ficheiro não permitido" });
+        return;
+      }
       file.mv(uploadPath, (err: any) => {
         if (err) console.log(err);
       });

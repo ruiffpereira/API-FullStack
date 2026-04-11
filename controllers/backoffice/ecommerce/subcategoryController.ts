@@ -1,14 +1,11 @@
 import { Request, Response } from "express";
 import { Subcategory } from "../../../models";
-
-interface SubcategoryBody {
-  name: string;
-  categoryId: string;
-}
-
-interface IdParams {
-  id: string;
-}
+import {
+  ApiError,
+  IdParams,
+  SubcategoryBody,
+  SubcategoryResponse,
+} from "../../../src/types/index";
 
 export const getAllSubcategories = async (
   req: Request,

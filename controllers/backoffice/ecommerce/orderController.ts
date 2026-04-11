@@ -1,15 +1,11 @@
 import { Request, Response } from "express";
 import { Order, Customer, Product } from "../../../models";
-
-interface OrderBody {
-  customerId?: string;
-  price?: number;
-  [key: string]: unknown;
-}
-
-interface IdParams {
-  id: string;
-}
+import {
+  ApiError,
+  IdParams,
+  OrderBody,
+  OrderResponse,
+} from "../../../src/types/index";
 
 export const getAllOrders = async (
   req: Request,

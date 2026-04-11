@@ -10,15 +10,13 @@ import {
   Customer,
   Address,
 } from "../../../models";
-
-interface CreateOrderBody {
-  shippingAddress: string;
-  billingAddress: string;
-}
-
-interface OrderIdParams {
-  id: string;
-}
+import {
+  ApiError,
+  ApiMessage,
+  CreateOrderBody,
+  IdParams,
+  OrderResponse,
+} from "../../../src/types/index";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
@@ -74,7 +72,7 @@ function buildOrderEmail({
 
 export const createPaymentIntent = async (
   req: Request,
-  res: Response,
+  res: Response<{ clientSecret: string | null } | ApiError>,
 ): Promise<void> => {
   const { customerId } = req;
   try {
@@ -235,7 +233,7 @@ export const getOrders = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const getOrderById = async (
-  req: Request<OrderIdParams>,
+  req: Request<IdParams>,
   res: Response,
 ): Promise<void> => {
   const { customerId } = req;

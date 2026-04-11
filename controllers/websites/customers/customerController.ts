@@ -5,20 +5,12 @@ import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 import { OAuth2Client } from "google-auth-library";
 import { Customer, User } from "../../../models";
-
-interface LoginBody {
-  provider: "google" | "credentials";
-  idToken?: string;
-  email?: string;
-  password?: string;
-}
-
-interface RegisterBody {
-  name: string;
-  email: string;
-  password: string;
-  contact: string;
-}
+import {
+  ApiError,
+  CustomerLoginResponse,
+  LoginBody,
+  RegisterBody,
+} from "../../../src/types/index";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 

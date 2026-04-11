@@ -11,33 +11,18 @@ import {
   Product,
   sequelize,
 } from "../../../models";
+import {
+  ApiError,
+  ApiMessage,
+  LoginResponse,
+  LoginUserBody,
+  RegisterUserBody,
+  UpdateUserBody,
+  UserIdParams,
+  UserResponse,
+} from "../../../src/types/index";
 
 require("dotenv").config();
-
-interface RegisterUserBody {
-  name: string;
-  email: string;
-  permissionId: string;
-  password: string;
-}
-
-interface LoginUserBody {
-  username: string;
-  password: string;
-}
-
-interface UpdateUserBody {
-  userId: string;
-  name?: string;
-  email?: string;
-  password?: string;
-  permissionId?: string;
-  secretkeysite?: boolean;
-}
-
-interface UserIdParams {
-  userId: string;
-}
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 const JWT_SECRET_PUBLIC = process.env.JWT_SECRET_PUBLIC as string;
@@ -108,7 +93,7 @@ export const registerUser = async (
 
 export const loginUser = async (
   req: Request<{}, {}, LoginUserBody>,
-  res: Response,
+  res: Response<LoginResponse | ApiError>,
 ): Promise<void | Response> => {
   const { username, password } = req.body;
   try {
@@ -190,7 +175,7 @@ export const updateUser = async (
 
 export const deleteUser = async (
   req: Request<UserIdParams>,
-  res: Response,
+  res: Response<ApiMessage | ApiError>,
 ): Promise<void | Response> => {
   const { userId } = req.params;
   res.status(500).json({ error: "An error occurred while deleting the user" });

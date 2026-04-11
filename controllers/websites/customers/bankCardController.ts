@@ -1,17 +1,12 @@
 import { Request, Response } from "express";
 import { z } from "zod";
 import { BankCard } from "../../../models";
-
-interface BankCardBody {
-  cardNumber: string;
-  expirationDate: string;
-  cvv: string;
-  customerId?: string;
-}
-
-interface CardIdParams {
-  cardId: string;
-}
+import {
+  ApiError,
+  BankCardBody,
+  BankCardResponse,
+  CardIdParams,
+} from "../../../src/types/index";
 
 const bankCardSchema = z.object({
   cardNumber: z.string().min(16, "Card number must be at least 16 digits"),
