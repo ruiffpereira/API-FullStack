@@ -30,6 +30,8 @@ export function initUserPermission(sequelize: Sequelize): void {
         allowNull: false,
         references: { model: "Permissions", key: "permissionId" },
       },
+      createdAt: { type: DataTypes.DATE, allowNull: false },
+      updatedAt: { type: DataTypes.DATE, allowNull: false },
     },
     { sequelize, modelName: "UserPermission", tableName: "UserPermissions" },
   );

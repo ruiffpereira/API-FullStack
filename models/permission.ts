@@ -29,6 +29,8 @@ export function initPermission(sequelize: Sequelize): void {
       },
       name: { type: DataTypes.STRING, allowNull: false, unique: true },
       description: { type: DataTypes.STRING, allowNull: true },
+      createdAt: { type: DataTypes.DATE, allowNull: false },
+      updatedAt: { type: DataTypes.DATE, allowNull: false },
     },
     { sequelize, modelName: "Permission", tableName: "Permissions" },
   );

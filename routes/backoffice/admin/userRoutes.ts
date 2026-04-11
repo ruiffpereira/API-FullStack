@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, RequestHandler } from "express";
 import {
   getAllUsers,
   registerUser,
@@ -36,7 +36,7 @@ router.delete(
   "/:userId",
   authenticateToken,
   authorizePermissions(["VIEW_ADMIN"]),
-  deleteUser,
+  deleteUser as unknown as RequestHandler,
 );
 
 export default router;

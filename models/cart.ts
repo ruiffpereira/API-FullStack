@@ -31,6 +31,8 @@ export function initCart(sequelize: Sequelize): void {
         allowNull: false,
         references: { model: "Customers", key: "customerId" },
       },
+      createdAt: { type: DataTypes.DATE, allowNull: false },
+      updatedAt: { type: DataTypes.DATE, allowNull: false },
     },
     { sequelize, modelName: "Cart", tableName: "Carts", timestamps: true },
   );

@@ -42,6 +42,9 @@ export function initOrderProduct(sequelize: Sequelize): void {
       },
       quantity: { type: DataTypes.INTEGER, allowNull: false },
       priceAtPurchase: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+      createdAt: { type: DataTypes.DATE, allowNull: false },
+      updatedAt: { type: DataTypes.DATE, allowNull: false },
+      deletedAt: { type: DataTypes.DATE, allowNull: true },
     },
     {
       sequelize,

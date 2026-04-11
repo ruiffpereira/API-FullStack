@@ -7,10 +7,12 @@ export const getAllProducts = async (
 ): Promise<void> => {
   try {
     const user = await User.findOne({ where: { userId: req.userId } });
-    if (!user)
-      return res
+    if (!user) {
+      res
         .status(404)
         .json({ error: "User not found for the given secret key" });
+      return;
+    }
 
     const products = await Product.findAll({
       where: { userId: user.userId },

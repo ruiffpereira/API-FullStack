@@ -79,7 +79,11 @@ export const createOrder = async (
 ): Promise<void> => {
   const userId = req.user;
   try {
-    const newOrder = await Order.create({ ...req.body, userId });
+    const newOrder = await Order.create({
+      ...req.body,
+      userId: userId!,
+      customerId: req.body.customerId!,
+    });
     res.status(201).json(newOrder);
   } catch (error) {
     console.error("Error creating order:", error);

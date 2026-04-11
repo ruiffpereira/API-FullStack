@@ -47,6 +47,8 @@ export function initOrder(sequelize: Sequelize): void {
       },
       shippingAddress: { type: DataTypes.UUID, allowNull: true },
       billingAddress: { type: DataTypes.UUID, allowNull: true },
+      createdAt: { type: DataTypes.DATE, allowNull: false },
+      updatedAt: { type: DataTypes.DATE, allowNull: false },
     },
     { sequelize, modelName: "Order", tableName: "Orders" },
   );

@@ -54,9 +54,11 @@ export const addProductToCart = async (
   const { productId, quantity } = req.body;
   const { customerId } = req;
   try {
-    const quantityInt = parseInt(quantity, 10);
-    if (isNaN(quantityInt))
-      return res.status(400).json({ error: "Invalid quantity" });
+    const quantityInt = Number(quantity);
+    if (isNaN(quantityInt)) {
+      res.status(400).json({ error: "Invalid quantity" });
+      return;
+    }
 
     let cart = await Cart.findOne({ where: { customerId } });
     if (!cart) cart = await Cart.create({ customerId: customerId! });
@@ -79,7 +81,8 @@ export const addProductToCart = async (
         cartProduct.quantity += 1;
         await cartProduct.save();
       } else {
-        return res.status(400).json({ error: "Invalid quantity operation" });
+        res.status(400).json({ error: "Invalid quantity operation" });
+        return;
       }
     } else {
       if (quantityInt === 1) {
@@ -89,9 +92,10 @@ export const addProductToCart = async (
           quantity: 1,
         });
       } else {
-        return res
+        res
           .status(400)
           .json({ error: "Invalid operation for a product not in the cart" });
+        return;
       }
     }
 

@@ -43,6 +43,8 @@ export function initShipping(sequelize: Sequelize): void {
         allowNull: true,
         references: { model: "Products", key: "productId" },
       },
+      createdAt: { type: DataTypes.DATE, allowNull: false },
+      updatedAt: { type: DataTypes.DATE, allowNull: false },
     },
     {
       sequelize,

@@ -39,6 +39,8 @@ export function initCartProduct(sequelize: Sequelize): void {
         references: { model: "Products", key: "productId" },
       },
       quantity: { type: DataTypes.INTEGER, allowNull: false },
+      createdAt: { type: DataTypes.DATE, allowNull: false },
+      updatedAt: { type: DataTypes.DATE, allowNull: false },
     },
     {
       sequelize,

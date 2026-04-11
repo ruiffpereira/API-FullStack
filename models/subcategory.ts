@@ -40,6 +40,8 @@ export function initSubcategory(sequelize: Sequelize): void {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       },
+      createdAt: { type: DataTypes.DATE, allowNull: false },
+      updatedAt: { type: DataTypes.DATE, allowNull: false },
     },
     { sequelize, modelName: "Subcategory", tableName: "Subcategories" },
   );

@@ -91,7 +91,8 @@ export const createPaymentIntent = async (
       !(cart as any).cartProducts ||
       (cart as any).cartProducts.length === 0
     ) {
-      return res.status(400).json({ error: "Cart is empty" });
+      res.status(400).json({ error: "Cart is empty" });
+      return;
     }
     const totalPrice = (cart as any).cartProducts.reduce(
       (total: number, item: any) => total + item.product.price * item.quantity,
@@ -149,18 +150,24 @@ export const createOrder = async (
       where: { addressId: billingAddress, customerId },
     });
 
-    if (!userRecord)
-      return res.status(404).json({ error: "Customer not found" });
+    if (!userRecord) {
+      res.status(404).json({ error: "Customer not found" });
+      return;
+    }
     if (
       !cart ||
       !(cart as any).cartProducts ||
       (cart as any).cartProducts.length === 0
-    )
-      return res.status(400).json({ error: "Cart is empty" });
-    if (!shipping || !billing)
-      return res
+    ) {
+      res.status(400).json({ error: "Cart is empty" });
+      return;
+    }
+    if (!shipping || !billing) {
+      res
         .status(400)
         .json({ error: "Endereço de envio ou faturação inválido." });
+      return;
+    }
 
     const totalPrice = (cart as any).cartProducts.reduce(
       (total: number, item: any) => total + item.product.price * item.quantity,
@@ -181,8 +188,10 @@ export const createOrder = async (
       priceAtPurchase: item.product.price,
     }));
     const createdOrderProducts = await OrderProduct.bulkCreate(orderProducts);
-    if (!createdOrderProducts || createdOrderProducts.length === 0)
-      return res.status(500).json({ error: "Failed to create order products" });
+    if (!createdOrderProducts || createdOrderProducts.length === 0) {
+      res.status(500).json({ error: "Failed to create order products" });
+      return;
+    }
 
     await CartProduct.destroy({ where: { cartId: (cart as any).cartId } });
 
@@ -255,7 +264,10 @@ export const getOrderById = async (
         },
       ],
     });
-    if (!order) return res.status(404).json({ error: "Order not found" });
+    if (!order) {
+      res.status(404).json({ error: "Order not found" });
+      return;
+    }
     res.status(200).json(order);
   } catch (error) {
     console.error("Error fetching order:", error);

@@ -60,8 +60,10 @@ export const updateBankCard = async (
     const validatedData = bankCardSchema.parse(req.body);
     const { customerId } = req;
     const bankCard = await BankCard.findOne({ where: { cardId, customerId } });
-    if (!bankCard)
-      return res.status(404).json({ error: "Bank card not found" });
+    if (!bankCard) {
+      res.status(404).json({ error: "Bank card not found" });
+      return;
+    }
     await bankCard.update(validatedData);
     res.status(200).json(bankCard);
   } catch (error) {
@@ -79,8 +81,10 @@ export const deleteBankCard = async (
     const { cardId } = req.params;
     const { customerId } = req;
     const bankCard = await BankCard.findOne({ where: { cardId, customerId } });
-    if (!bankCard)
-      return res.status(404).json({ error: "Bank card not found" });
+    if (!bankCard) {
+      res.status(404).json({ error: "Bank card not found" });
+      return;
+    }
     await bankCard.destroy();
     res.status(204).send();
   } catch (error) {

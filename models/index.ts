@@ -35,7 +35,6 @@ const sequelize = new Sequelize(
   },
 );
 
-// Initialize all models
 initUser(sequelize);
 initCustomer(sequelize);
 initCategory(sequelize);

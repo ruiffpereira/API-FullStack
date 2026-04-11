@@ -35,8 +35,10 @@
   "main": "index.js",
   "scripts": {
     "dev": "sequelize-cli db:migrate && nodemon",
-    "start": "sequelize-cli db:migrate && nodemon",
-    "build": "tsc"
+    "build": "tsc",
+    "start": "sequelize-cli db:migrate && node dist/index.js",
+    "docker": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up",
+    "docker-build": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build"
   },
   "author": "rui pereira",
   "license": "ISC",

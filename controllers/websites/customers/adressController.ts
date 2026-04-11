@@ -37,12 +37,16 @@ export const createAddress = async (
     const { customerId } = req;
     const data = { ...req.body, customerId };
     const addressCount = await Address.count({ where: { customerId } });
-    if (addressCount >= 5)
-      return res
+    if (addressCount >= 5) {
+      res
         .status(400)
         .json({ error: "O cliente já atingiu o limite máximo de 5 moradas" });
-    if ((data.addTaxpayer || data.defaultAdressFaturation) && !data.nif)
-      return res.status(400).json({ error: "Dados invalidos" });
+      return;
+    }
+    if ((data.addTaxpayer || data.defaultAdressFaturation) && !data.nif) {
+      res.status(400).json({ error: "Dados invalidos" });
+      return;
+    }
     const validatedData = addressSchema.parse(data);
     if (data.defaultAdress)
       await Address.update({ defaultAdress: false }, { where: { customerId } });
@@ -102,8 +106,10 @@ export const updateAddress = async (
     const existingAddress = await Address.findOne({
       where: { addressId, customerId },
     });
-    if (!existingAddress)
-      return res.status(404).json({ error: "Address not found" });
+    if (!existingAddress) {
+      res.status(404).json({ error: "Address not found" });
+      return;
+    }
     if (validatedData.defaultAdressFaturation)
       await Address.update(
         { defaultAdressFaturation: false },
@@ -129,7 +135,10 @@ export const deleteAddress = async (
     const { addressId } = req.params;
     const { customerId } = req;
     const address = await Address.findOne({ where: { addressId, customerId } });
-    if (!address) return res.status(404).json({ error: "Address not found" });
+    if (!address) {
+      res.status(404).json({ error: "Address not found" });
+      return;
+    }
     await address.destroy();
     res.status(204).send();
   } catch (error) {

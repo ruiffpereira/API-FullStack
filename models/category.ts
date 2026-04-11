@@ -39,6 +39,9 @@ export function initCategory(sequelize: Sequelize): void {
         allowNull: false,
         references: { model: "Users", key: "userId" },
       },
+      createdAt: { type: DataTypes.DATE, allowNull: false },
+      updatedAt: { type: DataTypes.DATE, allowNull: false },
+      deletedAt: { type: DataTypes.DATE, allowNull: true },
     },
     {
       sequelize,

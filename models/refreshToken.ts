@@ -33,6 +33,8 @@ export function initRefreshToken(sequelize: Sequelize): void {
       customerId: { type: DataTypes.UUID, allowNull: true },
       userId: { type: DataTypes.UUID, allowNull: true },
       expiresAt: { type: DataTypes.DATE, allowNull: false },
+      createdAt: { type: DataTypes.DATE, allowNull: false },
+      updatedAt: { type: DataTypes.DATE, allowNull: false },
     },
     { sequelize, modelName: "RefreshToken", tableName: "RefreshTokens" },
   );

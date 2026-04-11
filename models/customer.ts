@@ -42,6 +42,8 @@ export function initCustomer(sequelize: Sequelize): void {
         allowNull: false,
         references: { model: "Users", key: "userId" },
       },
+      createdAt: { type: DataTypes.DATE, allowNull: false },
+      updatedAt: { type: DataTypes.DATE, allowNull: false },
     },
     { sequelize, modelName: "Customer", tableName: "Customers" },
   );
