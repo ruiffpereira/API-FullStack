@@ -2,15 +2,6 @@ require("dotenv").config();
 
 const env = process.env.ENVIROMENT;
 
-console.log("=== DEBUG ===");
-console.log("ENVIROMENT:", env);
-console.log("DB_HOST_PROD:", process.env.DB_HOST_PROD);
-console.log("DB_USERNAME_PROD:", process.env.DB_USERNAME_PROD);
-console.log("DB_DATABASE_PROD:", process.env.DB_DATABASE_PROD);
-console.log("DB_PORT_PROD:", process.env.DB_PORT_PROD);
-console.log("DB_DIALECT_PROD:", process.env.DB_DIALECT_PROD);
-console.log("=============");
-
 const config = {
   DEV: {
     username: process.env.DB_USERNAME_DEV,
