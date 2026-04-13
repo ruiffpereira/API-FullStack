@@ -17,5 +17,6 @@ applyParsers(app);
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api-docs", swaggerRoutes);
+app.get("/health", (_req, res) => res.status(200).send("ok"));
 
 app.listen({ port: 3001 }, () => startDB());
