@@ -7,7 +7,6 @@ console.log("ENVIROMENT:", env);
 console.log("DB_HOST_PROD:", process.env.DB_HOST_PROD);
 console.log("DB_USERNAME_PROD:", process.env.DB_USERNAME_PROD);
 console.log("DB_DATABASE_PROD:", process.env.DB_DATABASE_PROD);
-console.log("DB_ROOT_PASSWORD_PROD:", process.env.DB_ROOT_PASSWORD_PROD);
 console.log("DB_PORT_PROD:", process.env.DB_PORT_PROD);
 console.log("DB_DIALECT_PROD:", process.env.DB_DIALECT_PROD);
 console.log("=============");

@@ -9,6 +9,7 @@ RUN pnpm install
 COPY . .
 
 RUN pnpm run build
+COPY config ./dist/config
 
 EXPOSE 3001
 
