@@ -67,8 +67,9 @@ export const startDB = async (): Promise<void> => {
     await sequelize.sync();
     applyAssociations();
     await sequelize.authenticate();
-    const seeder = await import("../seeders/20260407123456-dummy-data");
-    await seeder.default.up(sequelize.getQueryInterface(), sequelize);
+    // Correr na primeira vez para popular a base de dados com dados de teste
+    // const seeder = await import("../seeders/20260407123456-dummy-data");
+    // await seeder.default.up(sequelize.getQueryInterface(), sequelize);
     const environment = process.env.ENVIROMENT;
     console.log(
       `Connection has been established successfully in ${environment} environment.`,
