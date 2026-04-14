@@ -1,6 +1,8 @@
 services:
   app:
     command: pnpm run dev
+    ports:
+      - "3001:3001"
     volumes:
       - .:/app
       - /app/node_modules
@@ -39,6 +41,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 30s
     volumes:
       - mysql-data:/var/lib/mysql
 

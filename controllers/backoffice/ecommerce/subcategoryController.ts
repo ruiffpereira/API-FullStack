@@ -147,7 +147,7 @@ export const deleteSubcategory = async (
  *     parameters:
  *       - name: id
  *         in: path
- *         required: false
+ *         required: true
  *         schema:
  *           type: string
  *     requestBody:

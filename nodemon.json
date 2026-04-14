@@ -1,5 +1,6 @@
 {
   "ext": "ts,js",
   "ignore": ["node_modules", "dist", "uploads"],
-  "exec": "pnpm exec ts-node --transpile-only index.ts"
+  "exec": "pnpm exec ts-node --transpile-only index.ts",
+  "legacyWatch": true
 }

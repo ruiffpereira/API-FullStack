@@ -32,6 +32,15 @@ const sequelize = new Sequelize(
     host: dbConfig.host,
     port: dbConfig.port ? parseInt(dbConfig.port, 10) : 3306,
     dialect: dbConfig.dialect as "mysql" | "postgres" | "sqlite" | "mssql",
+    pool: {
+      max: 10,
+      min: 0,
+      acquire: 30000,
+      idle: 10000,
+    },
+    dialectOptions: {
+      connectTimeout: 60000,
+    },
   },
 );
 
@@ -58,6 +67,8 @@ export const startDB = async (): Promise<void> => {
     await sequelize.sync();
     applyAssociations();
     await sequelize.authenticate();
+    const seeder = await import("../seeders/20260407123456-dummy-data");
+    await seeder.default.up(sequelize.getQueryInterface(), sequelize);
     const environment = process.env.ENVIROMENT;
     console.log(
       `Connection has been established successfully in ${environment} environment.`,

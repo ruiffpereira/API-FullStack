@@ -14,7 +14,9 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "allowJs": true,
+    "checkJs": false
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules", "dist", "uploads", "seeders", "migrations"]

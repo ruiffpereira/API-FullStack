@@ -95,6 +95,7 @@ export const loginUser = async (
   req: Request<{}, {}, LoginUserBody>,
   res: Response<LoginResponse | ApiError>,
 ): Promise<void | Response> => {
+  console.log("Login request body:", req.body);
   const { username, password } = req.body;
   try {
     const user = await User.findOne({ where: { name: username } });
