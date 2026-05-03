@@ -8,7 +8,8 @@
       "Bash(Select-Object -First 20)",
       "PowerShell(ls -Recurse \"D:\\\\Projetos\\\\Projectos\\\\BO-FullStack\\\\src\" -Directory | Where-Object { $_.Name -match 'management|user' } | Format-List FullName)",
       "PowerShell(Get-NetTCPConnection -State Listen | Where-Object { $_.LocalPort -in @\\(3000, 3001, 5173\\) } | ForEach-Object { $p = Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue; \"$\\($_.LocalPort\\) — PID $\\($_.OwningProcess\\) — $\\($p.Name\\)\" })",
-      "PowerShell(Stop-Process -Id 12184 -Force)"
+      "PowerShell(Stop-Process -Id 12184 -Force)",
+      "Bash(pnpm run *)"
     ]
   }
 }

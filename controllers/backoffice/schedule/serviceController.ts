@@ -38,7 +38,7 @@ export const createService = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const userId = req.user;
+  const userId = req.user!;
   const { name, duration, price, description, active } = req.body;
   try {
     const service = await Service.create({

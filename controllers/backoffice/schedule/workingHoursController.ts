@@ -22,7 +22,7 @@ export const upsertWorkingHours = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const userId = req.user;
+  const userId = req.user!;
   // Expects array: [{ dayOfWeek, startTime, endTime, isActive }]
   const { hours } = req.body as {
     hours: { dayOfWeek: number; startTime: string; endTime: string; isActive: boolean }[];

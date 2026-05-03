@@ -28,7 +28,7 @@ export const createBlockedSlot = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const userId = req.user;
+  const userId = req.user!;
   const { date, startTime, endTime, reason } = req.body;
   try {
     const slot = await BlockedSlot.create({

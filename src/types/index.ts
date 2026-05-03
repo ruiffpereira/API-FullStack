@@ -80,6 +80,7 @@ export interface UpdateUserBody {
   password?: string;
   permissionId?: string;
   secretkeysite?: boolean;
+  siteUrl?: string | null;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
