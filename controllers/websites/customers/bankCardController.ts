@@ -1,59 +1,62 @@
 import { Request, Response } from "express";
 import { z } from "zod";
 import { BankCard } from "../../../models";
-import {
-  ApiError,
-  BankCardBody,
-  BankCardResponse,
-  CardIdParams,
-} from "../../../src/types/index";
+import { ApiError, BankCardBody, BankCardResponse, CardIdParams } from "../../../src/types/index";
 
 const bankCardSchema = z.object({
-  cardNumber: z.string().min(16, "Card number must be at least 16 digits"),
+  cardNumber: z.string().min(16, "Card number must be at least 16 digits").max(19),
   expirationDate: z
     .string()
     .regex(/^\d{2}\/\d{2}$/, "Expiration date must be in MM/YY format"),
-  cvv: z
-    .string()
-    .min(3, "CVV must be at least 3 digits")
-    .max(4, "CVV must be at most 4 digits"),
   customerId: z.string().uuid("Invalid customer ID"),
 });
 
 export const createBankCard = async (
   req: Request<{}, {}, BankCardBody>,
-  res: Response,
+  res: Response<BankCardResponse | ApiError>,
 ): Promise<void> => {
   try {
     const validatedData = bankCardSchema.parse(req.body);
-    const bankCard = await BankCard.create(validatedData);
-    res.status(201).json(bankCard);
+    const lastFourDigits = validatedData.cardNumber.slice(-4);
+    const bankCard = await BankCard.create({
+      lastFourDigits,
+      expirationDate: validatedData.expirationDate,
+      customerId: validatedData.customerId,
+    });
+    res.status(201).json({
+      cardId: bankCard.cardId,
+      lastFourDigits: bankCard.lastFourDigits,
+      expirationDate: bankCard.expirationDate,
+      customerId: bankCard.customerId,
+    });
   } catch (error) {
-    res
-      .status(400)
-      .json({ error: "Validation error", details: (error as any).errors });
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: "Validation error" });
+      return;
+    }
+    res.status(500).json({ error: "Error creating bank card" });
   }
 };
 
 export const getBankCards = async (
   req: Request,
-  res: Response,
+  res: Response<BankCardResponse[] | ApiError>,
 ): Promise<void> => {
   try {
     const { customerId } = req;
-    const bankCards = await BankCard.findAll({ where: { customerId } });
-    res.status(200).json(bankCards);
-  } catch (error) {
-    res.status(500).json({
-      error: "Error fetching bank cards",
-      details: (error as Error).message,
+    const bankCards = await BankCard.findAll({
+      where: { customerId },
+      attributes: ["cardId", "lastFourDigits", "expirationDate", "customerId"],
     });
+    res.status(200).json(bankCards as unknown as BankCardResponse[]);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching bank cards" });
   }
 };
 
 export const updateBankCard = async (
   req: Request<CardIdParams, {}, BankCardBody>,
-  res: Response,
+  res: Response<BankCardResponse | ApiError>,
 ): Promise<void> => {
   try {
     const { cardId } = req.params;
@@ -64,18 +67,26 @@ export const updateBankCard = async (
       res.status(404).json({ error: "Bank card not found" });
       return;
     }
-    await bankCard.update(validatedData);
-    res.status(200).json(bankCard);
+    const lastFourDigits = validatedData.cardNumber.slice(-4);
+    await bankCard.update({ lastFourDigits, expirationDate: validatedData.expirationDate });
+    res.status(200).json({
+      cardId: bankCard.cardId,
+      lastFourDigits: bankCard.lastFourDigits,
+      expirationDate: bankCard.expirationDate,
+      customerId: bankCard.customerId,
+    });
   } catch (error) {
-    res
-      .status(400)
-      .json({ error: "Validation error", details: (error as any).errors });
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: "Validation error" });
+      return;
+    }
+    res.status(500).json({ error: "Error updating bank card" });
   }
 };
 
 export const deleteBankCard = async (
   req: Request<CardIdParams>,
-  res: Response,
+  res: Response<ApiError | void>,
 ): Promise<void> => {
   try {
     const { cardId } = req.params;
@@ -88,10 +99,7 @@ export const deleteBankCard = async (
     await bankCard.destroy();
     res.status(204).send();
   } catch (error) {
-    res.status(500).json({
-      error: "Error deleting bank card",
-      details: (error as Error).message,
-    });
+    res.status(500).json({ error: "Error deleting bank card" });
   }
 };
 

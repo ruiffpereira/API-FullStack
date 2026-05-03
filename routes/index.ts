@@ -21,6 +21,11 @@ import customerRoutes from "./websites/customers/customerRoutes";
 import addressRoutes from "./websites/customers/addressRoutes";
 import bankCardRoutes from "./websites/customers/bankCardRoutes";
 import cartRoutes from "./websites/ecommerce/cartRoutes";
+import scheduleServiceRoutes from "./backoffice/schedule/serviceRoutes";
+import scheduleAppointmentRoutes from "./backoffice/schedule/appointmentRoutes";
+import scheduleWorkingHoursRoutes from "./backoffice/schedule/workingHoursRoutes";
+import scheduleBlockedSlotRoutes from "./backoffice/schedule/blockedSlotRoutes";
+import bookingPublicRoutes from "./websites/booking/publicRoutes";
 import ordersRoutes from "./websites/ecommerce/ordersRoutes";
 import productsRoutes from "./websites/ecommerce/productsRoutes";
 
@@ -105,6 +110,35 @@ router.use(
   authenticateTokenPublic,
   productsRoutes,
 );
+
+// SCHEDULE (backoffice)
+router.use(
+  "/schedule/services",
+  authenticateToken,
+  authorizePermissions(["VIEW_SCHEDULE"]),
+  scheduleServiceRoutes,
+);
+router.use(
+  "/schedule/appointments",
+  authenticateToken,
+  authorizePermissions(["VIEW_SCHEDULE"]),
+  scheduleAppointmentRoutes,
+);
+router.use(
+  "/schedule/working-hours",
+  authenticateToken,
+  authorizePermissions(["VIEW_SCHEDULE"]),
+  scheduleWorkingHoursRoutes,
+);
+router.use(
+  "/schedule/blocked-slots",
+  authenticateToken,
+  authorizePermissions(["VIEW_SCHEDULE"]),
+  scheduleBlockedSlotRoutes,
+);
+
+// BOOKING — agendamentos públicos (barbeiros, cabeleireiros, estética, etc.)
+router.use("/websites/booking", bookingPublicRoutes);
 
 //stripe webhook
 router.post(

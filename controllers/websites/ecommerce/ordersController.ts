@@ -9,16 +9,26 @@ import {
   Product,
   Customer,
   Address,
+  sequelize,
 } from "../../../models";
 import {
   ApiError,
-  ApiMessage,
   CreateOrderBody,
   IdParams,
-  OrderResponse,
 } from "../../../src/types/index";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+
+type CartProductWithProduct = CartProduct & { product: Product };
+type CartWithProducts = Cart & { cartProducts: CartProductWithProduct[] };
+
+type EmailParams = {
+  customer: { name: string; email: string };
+  order: { createdAt: Date; price: number };
+  products: CartProductWithProduct[];
+  shippingAddress: { address: string; postalCode: string; city: string };
+  billingAddress: { address: string; postalCode: string; city: string };
+};
 
 function buildOrderEmail({
   customer,
@@ -26,7 +36,7 @@ function buildOrderEmail({
   products,
   shippingAddress,
   billingAddress,
-}: any): string {
+}: EmailParams): string {
   return `
   <div style="font-family: Arial, sans-serif; background: #232326; padding: 20px; margin: 0;">
     <div style="max-width: 600px; margin: 40px auto; background: #f5f5f7; border-radius: 14px; padding: 32px;">
@@ -54,7 +64,7 @@ function buildOrderEmail({
         <div>
           ${products
             .map(
-              (item: any) => `
+              (item) => `
             <div style="display: flex; align-items: center; background: #fff; border-radius: 8px; margin-bottom: 16px; padding: 12px 16px;">
               <div style="flex: 1;">
                 <div style="font-weight: 500; color: #b71c1c;">${item.product.name}</div>
@@ -86,16 +96,13 @@ export const createPaymentIntent = async (
         },
       ],
     });
-    if (
-      !cart ||
-      !(cart as any).cartProducts ||
-      (cart as any).cartProducts.length === 0
-    ) {
+    const typedCart = cart as CartWithProducts | null;
+    if (!typedCart || typedCart.cartProducts.length === 0) {
       res.status(400).json({ error: "Cart is empty" });
       return;
     }
-    const totalPrice = (cart as any).cartProducts.reduce(
-      (total: number, item: any) => total + item.product.price * item.quantity,
+    const totalPrice = typedCart.cartProducts.reduce(
+      (total, item) => total + item.product.price * item.quantity,
       0,
     );
     const paymentIntent = await stripe.paymentIntents.create({
@@ -118,112 +125,103 @@ export const createOrder = async (
   const { shippingAddress, billingAddress } = req.body;
   const { customerId } = req;
   try {
-    const cart = await Cart.findOne({
-      where: { customerId },
-      include: [
-        {
-          model: CartProduct,
-          as: "cartProducts",
-          attributes: ["quantity", "productId"],
-          include: [
-            {
-              model: Product,
-              as: "product",
-              attributes: ["productId", "name", "price", "photos"],
-            },
-          ],
-        },
-      ],
-    });
-    const customer = await Customer.findOne({
-      where: { customerId },
-      attributes: ["email", "name"],
-    });
-    const userRecord = await Customer.findOne({
-      where: { customerId },
-      attributes: ["userId"],
-    });
-    const shipping = await Address.findOne({
-      where: { addressId: shippingAddress, customerId },
-    });
-    const billing = await Address.findOne({
-      where: { addressId: billingAddress, customerId },
-    });
+    const [cart, customer, shipping, billing] = await Promise.all([
+      Cart.findOne({
+        where: { customerId },
+        include: [
+          {
+            model: CartProduct,
+            as: "cartProducts",
+            attributes: ["quantity", "productId"],
+            include: [
+              {
+                model: Product,
+                as: "product",
+                attributes: ["productId", "name", "price", "photos"],
+              },
+            ],
+          },
+        ],
+      }),
+      Customer.findOne({
+        where: { customerId },
+        attributes: ["email", "name", "userId"],
+      }),
+      Address.findOne({ where: { addressId: shippingAddress, customerId } }),
+      Address.findOne({ where: { addressId: billingAddress, customerId } }),
+    ]);
 
-    if (!userRecord) {
+    if (!customer) {
       res.status(404).json({ error: "Customer not found" });
       return;
     }
-    if (
-      !cart ||
-      !(cart as any).cartProducts ||
-      (cart as any).cartProducts.length === 0
-    ) {
+    const typedCart = cart as CartWithProducts | null;
+    if (!typedCart || typedCart.cartProducts.length === 0) {
       res.status(400).json({ error: "Cart is empty" });
       return;
     }
     if (!shipping || !billing) {
-      res
-        .status(400)
-        .json({ error: "Endereço de envio ou faturação inválido." });
+      res.status(400).json({ error: "Endereço de envio ou faturação inválido." });
       return;
     }
 
-    const totalPrice = (cart as any).cartProducts.reduce(
-      (total: number, item: any) => total + item.product.price * item.quantity,
+    const totalPrice = typedCart.cartProducts.reduce(
+      (total, item) => total + item.product.price * item.quantity,
       0,
     );
-    const newOrder = await Order.create({
-      customerId: customerId!,
-      userId: userRecord.userId,
-      price: totalPrice,
-      shippingAddress,
-      billingAddress,
-    });
 
-    const orderProducts = (cart as any).cartProducts.map((item: any) => ({
-      orderId: newOrder.orderId,
-      productId: item.productId,
-      quantity: item.quantity,
-      priceAtPurchase: item.product.price,
-    }));
-    const createdOrderProducts = await OrderProduct.bulkCreate(orderProducts);
-    if (!createdOrderProducts || createdOrderProducts.length === 0) {
-      res.status(500).json({ error: "Failed to create order products" });
-      return;
+    const transaction = await sequelize.transaction();
+    try {
+      const newOrder = await Order.create(
+        {
+          customerId: customerId!,
+          userId: customer.userId,
+          price: totalPrice,
+          shippingAddress,
+          billingAddress,
+        },
+        { transaction },
+      );
+
+      const orderProducts = typedCart.cartProducts.map((item) => ({
+        orderId: newOrder.orderId,
+        productId: item.productId,
+        quantity: item.quantity,
+        priceAtPurchase: item.product.price,
+      }));
+      await OrderProduct.bulkCreate(orderProducts, { transaction });
+      await CartProduct.destroy({ where: { cartId: typedCart.cartId }, transaction });
+      await transaction.commit();
+
+      const transporter = nodemailer.createTransport({
+        host: "smtp.hostinger.com",
+        port: 465,
+        secure: true,
+        auth: { user: process.env.EMAIL || "", pass: process.env.PASSWORD || "" },
+      });
+      const html = buildOrderEmail({
+        customer,
+        order: newOrder,
+        products: typedCart.cartProducts,
+        billingAddress: billing,
+        shippingAddress: shipping,
+      });
+      await transporter.sendMail({
+        from: `${customer.name} - A equipa da Loja <${process.env.EMAIL}>`,
+        to: customer.email,
+        bcc: [process.env.EMAIL!],
+        subject: "A sua encomenda foi efetuada com sucesso!",
+        html,
+      });
+
+      res.status(201).json({ message: "Order created successfully", order: newOrder });
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
     }
-
-    await CartProduct.destroy({ where: { cartId: (cart as any).cartId } });
-
-    const transporter = nodemailer.createTransport({
-      host: "smtp.hostinger.com",
-      port: 465,
-      secure: true,
-      auth: { user: process.env.EMAIL || "", pass: process.env.PASSWORD || "" },
-    });
-    const html = buildOrderEmail({
-      customer,
-      order: newOrder,
-      products: (cart as any).cartProducts,
-      billingAddress: billing,
-      shippingAddress: shipping,
-    });
-    await transporter.sendMail({
-      from: `${customer?.name} - A equipa da Loja <${process.env.EMAIL}>`,
-      to: customer?.email,
-      bcc: [process.env.EMAIL!, "joaosousa.9@hotmail.com"],
-      subject: "A sua encomenda foi efetuada com sucesso!",
-      html,
-    });
-
-    res
-      .status(201)
-      .json({ message: "Order created successfully", order: newOrder });
   } catch (error) {
     console.error("Error creating order:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while creating the order" });
+    res.status(500).json({ error: "An error occurred while creating the order" });
   }
 };
 

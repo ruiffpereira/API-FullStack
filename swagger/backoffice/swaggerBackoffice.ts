@@ -107,6 +107,58 @@ const swaggerOptionsBackoffice: swaggerJsdoc.Options = {
           },
           required: ["componentId", "name"],
         },
+        Service: {
+          type: "object",
+          properties: {
+            serviceId: { type: "string" },
+            name: { type: "string" },
+            duration: { type: "integer", description: "Duração em minutos" },
+            price: { type: "number" },
+            description: { type: "string" },
+            active: { type: "boolean" },
+          },
+          required: ["serviceId", "name", "duration", "price"],
+        },
+        Appointment: {
+          type: "object",
+          properties: {
+            appointmentId: { type: "string" },
+            date: { type: "string", example: "2026-05-15" },
+            time: { type: "string", example: "10:00" },
+            serviceId: { type: "string" },
+            clientName: { type: "string" },
+            clientEmail: { type: "string" },
+            clientPhone: { type: "string" },
+            status: {
+              type: "string",
+              enum: ["pending", "confirmed", "completed", "cancelled"],
+            },
+            notes: { type: "string" },
+          },
+          required: ["appointmentId", "date", "time", "serviceId", "clientName", "clientEmail", "clientPhone"],
+        },
+        WorkingHours: {
+          type: "object",
+          properties: {
+            workingHoursId: { type: "string" },
+            dayOfWeek: { type: "integer", description: "0=Dom, 1=Seg, ..., 6=Sáb" },
+            startTime: { type: "string", example: "09:00" },
+            endTime: { type: "string", example: "18:00" },
+            isActive: { type: "boolean" },
+          },
+          required: ["dayOfWeek", "startTime", "endTime"],
+        },
+        BlockedSlot: {
+          type: "object",
+          properties: {
+            blockedSlotId: { type: "string" },
+            date: { type: "string", example: "2026-05-01" },
+            startTime: { type: "string", example: "12:00", nullable: true },
+            endTime: { type: "string", example: "14:00", nullable: true },
+            reason: { type: "string", nullable: true },
+          },
+          required: ["blockedSlotId", "date"],
+        },
         Customer: {
           type: "object",
           properties: {

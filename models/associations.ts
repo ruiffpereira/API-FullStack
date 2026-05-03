@@ -15,6 +15,10 @@ import { BankCard } from "./bankCart";
 import { Address } from "./address";
 import { Shipping } from "./shipping";
 import { RefreshToken } from "./refreshToken";
+import { Service } from "./service";
+import { Appointment } from "./appointment";
+import { WorkingHours } from "./workingHours";
+import { BlockedSlot } from "./blockedSlot";
 
 export function applyAssociations(): void {
   // Category - Subcategory - Product
@@ -187,6 +191,22 @@ export function applyAssociations(): void {
   // RefreshToken
   Customer.hasMany(RefreshToken, { foreignKey: "customerId" });
   RefreshToken.belongsTo(Customer, { foreignKey: "customerId" });
+
+  // Schedule
+  User.hasMany(Service, { foreignKey: "userId", as: "services" });
+  Service.belongsTo(User, { foreignKey: "userId", as: "user" });
+
+  User.hasMany(Appointment, { foreignKey: "userId", as: "appointments" });
+  Appointment.belongsTo(User, { foreignKey: "userId", as: "user" });
+
+  Service.hasMany(Appointment, { foreignKey: "serviceId", as: "appointments" });
+  Appointment.belongsTo(Service, { foreignKey: "serviceId", as: "service" });
+
+  User.hasMany(WorkingHours, { foreignKey: "userId", as: "workingHours" });
+  WorkingHours.belongsTo(User, { foreignKey: "userId", as: "user" });
+
+  User.hasMany(BlockedSlot, { foreignKey: "userId", as: "blockedSlots" });
+  BlockedSlot.belongsTo(User, { foreignKey: "userId", as: "user" });
 
   // Hooks
   Category.beforeDestroy(async (category, options) => {

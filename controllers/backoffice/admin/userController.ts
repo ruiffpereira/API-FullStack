@@ -26,7 +26,7 @@ require("dotenv").config();
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 const JWT_SECRET_PUBLIC = process.env.JWT_SECRET_PUBLIC as string;
-const environment = process.env.ENVIROMENT;
+const environment = process.env.ENVIRONMENT;
 
 export const getAllUsers = async (
   req: Request,
@@ -57,7 +57,6 @@ export const registerUser = async (
 ): Promise<void | Response> => {
   try {
     const { name, email, permissionId, password } = req.body;
-    const text = "SELECT * FROM Users WHERE email = :email";
     if (!email || !password || !name || !permissionId) {
       return res.status(400).json({ error: "Invalid Fields" });
     }
@@ -71,6 +70,7 @@ export const registerUser = async (
       const secretkeysite = jwt.sign(
         { userId: user.userId },
         JWT_SECRET_PUBLIC,
+        { expiresIn: "365d" },
       );
       user.secretkeysite = secretkeysite;
       await user.save({ transaction });
@@ -95,20 +95,17 @@ export const loginUser = async (
   req: Request<{}, {}, LoginUserBody>,
   res: Response<LoginResponse | ApiError>,
 ): Promise<void | Response> => {
-  console.log("Login request body:", req.body);
   const { username, password } = req.body;
   try {
     const user = await User.findOne({ where: { name: username } });
     if (!user) return res.status(404).json({ error: "Incorrect Data!" });
 
-    if (environment !== "DEV") {
-      if (!password || !user.password) {
-        return res.status(400).json({ error: "Invalid email or password" });
-      }
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch)
-        return res.status(401).json({ error: "Invalid email or password" });
+    if (!password || !user.password) {
+      return res.status(400).json({ error: "Invalid email or password" });
     }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch)
+      return res.status(401).json({ error: "Invalid email or password" });
 
     const accessToken = jwt.sign({ userId: user.userId }, JWT_SECRET, {
       expiresIn: "7d",
@@ -146,8 +143,10 @@ export const updateUser = async (
         user.secretkeysite = jwt.sign(
           { userId: user.userId },
           JWT_SECRET_PUBLIC,
+          { expiresIn: "365d" },
         );
       }
+      if (req.body.siteUrl !== undefined) user.siteUrl = req.body.siteUrl || null;
       await user.save({ transaction });
       if (permissionId) {
         await UserPermission.update(
@@ -179,7 +178,6 @@ export const deleteUser = async (
   res: Response<ApiMessage | ApiError>,
 ): Promise<void | Response> => {
   const { userId } = req.params;
-  res.status(500).json({ error: "An error occurred while deleting the user" });
   try {
     const transaction = await sequelize.transaction();
     try {
@@ -335,6 +333,9 @@ export const deleteUser = async (
  *                 type: string
  *               secretkeysite:
  *                 type: boolean
+ *               siteUrl:
+ *                 type: string
+ *                 description: URL do website do cliente, usado nos links de cancelamento do módulo de booking
  *     responses:
  *       200:
  *         description: User updated successfully

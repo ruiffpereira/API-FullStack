@@ -3,6 +3,7 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpecBackoffice } from "../swagger/backoffice/swaggerBackoffice";
 import { swaggerSpecWebsitesCustomers } from "../swagger/websites/customers/swaggerCustomers";
 import { swaggerSpecWebsitesEcommerce } from "../swagger/websites/ecommerce/swaggerEcommerce";
+import { swaggerSpecWebsitesBooking } from "../swagger/websites/booking/swaggerBooking";
 import { swaggerAccessMiddleware } from "../src/middleware/auth";
 
 const router = Router();
@@ -44,6 +45,18 @@ router.use(
 router.get("/websites/ecommerce.json", swaggerAccessMiddleware, (req, res) => {
   res.setHeader("Content-Type", "application/json");
   res.send(swaggerSpecWebsitesEcommerce);
+});
+
+router.use(
+  "/websites/booking",
+  swaggerUi.serveFiles(swaggerSpecWebsitesBooking),
+  swaggerUi.setup(swaggerSpecWebsitesBooking, {
+    swaggerOptions: { validatorUrl: null },
+  }),
+);
+router.get("/websites/booking.json", (req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.send(swaggerSpecWebsitesBooking);
 });
 
 export default router;

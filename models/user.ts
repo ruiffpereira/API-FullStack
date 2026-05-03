@@ -16,6 +16,7 @@ export class User extends Model<
   declare password: string;
   declare email: string;
   declare secretkeysite: CreationOptional<string | null>;
+  declare siteUrl: CreationOptional<string | null>;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 }
@@ -33,6 +34,7 @@ export function initUser(sequelize: Sequelize): void {
       password: { type: DataTypes.STRING, allowNull: false },
       email: { type: DataTypes.STRING, allowNull: false },
       secretkeysite: { type: DataTypes.STRING, allowNull: true },
+      siteUrl: { type: DataTypes.STRING, allowNull: true },
       createdAt: { type: DataTypes.DATE, allowNull: false },
       updatedAt: { type: DataTypes.DATE, allowNull: false },
     },

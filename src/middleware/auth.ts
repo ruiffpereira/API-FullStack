@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { promisify } from "util";
 import {
   UserPermission,
   Component,
@@ -12,15 +13,20 @@ import {
 const JWT_SECRET = process.env.JWT_SECRET as string;
 const JWT_SECRET_PUBLIC = process.env.JWT_SECRET_PUBLIC as string;
 
+const verifyJwt = promisify(jwt.verify) as (
+  token: string,
+  secret: string,
+) => Promise<jwt.JwtPayload>;
+
 const swaggerActivationStart = Date.now();
 const swaggerActivationDuration = 20 * 60 * 1000;
 
 export const swaggerAccessMiddleware = (
-  req: Request,
+  _req: Request,
   res: Response,
   next: NextFunction,
 ): void => {
-  if (process.env.ENVIROMENT === "DEV") {
+  if (process.env.ENVIRONMENT === "DEV") {
     return next();
   }
   const currentTime = Date.now();
@@ -33,19 +39,28 @@ export const swaggerAccessMiddleware = (
   next();
 };
 
-export const authenticateToken = (
+export const authenticateToken = async (
   req: Request,
   res: Response,
   next: NextFunction,
-): void => {
+): Promise<void> => {
   const token = req.headers["authorization"]?.split(" ")[1];
   if (!token) {
     res.sendStatus(401);
     return;
   }
-  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
+  try {
+    const decoded = await verifyJwt(token, JWT_SECRET);
+    req.user = decoded.userId;
+    const userRecord = await User.findOne({ where: { userId: req.user } });
+    if (!userRecord) {
+      res.status(404).send();
+      return;
+    }
     next();
-  });
+  } catch {
+    res.sendStatus(403);
+  }
 };
 
 export const authenticateTokenCustomers = async (
@@ -58,12 +73,9 @@ export const authenticateTokenCustomers = async (
     res.sendStatus(401);
     return;
   }
-  jwt.verify(token, JWT_SECRET, async (err: any, customer: any) => {
-    if (err) {
-      res.sendStatus(403);
-      return;
-    }
-    req.customerId = (customer as jwt.JwtPayload).customerId;
+  try {
+    const decoded = await verifyJwt(token, JWT_SECRET);
+    req.customerId = decoded.customerId;
     const customerRecord = await Customer.findOne({
       where: { customerId: req.customerId },
     });
@@ -73,27 +85,28 @@ export const authenticateTokenCustomers = async (
     }
     req.userId = customerRecord.userId;
     next();
-  });
+  } catch {
+    res.sendStatus(403);
+  }
 };
 
-export const authenticateTokenPublic = (
+export const authenticateTokenPublic = async (
   req: Request,
   res: Response,
   next: NextFunction,
-): void => {
+): Promise<void> => {
   const token = req.headers["authorization"]?.split(" ")[1];
   if (!token) {
     res.sendStatus(401);
     return;
   }
-  jwt.verify(token, JWT_SECRET_PUBLIC, (err: any, user: any) => {
-    if (err) {
-      res.sendStatus(403);
-      return;
-    }
-    req.userId = (user as jwt.JwtPayload).userId;
+  try {
+    const decoded = await verifyJwt(token, JWT_SECRET_PUBLIC);
+    req.userId = decoded.userId;
     next();
-  });
+  } catch {
+    res.sendStatus(403);
+  }
 };
 
 export const authorizePermissions = (requiredPermissions: string[]) => {
@@ -107,13 +120,10 @@ export const authorizePermissions = (requiredPermissions: string[]) => {
       const permissions = await UserPermission.findAll({ where: { userId } });
       const permissionId = permissions.map((up) => up.permissionId);
 
-      const permissionName = await Permission.findAll({
+      const permissionNames = await Permission.findAll({
         where: { permissionId },
       });
-
-      console.log("permissionName:", permissionName);
-      if (permissionName[0]?.name === "Admin") {
-        console.log("Autorizado Permissao");
+      if (permissionNames.some((p) => p.name === "Admin")) {
         return next();
       }
 
@@ -127,14 +137,12 @@ export const authorizePermissions = (requiredPermissions: string[]) => {
       });
 
       if (hasRequiredPermissions.length === 0) {
-        console.log("Nao Autorizado Permissao");
         res
           .status(403)
           .json({ error: "User does not have the required permissions" });
         return;
       }
 
-      console.log("Autorizado Permissao");
       next();
     } catch (error) {
       console.error("Error checking permissions:", error);

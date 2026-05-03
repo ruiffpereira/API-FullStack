@@ -102,7 +102,7 @@ export const addProductToCart = async (
     const cartUpdated = await calculateCartTotals(cart);
     res.status(200).json({
       cartId: cart.cartId,
-      custormerId: cart.customerId,
+      customerId: cart.customerId,
       products: cartUpdated.products,
       shipPrice: cartUpdated.shipPrice,
     });
@@ -125,7 +125,7 @@ export const getCartItems = async (
     const cartUpdated = await calculateCartTotals(cart);
     res.status(200).json({
       cartId: cart.cartId,
-      custormerId: cart.customerId,
+      customerId: cart.customerId,
       products: cartUpdated.products,
       shipPrice: cartUpdated.shipPrice,
     });

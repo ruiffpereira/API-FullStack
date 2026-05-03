@@ -12,9 +12,8 @@ export class BankCard extends Model<
   InferCreationAttributes<BankCard>
 > {
   declare cardId: CreationOptional<string>;
-  declare cardNumber: string;
+  declare lastFourDigits: string;
   declare expirationDate: string;
-  declare cvv: string;
   declare customerId: string;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -29,9 +28,8 @@ export function initBankCard(sequelize: Sequelize): void {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      cardNumber: { type: DataTypes.STRING, allowNull: false },
+      lastFourDigits: { type: DataTypes.STRING(4), allowNull: false },
       expirationDate: { type: DataTypes.STRING, allowNull: false },
-      cvv: { type: DataTypes.STRING, allowNull: false },
       customerId: {
         type: DataTypes.UUID,
         allowNull: false,

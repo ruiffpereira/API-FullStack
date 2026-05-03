@@ -20,26 +20,35 @@ export const checkUserPermission = async (
   try {
     const permissions = await UserPermission.findAll({ where: { userId } });
     const permissionIds = permissions.map((up) => up.permissionId);
-    const permissiOfUser = await Permission.findAll({
+    const permissionsOfUser = await Permission.findAll({
       where: { permissionId: permissionIds },
     });
 
+    const isAdmin = permissionsOfUser.some((p) => p.name === "Admin");
+    if (isAdmin) {
+      const results: Record<string, boolean> = {};
+      for (const name of componentNames) results[name] = true;
+      res.status(200).json(results);
+      return;
+    }
+
+    const allComponents = await Component.findAll({
+      where: { name: componentNames },
+    });
+    const componentIdsByName = new Map(
+      allComponents.map((c) => [c.name, c.componentId]),
+    );
+    const componentIds = allComponents.map((c) => c.componentId);
+
+    const granted = await ComponentPermission.findAll({
+      where: { permissionId: permissionIds, componentId: componentIds },
+    });
+    const grantedComponentIds = new Set(granted.map((cp) => cp.componentId));
+
     const results: Record<string, boolean> = {};
-    for (const componentName of componentNames) {
-      if (permissiOfUser.some((permission) => permission.name === "Admin")) {
-        results[componentName] = true;
-      } else {
-        const components = await Component.findAll({
-          where: { name: componentName },
-        });
-        const componentIds = components.map(
-          (component) => component.componentId,
-        );
-        const hasRequiredPermissions = await ComponentPermission.findAll({
-          where: { permissionId: permissionIds, componentId: componentIds },
-        });
-        results[componentName] = hasRequiredPermissions.length > 0;
-      }
+    for (const name of componentNames) {
+      const id = componentIdsByName.get(name);
+      results[name] = id !== undefined && grantedComponentIds.has(id);
     }
     res.status(200).json(results);
   } catch (error) {
@@ -58,7 +67,6 @@ export const getUserComponentsPermissions = async (
   try {
     const userPermissions = await UserPermission.findAll({ where: { userId } });
     const permissionIds = userPermissions.map((up) => up.permissionId);
-
     const isAdmin = await Permission.findOne({
       where: { permissionId: permissionIds, name: "Admin" },
     });
@@ -68,6 +76,10 @@ export const getUserComponentsPermissions = async (
       });
       return res.status(200).json(allComponents);
     }
+
+    type PermWithComponents = Permission & {
+      componentPermissions: (ComponentPermission & { component: Component })[];
+    };
 
     const components = await UserPermission.findAll({
       where: { userId },
@@ -92,11 +104,11 @@ export const getUserComponentsPermissions = async (
       ],
     });
 
-    const accessibleComponents = components.flatMap((userPermission: any) =>
-      userPermission.permission.componentPermissions.map(
-        (cp: any) => cp.component,
-      ),
-    );
+    const accessibleComponents = components.flatMap((userPermission) => {
+      const perm = (userPermission as unknown as { permission: PermWithComponents }).permission;
+      return perm.componentPermissions.map((cp) => cp.component);
+    });
+
     res.status(200).json(accessibleComponents);
   } catch (error) {
     console.error("Error fetching accessible components:", error);

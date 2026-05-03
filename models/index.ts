@@ -22,6 +22,10 @@ import { initBankCard, BankCard } from "./bankCart";
 import { initAddress, Address } from "./address";
 import { initShipping, Shipping } from "./shipping";
 import { initRefreshToken, RefreshToken } from "./refreshToken";
+import { initService, Service } from "./service";
+import { initAppointment, Appointment } from "./appointment";
+import { initWorkingHours, WorkingHours } from "./workingHours";
+import { initBlockedSlot, BlockedSlot } from "./blockedSlot";
 
 const sequelize = new Sequelize(
   dbConfig.database!,
@@ -61,16 +65,59 @@ initBankCard(sequelize);
 initAddress(sequelize);
 initShipping(sequelize);
 initRefreshToken(sequelize);
+initService(sequelize);
+initAppointment(sequelize);
+initWorkingHours(sequelize);
+initBlockedSlot(sequelize);
+
+const REQUIRED_COMPONENTS = [
+  "VIEW_ADMIN",
+  "VIEW_PRODUCTS",
+  "VIEW_CUSTOMERS",
+  "VIEW_SCHEDULE",
+];
+
+const REQUIRED_PERMISSIONS = [
+  { name: "Admin", description: "Acesso total ao backoffice" },
+  { name: "User", description: "Acesso padrão" },
+];
+
+const ensureBaseData = async (): Promise<void> => {
+  // Ensure permissions
+  for (const p of REQUIRED_PERMISSIONS) {
+    await Permission.findOrCreate({ where: { name: p.name }, defaults: p });
+  }
+
+  // Ensure components
+  const components: Component[] = [];
+  for (const name of REQUIRED_COMPONENTS) {
+    const [comp] = await Component.findOrCreate({ where: { name }, defaults: { name } });
+    components.push(comp);
+  }
+
+  // Link ALL components to the Admin permission
+  const adminPerm = await Permission.findOne({ where: { name: "Admin" } });
+  if (adminPerm) {
+    for (const comp of components) {
+      await ComponentPermission.findOrCreate({
+        where: { permissionId: adminPerm.permissionId, componentId: comp.componentId },
+        defaults: { permissionId: adminPerm.permissionId, componentId: comp.componentId },
+      });
+    }
+  }
+
+  // Log permissions for easy bootstrap
+  const perms = await Permission.findAll({ attributes: ["permissionId", "name"] });
+  console.log("Permissions disponíveis:", perms.map((p) => `${p.name}: ${p.permissionId}`).join(" | "));
+};
 
 export const startDB = async (): Promise<void> => {
   try {
     await sequelize.sync();
     applyAssociations();
     await sequelize.authenticate();
-    // Correr na primeira vez para popular a base de dados com dados de teste
-    // const seeder = await import("../seeders/20260407123456-dummy-data");
-    // await seeder.default.up(sequelize.getQueryInterface(), sequelize);
-    const environment = process.env.ENVIROMENT;
+    await ensureBaseData();
+    const environment = process.env.ENVIRONMENT;
     console.log(
       `Connection has been established successfully in ${environment} environment.`,
     );
@@ -98,4 +145,8 @@ export {
   BankCard,
   Shipping,
   RefreshToken,
+  Service,
+  Appointment,
+  WorkingHours,
+  BlockedSlot,
 };

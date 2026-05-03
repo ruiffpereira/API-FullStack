@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-const env = process.env.ENVIROMENT;
+const env = process.env.ENVIRONMENT;
 
 const config = {
   DEV: {

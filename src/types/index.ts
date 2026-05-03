@@ -249,16 +249,14 @@ export interface AddressBody {
 
 export interface BankCardResponse {
   cardId?: string;
-  cardNumber: string;
+  lastFourDigits: string;
   expirationDate: string;
-  cvv: string;
   customerId: string;
 }
 
 export interface BankCardBody {
   cardNumber: string;
   expirationDate: string;
-  cvv: string;
   customerId?: string;
 }
 
